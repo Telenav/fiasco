@@ -7,16 +7,19 @@
 
 package com.telenav.fiasco.plugins.librarian;
 
+import com.telenav.fiasco.Library;
 import com.telenav.fiasco.Module;
-import com.telenav.fiasco.*;
+import com.telenav.fiasco.Repository;
 import com.telenav.fiasco.plugins.Plugin;
 import com.telenav.fiasco.repository.LibraryResolver;
 import com.telenav.fiasco.repository.maven.MavenRepository;
-import com.telenav.tdk.core.kernel.interfaces.object.MatcherSet;
+import com.telenav.kivakit.kernel.interfaces.comparison.MatcherSet;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-import static com.telenav.tdk.core.kernel.validation.Validate.unsupported;
+import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.unsupported;
 
 /**
  * Copies selected files from one folder to another.

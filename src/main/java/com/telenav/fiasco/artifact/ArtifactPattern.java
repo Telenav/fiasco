@@ -1,6 +1,6 @@
 package com.telenav.fiasco.artifact;
 
-import com.telenav.tdk.core.kernel.interfaces.object.Matcher;
+import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
 
 /**
  * @author jonathanl (shibo)

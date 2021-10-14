@@ -1,8 +1,8 @@
 package com.telenav.fiasco.artifact;
 
-import com.telenav.tdk.core.kernel.interfaces.naming.Named;
-import com.telenav.tdk.core.kernel.scalars.identifiers.StringIdentifier;
-import com.telenav.tdk.core.kernel.scalars.versioning.Version;
+import com.telenav.kivakit.kernel.interfaces.naming.Named;
+import com.telenav.kivakit.kernel.language.values.identifier.StringIdentifier;
+import com.telenav.kivakit.kernel.language.values.version.Version;
 
 import java.util.regex.Pattern;
 

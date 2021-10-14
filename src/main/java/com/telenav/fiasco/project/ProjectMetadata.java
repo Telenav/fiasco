@@ -1,8 +1,9 @@
 package com.telenav.fiasco.project;
 
-import com.telenav.tdk.core.kernel.interfaces.naming.Named;
+import com.telenav.kivakit.kernel.interfaces.naming.Named;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Data about a project, including its name, the organization that develops it and a copyright.

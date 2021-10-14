@@ -14,14 +14,18 @@
 
 package com.telenav.fiasco;
 
-import com.telenav.fiasco.project.*;
-import com.telenav.tdk.core.filesystem.Folder;
-import com.telenav.tdk.core.kernel.interfaces.code.Callback;
-import com.telenav.tdk.core.kernel.messaging.messages.MessageList;
-import com.telenav.tdk.core.kernel.messaging.messages.status.*;
-import com.telenav.tdk.core.kernel.scalars.counts.Count;
+import com.telenav.fiasco.project.Contributor;
+import com.telenav.fiasco.project.Organization;
+import com.telenav.fiasco.project.ProjectMetadata;
+import com.telenav.kivakit.filesystem.Folder;
+import com.telenav.kivakit.kernel.interfaces.code.Callback;
+import com.telenav.kivakit.kernel.language.values.count.Count;
+import com.telenav.kivakit.kernel.messaging.listeners.MessageList;
+import com.telenav.kivakit.kernel.messaging.messages.status.Problem;
+import com.telenav.kivakit.kernel.messaging.messages.status.Quibble;
+import com.telenav.kivakit.kernel.messaging.messages.status.Warning;
 
-import static com.telenav.tdk.core.kernel.validation.Validate.ensure;
+import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
 
 public abstract class Project extends Module
 {
@@ -40,7 +44,7 @@ public abstract class Project extends Module
      */
     public boolean build(final Count threads)
     {
-        final var issues = new MessageList<>(message -> !message.status().succeeded());
+        final var issues = new MessageList(message -> !message.status().succeeded());
         dependencies().process(this, threads, module -> module.builder().run());
         final var statistics = issues.statisticsByType(Problem.class, Warning.class, Quibble.class);
         information(statistics.titledBox("Build Results"));
@@ -59,9 +63,10 @@ public abstract class Project extends Module
         });
     }
 
+    @SuppressWarnings("ConstantConditions")
     public Project module(final String path, final Callback<Module> configure)
     {
-        final var folder = new Folder(path);
+        final var folder = Folder.parse(path);
         ensure(folder.path().isRelative());
         final var module = new Module(this, folder);
         configure.callback(module);
@@ -74,6 +79,7 @@ public abstract class Project extends Module
         metadata = metadata.withContributor(contributor);
     }
 
+    @SuppressWarnings("SameParameterValue")
     protected void copyright(final String copyright)
     {
         metadata = metadata.withCopyright(copyright);

@@ -1,6 +1,6 @@
 package com.telenav.fiasco.project;
 
-import com.telenav.tdk.core.kernel.scalars.names.Name;
+import com.telenav.kivakit.kernel.language.values.name.Name;
 
 public class Contributor extends Name
 {

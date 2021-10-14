@@ -1,10 +1,11 @@
 package com.telenav.fiasco.project;
 
-import com.telenav.tdk.core.kernel.scalars.names.Name;
+import com.telenav.kivakit.kernel.language.values.name.Name;
 
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 
-import static com.telenav.tdk.core.kernel.validation.Validate.fail;
+import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
 
 public class Organization extends Name
 {

@@ -9,11 +9,13 @@ package com.telenav.fiasco.plugins.copier;
 
 import com.telenav.fiasco.Module;
 import com.telenav.fiasco.plugins.Plugin;
-import com.telenav.tdk.core.filesystem.*;
-import com.telenav.tdk.core.kernel.interfaces.object.Matcher;
-import com.telenav.tdk.core.kernel.language.matching.All;
-import com.telenav.tdk.core.kernel.operation.progress.Progress;
-import com.telenav.tdk.core.kernel.scalars.counts.Maximum;
+import com.telenav.kivakit.filesystem.File;
+import com.telenav.kivakit.filesystem.Folder;
+import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
+import com.telenav.kivakit.kernel.language.progress.reporters.Progress;
+import com.telenav.kivakit.kernel.language.values.count.Maximum;
+import com.telenav.kivakit.kernel.messaging.filters.operators.All;
+import com.telenav.kivakit.resource.CopyMode;
 
 /**
  * Copies selected files from one folder to another.
@@ -32,7 +34,9 @@ public class Copier extends Plugin
     private Matcher<File> matcher = new All<>();
 
     /** Progress in copying files */
-    private final Progress progress = Progress.of(this, "files");
+    private final Progress progress = Progress.create(this, "files");
+
+    private CopyMode mode;
 
     public Copier(final Module module)
     {
@@ -61,6 +65,16 @@ public class Copier extends Plugin
         return this;
     }
 
+    public void mode(final CopyMode mode)
+    {
+        this.mode = mode;
+    }
+
+    public CopyMode mode()
+    {
+        return mode;
+    }
+
     public Copier to(final Folder to)
     {
         this.to = resolveFolder(to);
@@ -77,12 +91,12 @@ public class Copier extends Plugin
     {
         // For each source file in the from folder that matches,
         final var files = from.nestedFiles(matcher);
-        progress.withMaximum(Maximum.of(files.size()));
+        progress.steps(Maximum.maximum(files.size()));
         progress.start("Copying " + files.size() + " files");
         for (final var source : files)
         {
             // find the path relative to the root,
-            final var relative = source.relativePath(from);
+            final var relative = source.relativeTo(from);
 
             // construct a file with the same path relative to the 'to' folder,
             final var destination = to.file(relative);
@@ -91,7 +105,7 @@ public class Copier extends Plugin
             destination.parent().mkdirs();
 
             // and copy the source file to the destination location
-            source.safeCopyTo(destination, progress);
+            source.safeCopyTo(destination, CopyMode.OVERWRITE, progress);
             progress.next();
         }
         progress.end(files.size() + " files copied");

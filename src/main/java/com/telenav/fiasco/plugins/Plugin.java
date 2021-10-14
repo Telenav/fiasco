@@ -1,15 +1,14 @@
 package com.telenav.fiasco.plugins;
 
 import com.telenav.fiasco.Module;
-import com.telenav.fiasco.*;
-import com.telenav.tdk.core.filesystem.Folder;
-import com.telenav.tdk.core.kernel.messaging.Message;
-import com.telenav.tdk.core.kernel.messaging.repeaters.BaseRepeater;
+import com.telenav.fiasco.Tool;
+import com.telenav.kivakit.component.BaseComponent;
+import com.telenav.kivakit.filesystem.Folder;
 
 /**
  * @author jonathanl (shibo)
  */
-public abstract class Plugin extends BaseRepeater<Message> implements Tool
+public abstract class Plugin extends BaseComponent implements Tool
 {
     private final Module module;
 

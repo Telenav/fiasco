@@ -8,9 +8,11 @@
 package com.telenav.fiasco;
 
 import com.telenav.fiasco.artifact.Artifact;
-import com.telenav.fiasco.dependency.*;
-import com.telenav.tdk.core.kernel.interfaces.object.*;
-import com.telenav.tdk.core.kernel.scalars.versioning.Version;
+import com.telenav.fiasco.dependency.Dependency;
+import com.telenav.fiasco.dependency.DependencyList;
+import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
+import com.telenav.kivakit.kernel.interfaces.comparison.MatcherSet;
+import com.telenav.kivakit.kernel.language.values.version.Version;
 
 public class Library implements Dependency<Library>
 {

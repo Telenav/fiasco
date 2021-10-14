@@ -1,6 +1,6 @@
 package com.telenav.fiasco.artifact;
 
-import com.telenav.tdk.core.kernel.scalars.names.Name;
+import com.telenav.kivakit.kernel.language.values.name.Name;
 
 /**
  * @author jonathanl (shibo)

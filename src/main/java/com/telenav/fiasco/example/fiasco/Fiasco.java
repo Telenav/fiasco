@@ -1,9 +1,11 @@
 package com.telenav.fiasco.example.fiasco;
 
 import com.telenav.fiasco.Project;
-import com.telenav.fiasco.example.fiasco.modules.*;
-import com.telenav.fiasco.project.*;
-import com.telenav.tdk.core.filesystem.Folder;
+import com.telenav.fiasco.example.fiasco.modules.Client;
+import com.telenav.fiasco.example.fiasco.modules.Server;
+import com.telenav.fiasco.project.Contributor;
+import com.telenav.fiasco.project.Organization;
+import com.telenav.kivakit.filesystem.Folder;
 
 import static com.telenav.fiasco.repository.maven.MavenRepository.mavenCentral;
 

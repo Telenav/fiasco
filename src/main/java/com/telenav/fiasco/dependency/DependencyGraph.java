@@ -1,14 +1,14 @@
 package com.telenav.fiasco.dependency;
 
-import com.telenav.tdk.core.kernel.validation.Validate;
+import com.telenav.kivakit.kernel.data.validation.ensure.Ensure;
 
 import java.util.Collections;
 
-import static com.telenav.tdk.core.kernel.validation.Validate.fail;
+import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
 
 /**
  * Graph of dependencies created by traversing dependencies from a root. If the dependency graph is cyclic, terminal
- * failure will be reported via {@link Validate#fail()}.
+ * failure will be reported via {@link Ensure#fail()}.
  *
  * @author shibo
  */

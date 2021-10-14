@@ -1,9 +1,9 @@
 package com.telenav.fiasco.example.fiasco.modules;
 
 import com.telenav.fiasco.Module;
-import com.telenav.fiasco.*;
+import com.telenav.fiasco.Project;
 import com.telenav.fiasco.example.fiasco.Libraries;
-import com.telenav.tdk.core.kernel.messaging.Message;
+import com.telenav.kivakit.kernel.language.vm.Console;
 
 /**
  * @author jonathanl (shibo)
@@ -20,6 +20,6 @@ public class Server extends Module implements Libraries
         requires(wicketCore);
         requires(commonsLogging);
 
-        builder().onCompiled(() -> Message.println("done"));
+        builder().onCompiled(() -> Console.instance().printLine("done"));
     }
 }

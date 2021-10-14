@@ -1,7 +1,8 @@
 package com.telenav.fiasco;
 
 import com.telenav.fiasco.artifact.Artifact;
-import com.telenav.fiasco.dependency.*;
+import com.telenav.fiasco.dependency.Dependency;
+import com.telenav.fiasco.dependency.DependencyList;
 import com.telenav.fiasco.plugins.FilePattern;
 import com.telenav.fiasco.plugins.archiver.Archiver;
 import com.telenav.fiasco.plugins.builder.Builder;
@@ -10,19 +11,19 @@ import com.telenav.fiasco.plugins.copier.Copier;
 import com.telenav.fiasco.plugins.librarian.Librarian;
 import com.telenav.fiasco.plugins.shader.Shader;
 import com.telenav.fiasco.plugins.tester.Tester;
-import com.telenav.tdk.core.filesystem.*;
-import com.telenav.tdk.core.kernel.language.object.Lazy;
-import com.telenav.tdk.core.kernel.language.vm.OperatingSystem;
-import com.telenav.tdk.core.kernel.messaging.Message;
-import com.telenav.tdk.core.kernel.messaging.repeaters.BaseRepeater;
-import com.telenav.tdk.core.kernel.scalars.versioning.Version;
+import com.telenav.kivakit.component.BaseComponent;
+import com.telenav.kivakit.filesystem.FileList;
+import com.telenav.kivakit.filesystem.Folder;
+import com.telenav.kivakit.kernel.language.objects.Lazy;
+import com.telenav.kivakit.kernel.language.values.version.Version;
+import com.telenav.kivakit.kernel.language.vm.OperatingSystem;
 
-import static com.telenav.tdk.core.kernel.validation.Validate.ensure;
+import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
 
 /**
  * @author jonathanl (shibo)
  */
-public class Module extends BaseRepeater<Message> implements Dependency<Module>
+public class Module extends BaseComponent implements Dependency<Module>
 {
     private final DependencyList<Module> dependencies = new DependencyList<>();
 
@@ -36,23 +37,23 @@ public class Module extends BaseRepeater<Message> implements Dependency<Module>
     /** The folder where this module exists */
     private final Folder folder;
 
-    private final Lazy<Archiver> archiver = new Lazy<>(() -> new Archiver(this));
+    private final Lazy<Archiver> archiver = Lazy.of(() -> new Archiver(this));
 
-    private final Lazy<Builder> builder = new Lazy<>(() -> new Builder(this));
+    private final Lazy<Builder> builder = Lazy.of(() -> new Builder(this));
 
-    private final Lazy<Compiler> compiler = new Lazy<>(() -> new Compiler(this));
+    private final Lazy<Compiler> compiler = Lazy.of(() -> new Compiler(this));
 
-    private final Lazy<Copier> copier = new Lazy<>(() -> new Copier(this));
+    private final Lazy<Copier> copier = Lazy.of(() -> new Copier(this));
 
-    private final Lazy<Librarian> librarian = new Lazy<>(() -> new Librarian(this));
+    private final Lazy<Librarian> librarian = Lazy.of(() -> new Librarian(this));
 
-    private final Lazy<Shader> shader = new Lazy<>(() -> new Shader(this));
+    private final Lazy<Shader> shader = Lazy.of(() -> new Shader(this));
 
-    private final Lazy<Tester> tester = new Lazy<>(() -> new Tester(this));
+    private final Lazy<Tester> tester = Lazy.of(() -> new Tester(this));
 
     public Module(final Project project, final String relativePath)
     {
-        this(project, new Folder(relativePath));
+        this(project, Folder.parse(relativePath));
     }
 
     public Module(final Project project, final Folder relativeFolder)

@@ -2,8 +2,8 @@ package com.telenav.fiasco.plugins.cleaner;
 
 import com.telenav.fiasco.Module;
 import com.telenav.fiasco.plugins.Plugin;
-import com.telenav.tdk.core.filesystem.File;
-import com.telenav.tdk.core.kernel.interfaces.object.Matcher;
+import com.telenav.kivakit.filesystem.File;
+import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
 
 public class Cleaner extends Plugin
 {

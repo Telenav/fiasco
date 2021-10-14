@@ -1,16 +1,18 @@
 package com.telenav.fiasco.dependency;
 
-import com.telenav.tdk.core.collections.set.ConcurrentHashSet;
-import com.telenav.tdk.core.kernel.interfaces.code.Callback;
-import com.telenav.tdk.core.kernel.interfaces.object.Matcher;
-import com.telenav.tdk.core.kernel.language.collections.list.ObjectList;
-import com.telenav.tdk.core.kernel.language.thread.Threads;
-import com.telenav.tdk.core.kernel.language.thread.locks.Monitor;
-import com.telenav.tdk.core.kernel.messaging.*;
-import com.telenav.tdk.core.kernel.scalars.counts.Count;
+import com.telenav.kivakit.collections.set.ConcurrentHashSet;
+import com.telenav.kivakit.kernel.interfaces.code.Callback;
+import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
+import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
+import com.telenav.kivakit.kernel.language.threading.Threads;
+import com.telenav.kivakit.kernel.language.threading.locks.Monitor;
+import com.telenav.kivakit.kernel.language.values.count.Count;
+import com.telenav.kivakit.kernel.messaging.Listener;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  * An ordered list of {@link Dependency} objects. The objects in the list can be processed with {@link
@@ -42,7 +44,7 @@ public class DependencyList<T extends Dependency<T>> extends ObjectList<T>
         return new DependencyList<>(this);
     }
 
-    public void process(final Listener<Message> listener, final Callback<T> callback)
+    public void process(final Listener listener, final Callback<T> callback)
     {
         process(listener, Count._1, callback);
     }
@@ -56,7 +58,7 @@ public class DependencyList<T extends Dependency<T>> extends ObjectList<T>
      * @param callback The callback to process each dependency
      */
     @SuppressWarnings("unchecked")
-    public void process(final Listener<Message> listener, final Count threads, final Callback<T> callback)
+    public void process(final Listener listener, final Count threads, final Callback<T> callback)
     {
         // If there is only one thread requested,
         if (threads.equals(Count._1))
