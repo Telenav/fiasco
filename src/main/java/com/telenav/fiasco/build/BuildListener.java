@@ -7,4 +7,7 @@ package com.telenav.fiasco.build;
  */
 public interface BuildListener
 {
+    default void onStep(Build.Step step)
+    {
+    }
 }

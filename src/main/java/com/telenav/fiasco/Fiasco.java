@@ -26,7 +26,7 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
  * <p>
  * Fiasco maintains a list of build folders in the Java preferences store. Each build folder contains one or more
  * <i>.java</i> source files that implement the {@link Build} interface. Fiasco compiles and loads these source files.
- * It then executes loaded build classes through {@link Build#run()}.
+ * It then executes loaded build classes through {@link Build#build(Folder)}.
  * </p>
  *
  * <p>
@@ -126,7 +126,7 @@ public class Fiasco extends Application
             if (classFile != null)
             {
                 // and execute it.
-                execute(classFile);
+                execute(file.parent(), classFile);
             }
             else
             {
@@ -167,7 +167,7 @@ public class Fiasco extends Application
      * Executes the given {@link Build} class file
      */
     @SuppressWarnings("resource")
-    private void execute(final File classFile)
+    private void execute(Folder sourceRoot, final File classFile)
     {
         try
         {
@@ -181,8 +181,8 @@ public class Fiasco extends Application
                 // and it implements the build interface,
                 if (Build.class.isAssignableFrom(loaded))
                 {
-                    // then create an instance and run it.
-                    Type.forClass((Class<Build>) loaded).newInstance().run();
+                    // then create an instance and run the build on the root folder.
+                    Type.forClass((Class<Build>) loaded).newInstance().build(sourceRoot);
                 }
                 else
                 {

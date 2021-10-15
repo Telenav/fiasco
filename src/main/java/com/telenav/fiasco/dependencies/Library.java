@@ -12,7 +12,7 @@ import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
 import com.telenav.kivakit.kernel.interfaces.comparison.MatcherSet;
 import com.telenav.kivakit.kernel.language.values.version.Version;
 
-public class Library implements Dependency<Library>
+public class Library implements Dependency
 {
     @SuppressWarnings("ConstantConditions")
     public static Library parse(final String descriptor)
@@ -22,9 +22,9 @@ public class Library implements Dependency<Library>
 
     private MavenArtifact artifact;
 
-    private final MatcherSet<Library> exclusions = new MatcherSet<>();
+    private final MatcherSet<Dependency> exclusions = new MatcherSet<>();
 
-    private final DependencyList<Library> dependencies = new DependencyList<>();
+    private final DependencyList dependencies = new DependencyList();
 
     private Version version;
 
@@ -45,14 +45,14 @@ public class Library implements Dependency<Library>
     }
 
     @Override
-    public DependencyList<Library> dependencies()
+    public DependencyList dependencies()
     {
         return dependencies.copy().without(exclusions.anyMatches());
     }
 
-    public Library excluding(final Matcher<Library> pattern)
+    public Library excluding(final Matcher<Dependency> matcher)
     {
-        exclusions.add(pattern);
+        exclusions.add(matcher);
         return this;
     }
 

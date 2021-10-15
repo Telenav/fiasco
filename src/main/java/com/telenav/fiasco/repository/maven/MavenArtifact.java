@@ -1,15 +1,19 @@
 package com.telenav.fiasco.repository.maven;
 
+import com.telenav.fiasco.dependencies.Dependency;
+import com.telenav.fiasco.dependencies.DependencyList;
+import com.telenav.fiasco.dependencies.Library;
 import com.telenav.fiasco.repository.Artifact;
-import com.telenav.kivakit.kernel.language.values.identifier.StringIdentifier;
 import com.telenav.kivakit.kernel.language.values.version.Version;
 
 import java.util.regex.Pattern;
 
+import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
+
 /**
  * @author jonathanl (shibo)
  */
-public class MavenArtifact implements Artifact
+public class MavenArtifact implements Artifact, Dependency
 {
     private static final Pattern pattern = Pattern.compile("(?<group>[A-Za-z.]+)"
             + ":"
@@ -24,35 +28,27 @@ public class MavenArtifact implements Artifact
         if (matcher.matches())
         {
             final var group = new MavenGroup(matcher.group("group"));
-            final var identifier = new Identifier(matcher.group("identifier"));
+            final var identifier = matcher.group("identifier");
             final var version = Version.parse(matcher.group("version"));
             return new MavenArtifact(group, identifier, version);
         }
-        return null;
-    }
-
-    public static class Identifier extends StringIdentifier
-    {
-        public Identifier(final String identifier)
-        {
-            super(identifier);
-        }
+        return fail("Unable to parse Maven artifact descriptor: $", descriptor);
     }
 
     private MavenGroup group;
 
-    private Identifier identifier;
+    private String identifier;
 
     private Version version;
 
-    public MavenArtifact(final MavenGroup group, final Identifier identifier)
+    public MavenArtifact(final MavenGroup group, final String identifier)
     {
         this.group = group;
         this.identifier = identifier;
         version = null;
     }
 
-    public MavenArtifact(final MavenGroup group, final Identifier identifier, final Version version)
+    public MavenArtifact(final MavenGroup group, final String identifier, final Version version)
     {
         this.group = group;
         this.identifier = identifier;
@@ -66,12 +62,23 @@ public class MavenArtifact implements Artifact
         version = that.version;
     }
 
+    public Library asLibrary()
+    {
+        return null;
+    }
+
+    @Override
+    public DependencyList dependencies()
+    {
+        return null;
+    }
+
     public MavenGroup group()
     {
         return group;
     }
 
-    public Identifier identifier()
+    public String identifier()
     {
         return identifier;
     }
@@ -88,9 +95,9 @@ public class MavenArtifact implements Artifact
         return name();
     }
 
-    public Version version()
+    public Library version(final String version)
     {
-        return version;
+        return withVersion(Version.parse(version)).asLibrary();
     }
 
     public MavenArtifact withGroup(final MavenGroup group)
@@ -100,7 +107,7 @@ public class MavenArtifact implements Artifact
         return copy;
     }
 
-    public MavenArtifact withIdentifier(final Identifier group)
+    public MavenArtifact withIdentifier(final String group)
     {
         final var copy = new MavenArtifact(this);
         copy.identifier = identifier;

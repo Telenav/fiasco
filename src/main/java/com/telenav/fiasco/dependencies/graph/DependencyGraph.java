@@ -14,23 +14,23 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
  *
  * @author shibo
  */
-public class DependencyGraph<T extends Dependency<T>>
+public class DependencyGraph
 {
     /**
      * @return The dependency graph formed by traversing dependencies starting at the given root
      */
-    public static <T extends Dependency<T>> DependencyGraph<T> of(final T root)
+    public static DependencyGraph of(final Dependency root)
     {
-        return new DependencyGraph<T>(root);
+        return new DependencyGraph(root);
     }
 
     /** The root of this dependency graph */
-    private final Dependency<T> root;
+    private final Dependency root;
 
     /** The dependencies of this graph in depth-first-order */
-    private final DependencyList<T> depthFirst;
+    private final DependencyList depthFirst;
 
-    private DependencyGraph(final T root)
+    private DependencyGraph(final Dependency root)
     {
         this.root = root;
         depthFirst = depthFirst(root);
@@ -39,7 +39,7 @@ public class DependencyGraph<T extends Dependency<T>>
     /**
      * @return The dependencies in this graph in depth-first order
      */
-    public DependencyList<T> depthFirst()
+    public DependencyList depthFirst()
     {
         return depthFirst;
     }
@@ -47,7 +47,7 @@ public class DependencyGraph<T extends Dependency<T>>
     /**
      * @return The root node of this dependency graph
      */
-    public Dependency<T> root()
+    public Dependency root()
     {
         return root;
     }
@@ -55,12 +55,12 @@ public class DependencyGraph<T extends Dependency<T>>
     /**
      * @return List of dependencies in depth-first order
      */
-    private DependencyList<T> depthFirst(final T root)
+    private DependencyList depthFirst(final Dependency root)
     {
-        final DependencyList<T> explored = new DependencyList<>();
+        final DependencyList explored = new DependencyList();
 
         // Go through each child of the root
-        for (final T child : root.dependencies())
+        for (final var child : root.dependencies())
         {
             // and explore it (in a depth-first traversal)
             final var descendants = depthFirst(child);

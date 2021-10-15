@@ -11,18 +11,18 @@ import com.telenav.kivakit.kernel.interfaces.naming.Named;
  *
  * @author shibo
  */
-public interface Dependency<T extends Dependency<T>> extends Named
+public interface Dependency extends Named
 {
     /**
      * @return The objects that this depends on
      */
-    DependencyList<T> dependencies();
+    DependencyList dependencies();
 
     /**
      * @return A dependency graph with this dependency at the root
      */
-    default DependencyGraph<T> graph()
+    default DependencyGraph graph()
     {
-        return DependencyGraph.of((T) this);
+        return DependencyGraph.of(this);
     }
 }
