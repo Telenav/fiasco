@@ -1,0 +1,239 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+!include lexakai.theme
+
+title "Fiasco"
+
+top to bottom direction
+
+'=============================================
+' Dependencies
+'=============================================
+
+package fiasco.dependencies
+{
+    '=============================================
+    ' Dependencies
+    '=============================================
+
+    interface Dependency
+    interface DependencyGraph
+    interface Library
+
+    Library -u-|> Dependency
+    DependencyGraph "*" o-- "1" Dependency
+
+    '=============================================
+    ' Artifacts
+    '=============================================
+
+    class MavenArtifact
+    class MavenGroup
+    class Version
+
+    MavenArtifact o-- Version
+    Library o-- Version
+    Library o-- MavenArtifact : "is"
+    Library "1" o-- "*" MavenArtifact : "excludes"
+    MavenGroup "*" o-- "1" MavenArtifact : "owns"
+}
+
+'=============================================
+' Tools
+'=============================================
+
+package fiasco.tools
+{
+    interface Tool
+}
+
+'=============================================
+' Module
+'=============================================
+
+package fiasco.module
+{
+    interface Module
+
+    Module -d-|> Dependency
+    Module "1" o-- "*" Module : "depends on"
+    Module "1" o---- "*" Tool : "built by"
+}
+
+'=============================================
+' Projects
+'=============================================
+
+package fiasco.project.metadata
+{
+    interface ProjectMetadata
+
+    class Copyright
+    class WebSite
+    class License
+    class Organization
+    class Contributor
+
+    Contributor "1" o-- "*" Organization : "belongs to"
+    ProjectMetadata o-- Copyright
+    ProjectMetadata "1" o-- "*" WebSite : "documented on"
+    ProjectMetadata "1" o-- "*" Contributor : "developed by"
+    ProjectMetadata o-r- Organization : "created by"
+    ProjectMetadata "1" o-- "*" License : "distributed under"
+}
+
+package fiasco.project
+{
+    interface Project
+
+    Project o--d- ProjectMetadata : "described by"
+    Project "1" o-l- "*" Module : "contains"
+}
+
+'=============================================
+' Build
+'=============================================
+
+package fiasco.build.builders
+{
+    interface Builder
+
+    class ParallelBuilder
+    class RemoteBuilder
+
+    ParallelBuilder -u-|> Builder
+    RemoteBuilder -u-|> Builder
+}
+
+package fiasco.build
+{
+    interface Buildable
+
+    class Fiasco
+    class Build
+    class BuildPlanner
+
+    Module -u--|> Buildable
+    Fiasco "1" o-- "*" Build
+    Build o-- BuildPlanner : "plans build with"
+    BuildPlanner -r--> DependencyGraph : "uses"
+    Build o-r- Builder : "builds with"
+    Build "1" o-- "*" Buildable : "builds"
+}
+
+'=============================================
+' Repository
+'=============================================
+
+package fiasco.repository
+{
+    interface Repository
+
+    class MavenRepository
+    MavenRepository -u-|> Repository
+    MavenRepository "1" o-d- "*" MavenArtifact : "contains"
+}
+
+'=============================================
+' File Tools
+'=============================================
+
+package fiasco.tools.file
+{
+    interface FileTool
+    FileTool -u-|> Tool
+
+    class Cleaner
+    class Copier
+    class ProjectVersionUpdater
+    class BuildVersionUpdater
+    class JavaPackager
+
+    Cleaner               -u-|> FileTool
+    Copier                -u-|> FileTool
+    Librarian             -u--|> FileTool
+    ProjectVersionUpdater -u--|> FileTool
+    BuildVersionUpdater   -u---|> FileTool
+    JavaPackager          -u---|> FileTool
+}
+
+'=============================================
+' Compiler Tools
+'=============================================
+
+package fiasco.tools.compiler
+{
+    interface Compiler
+    Compiler -u--|> FileTool
+
+    class AntlrCompiler
+    class GrpcCompiler
+    class JavaCompiler
+    class JavadocCompiler
+    class LexakaiCompiler
+    class ProtobufCompiler
+
+    AntlrCompiler    -u-|> Compiler
+    GrpcCompiler     -u-|> Compiler
+    JavaCompiler     -u--|> Compiler
+    JavadocCompiler  -u--|> Compiler
+    LexakaiCompiler  -u---|> Compiler
+    ProtobufCompiler -u---|> Compiler
+}
+
+'=============================================
+' JAR and Archive Tools
+'=============================================
+
+package fiasco.tools.jar
+{
+    interface JarTool
+    JarTool -u--|> FileTool
+
+    class JarArchiver
+    class JarShader
+    class JarSigner
+    class JarManifestUpdater
+
+    JarArchiver        -u-|> JarTool
+    JarShader          -u-|> JarTool
+    JarSigner          -u--|> JarTool
+    JarManifestUpdater -u--|> JarTool
+}
+
+'=============================================
+' Network Tools
+'=============================================
+
+package fiasco.tools.network
+{
+    interface NetworkTool
+    NetworkTool  -d-|> Tool
+
+    class Librarian
+    class Publisher
+    class Deployer
+    class SecureCopy
+
+    Librarian  -u-|> NetworkTool
+    Deployer   -u-|> NetworkTool
+    Publisher  -u-|> NetworkTool
+    SecureCopy -u-|> NetworkTool
+}
+
+'=============================================
+' Test Tools
+'=============================================
+
+package fiasco.tools.test
+{
+    interface TestTool
+    TestTool -u-> Tool
+
+    class JUnit
+
+    JUnit -u-|> TestTool
+}
+
+@enduml

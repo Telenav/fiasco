@@ -18,17 +18,17 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
 /**
  * @author jonathanl (shibo)
  */
-public class FiascoApplication extends Application
+public class Fiasco extends Application
 {
     public static void main(final String[] arguments)
     {
-        new FiascoApplication().run(arguments);
+        new Fiasco().run(arguments);
     }
 
     /** Number of threads to use when extracting and converting */
     final SwitchParser<Count> THREADS = SwitchParser.threadCountSwitchParser(Count.count(8));
 
-    protected FiascoApplication()
+    protected Fiasco()
     {
         super(ResourceProject.get());
     }
