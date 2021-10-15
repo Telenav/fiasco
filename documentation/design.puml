@@ -18,11 +18,25 @@ package fiasco.dependencies
     '=============================================
 
     interface Dependency
-    interface DependencyGraph
-    interface Library
+    class DependencyGraph
+    class Library
 
     Library -u-|> Dependency
     DependencyGraph "*" o-r- "1" Dependency : "    contains    "
+}
+
+'=============================================
+' Repository
+'=============================================
+
+package fiasco.repository
+{
+    interface Repository
+    interface Artifact
+
+    class MavenRepository
+    MavenRepository -u-|> Repository
+    MavenRepository "1" o-- "*" MavenGroup : "contains                  "
 
     '=============================================
     ' Artifacts
@@ -32,11 +46,13 @@ package fiasco.dependencies
     class MavenGroup
     class Version
 
-    MavenArtifact o-r- Version
+    MavenArtifact -u---|> Artifact
+    MavenArtifact o-l- Version
+    Library o-- MavenArtifact : "is       "
     Library "1" o-- "*" MavenArtifact : "excludes"
-    Library o-- MavenArtifact : "has"
-    MavenGroup "*" o-- "1" MavenArtifact : "contains      "
+    MavenGroup "1" o-- "*" MavenArtifact : "contains"
 }
+
 
 '=============================================
 ' Tools
@@ -53,11 +69,11 @@ package fiasco.tools
 
 package fiasco.module
 {
-    interface Module
+    class Module
 
     Module -r-|> Dependency
     Module "1" o-- "*" Module : "depends on"
-    Module "1" o---- "*" Tool : "built by"
+    Module "1" o---- "*" Tool : "builds with"
 }
 
 '=============================================
@@ -86,7 +102,7 @@ package fiasco.project
 {
     interface Project
 
-    Project o-- ProjectMetadata : "described by"
+    Project o--- ProjectMetadata : "     described by"
 }
 
 '=============================================
@@ -95,48 +111,37 @@ package fiasco.project
 
 package fiasco.build
 {
+    interface Builder
+    interface Buildable
+    interface BuildListener
+
     class Build
     class BuildPlanner
 
-    Build o-r- Project : "is for"
-    Build o-- BuildPlanner : "plans build with"
-    BuildPlanner ---> DependencyGraph : "uses"
+    Module -u--|> Buildable
+    Build -r-> Builder : "    builds with                       "
+    Build "1" o-u- "*" Project : "    finds modules in"
+    Build o-- BuildPlanner : "   plans build with"
+    BuildPlanner ---> DependencyGraph : "creates"
+
+    Builder "1" o-d- "*" Buildable : "    builds    "
+    Builder --> BuildListener : "notifies"
 }
 
 package fiasco
 {
     class Fiasco
 
-    Fiasco "1" o-d- "*" Build : "executes"
+    Fiasco "1" o-d- "*" Build : "    performs"
 }
 
 package fiasco.build.builders
 {
-    interface Builder
-    interface Buildable
-
     class ParallelBuilder
     class RemoteBuilder
 
-    Module -u--|> Buildable
-    Build -r-> Builder : "    builds with                       "
     ParallelBuilder -u-|> Builder
     RemoteBuilder -u-|> Builder
-
-    Builder "1" o-r- "*" Buildable : "    builds    "
-}
-
-'=============================================
-' Repository
-'=============================================
-
-package fiasco.repository
-{
-    interface Repository
-
-    class MavenRepository
-    MavenRepository -u-|> Repository
-    MavenRepository "1" o-- "*" MavenArtifact : "belongs to"
 }
 
 '=============================================
@@ -148,15 +153,14 @@ package fiasco.tools.file
     interface FileTool
     FileTool -u-|> Tool
 
-    class Cleaner
-    class Copier
+    class FileCopier
+    class FileRemover
+    class JavaPackager
     class ProjectVersionUpdater
     class BuildVersionUpdater
-    class JavaPackager
 
-    Cleaner               -u-|> FileTool
-    Copier                -u-|> FileTool
-    Librarian             -u--|> FileTool
+    FileRemover           -u-|> FileTool
+    FileCopier            -u-|> FileTool
     ProjectVersionUpdater -u--|> FileTool
     BuildVersionUpdater   -u---|> FileTool
     JavaPackager          -u---|> FileTool
@@ -180,6 +184,20 @@ package fiasco.tools.jar
     JarShader          -u-|> JarTool
     JarSigner          -u--|> JarTool
     JarManifestUpdater -u--|> JarTool
+}
+
+'=============================================
+' JAR and Archive Tools
+'=============================================
+
+package fiasco.tools.repository
+{
+    interface RepositoryTool
+    RepositoryTool -u----|> FileTool
+
+    class Librarian
+
+    Librarian -u--|> RepositoryTool
 }
 
 '=============================================
@@ -218,12 +236,12 @@ package fiasco.tools.network
     class Librarian
     class Publisher
     class Deployer
-    class SecureCopy
+    class RemoteCopier
 
-    Librarian  -u-|> NetworkTool
-    Deployer   -u-|> NetworkTool
-    Publisher  -u-|> NetworkTool
-    SecureCopy -u-|> NetworkTool
+    Librarian    -u-|> NetworkTool
+    Deployer     -u-|> NetworkTool
+    Publisher    -u-|> NetworkTool
+    RemoteCopier -u-|> NetworkTool
 }
 
 '=============================================

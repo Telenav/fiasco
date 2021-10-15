@@ -1,5 +1,6 @@
 package com.telenav.fiasco;
 
+import com.telenav.fiasco.project.Project;
 import com.telenav.kivakit.application.Application;
 import com.telenav.kivakit.commandline.SwitchParser;
 import com.telenav.kivakit.filesystem.Folder;

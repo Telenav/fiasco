@@ -1,6 +1,7 @@
 package com.telenav.fiasco.repository.maven;
 
-import com.telenav.fiasco.*;
+import com.telenav.fiasco.dependencies.Library;
+import com.telenav.fiasco.repository.Repository;
 
 import java.util.List;
 
