@@ -55,6 +55,23 @@
 
     </properties>
 
+    <dependencies>
+
+        <!-- KivaKit -->
+
+        <dependency>
+            <groupId>com.telenav.kivakit</groupId>
+            <artifactId>kivakit-application</artifactId>
+            <version>${kivakit.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.telenav.kivakit</groupId>
+            <artifactId>kivakit-network-core</artifactId>
+            <version>${kivakit.version}</version>
+        </dependency>
+
+    </dependencies>
+
     <build>
 
         <resources>
@@ -156,17 +173,5 @@
         </pluginManagement>
 
     </build>
-
-    <dependencies>
-
-        <!-- TDK -->
-
-        <dependency>
-            <groupId>com.telenav.kivakit</groupId>
-            <artifactId>kivakit-application</artifactId>
-            <version>${kivakit.version}</version>
-        </dependency>
-
-    </dependencies>
 
 </project>

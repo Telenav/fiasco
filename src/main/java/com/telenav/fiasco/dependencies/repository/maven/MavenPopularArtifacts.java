@@ -3,7 +3,7 @@ package com.telenav.fiasco.dependencies.repository.maven;
 import com.telenav.fiasco.dependencies.repository.maven.artifacts.apache.Apache;
 import com.telenav.fiasco.dependencies.repository.maven.artifacts.telenav.Telenav;
 
-public interface MavenCommonArtifacts
+public interface MavenPopularArtifacts
 {
     default Apache apache()
     {

@@ -1,5 +1,5 @@
 package com.telenav.fiasco.dependencies;
 
-public class BaseDependency
+public abstract class BaseDependency implements Dependency
 {
 }

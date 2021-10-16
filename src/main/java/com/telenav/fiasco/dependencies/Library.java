@@ -12,7 +12,7 @@ import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
 import com.telenav.kivakit.kernel.interfaces.comparison.MatcherSet;
 import com.telenav.kivakit.kernel.language.values.version.Version;
 
-public class Library implements Dependency
+public class Library extends BaseDependency
 {
     @SuppressWarnings("ConstantConditions")
     public static Library parse(final String descriptor)

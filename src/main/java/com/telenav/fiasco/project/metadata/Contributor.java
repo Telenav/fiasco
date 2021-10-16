@@ -1,37 +1,51 @@
 package com.telenav.fiasco.project.metadata;
 
+import com.telenav.fiasco.project.Project;
+import com.telenav.kivakit.kernel.language.collections.set.ObjectSet;
 import com.telenav.kivakit.kernel.language.values.name.Name;
+import com.telenav.kivakit.network.core.EmailAddress;
 
+/**
+ * An individual, human {@link Project} contributor with:
+ *
+ * <ul>
+ *     <li>A {@link #name()}</li>
+ *     <li>One or more {@link #roles}</li>
+ *     <li>One or more {@link #emails()}</li>
+ * </ul>
+ *
+ * @author jonathanl (shibo)
+ */
 public class Contributor extends Name
 {
-    private String email;
+    private final ObjectSet<EmailAddress> emails = ObjectSet.empty();
 
-    private String role;
+    private final ObjectSet<Role> roles = ObjectSet.empty();
 
     public Contributor(final String name)
     {
         super(name);
     }
 
-    public String email()
+    public ObjectSet<EmailAddress> emails()
     {
-        return email;
+        return emails;
     }
 
-    public String role()
+    public ObjectSet<Role> roles()
     {
-        return role;
+        return roles;
     }
 
-    public Contributor withEmail(final String email)
+    public Contributor withEmail(final EmailAddress email)
     {
-        this.email = email;
+        this.emails.add(email);
         return this;
     }
 
-    public Contributor withRole(final String role)
+    public Contributor withRole(final Role role)
     {
-        this.role = role;
+        roles.add(role);
         return this;
     }
 }

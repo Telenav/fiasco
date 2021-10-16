@@ -1,22 +1,31 @@
 package com.telenav.fiasco.project.metadata;
 
 import com.telenav.kivakit.kernel.interfaces.naming.Named;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.telenav.kivakit.kernel.interfaces.string.StringSource;
+import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 
 /**
- * Data about a project, including its name, the organization that develops it and a copyright.
+ * Data about a project, including:
+ *
+ * <ul>
+ *     <li>The project {@link #name()}</li>
+ *     <li>The organization that is the {@link #owner()} of the project</li>
+ *     <li>The {@link #contributors()} who have worked on the project</li>
+ *     <li>The {@link #licenses()} under which the project may be used</li>
+ *     <li>The project {@link #copyright()}</li>
+ * </ul>
  *
  * @author jonathanl (shibo)
  */
 public class ProjectMetadata implements Named
 {
-    private List<Contributor> contributors;
+    private ObjectList<Contributor> contributors;
 
     private Copyright copyright;
 
-    private Organization organization;
+    private Organization owner;
+
+    private ObjectList<License> licenses;
 
     public ProjectMetadata()
     {
@@ -25,11 +34,12 @@ public class ProjectMetadata implements Named
     protected ProjectMetadata(final ProjectMetadata that)
     {
         copyright = that.copyright;
-        contributors = new ArrayList<>(that.contributors);
-        organization = that.organization;
+        contributors = that.contributors.copy();
+        licenses = that.licenses.copy();
+        owner = that.owner;
     }
 
-    public List<Contributor> contributors()
+    public ObjectList<Contributor> contributors()
     {
         return contributors;
     }
@@ -39,9 +49,14 @@ public class ProjectMetadata implements Named
         return copyright;
     }
 
-    public Organization organization()
+    public ObjectList<License> licenses()
     {
-        return organization;
+        return licenses;
+    }
+
+    public Organization owner()
+    {
+        return owner;
     }
 
     public ProjectMetadata withContributor(final Contributor contributor)
@@ -51,17 +66,31 @@ public class ProjectMetadata implements Named
         return copy;
     }
 
-    public ProjectMetadata withCopyright(final String copyright)
+    public ProjectMetadata withCopyright(final StringSource copyright)
     {
         final var copy = new ProjectMetadata(this);
         copy.copyright = new Copyright(copyright);
         return copy;
     }
 
-    public ProjectMetadata withOrganization(final Organization organization)
+    public ProjectMetadata withLicense(final License license)
     {
         final var copy = new ProjectMetadata(this);
-        copy.organization = organization;
+        copy.licenses.add(license);
+        return copy;
+    }
+
+    public ProjectMetadata withOriginator(final Organization organization)
+    {
+        final var copy = new ProjectMetadata(this);
+        copy.owner = organization;
+        return copy;
+    }
+
+    public ProjectMetadata withOwner(final Organization owner)
+    {
+        final var copy = new ProjectMetadata(this);
+        copy.owner = owner;
         return copy;
     }
 }

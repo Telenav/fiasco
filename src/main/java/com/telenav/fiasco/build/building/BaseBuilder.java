@@ -1,4 +1,4 @@
-package com.telenav.fiasco.build.builder;
+package com.telenav.fiasco.build.building;
 
 import com.telenav.kivakit.component.BaseComponent;
 

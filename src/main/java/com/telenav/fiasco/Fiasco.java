@@ -21,7 +21,8 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
 
 /**
- * Fiasco build tool
+ * Fiasco build tool. <a href="https://en.wikipedia.org/wiki/Fiasco_(novel)"><i>Fiasco</i></a> is a science fiction book
+ * by Stanislaw Lem published in 1986.
  *
  * <p>
  * Fiasco maintains a list of build folders in the Java preferences store. Each build folder contains one or more

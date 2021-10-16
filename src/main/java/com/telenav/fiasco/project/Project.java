@@ -14,8 +14,14 @@
 
 package com.telenav.fiasco.project;
 
+import com.telenav.fiasco.dependencies.BuildableModule;
 import com.telenav.fiasco.project.metadata.ProjectMetadata;
 
+/**
+ * A project containing {@link BuildableModule}s
+ *
+ * @author jonathanl (shibo)
+ */
 public abstract class Project
 {
     private final ProjectMetadata metadata = new ProjectMetadata();

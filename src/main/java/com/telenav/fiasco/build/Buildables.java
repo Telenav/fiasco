@@ -1,32 +1,24 @@
 package com.telenav.fiasco.build;
 
-import com.telenav.fiasco.build.builder.Builder;
+import com.telenav.fiasco.build.building.Builder;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.Iterator;
 
 /**
  * A group of {@link Buildable}s to build
  */
-public class Buildables implements Iterable<Buildable>
+public class Buildables extends ObjectList<Buildable>
 {
-    private final ObjectList<Buildable> buildables;
-
-    public Buildables(final ObjectList<Buildable> buildables)
+    public static Buildables create()
     {
-        this.buildables = buildables;
+        return new Buildables();
+    }
+
+    protected Buildables()
+    {
     }
 
     public void build(final Builder builder, final BuildListener listener)
     {
         builder.build(this, listener);
-    }
-
-    @NotNull
-    @Override
-    public Iterator<Buildable> iterator()
-    {
-        return buildables.iterator();
     }
 }

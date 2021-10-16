@@ -7,6 +7,8 @@ public class ExampleBuild extends Build
     @Override
     public void onInitialize()
     {
-        buildables(new ExampleModule(folderForProperty("EXAMPLE_HOME")));
+        final var home = folderForProperty("WORKSPACE");
+
+        add(new ExampleModule(home.folder("example")));
     }
 }

@@ -1,9 +1,10 @@
 package com.telenav.fiasco.dependencies;
 
+import com.telenav.fiasco.build.BuildListener;
+import com.telenav.fiasco.build.BuildResult;
 import com.telenav.fiasco.build.Buildable;
 import com.telenav.fiasco.dependencies.repository.maven.MavenArtifact;
-import com.telenav.fiasco.dependencies.repository.maven.MavenCommonArtifacts;
-import com.telenav.kivakit.component.BaseComponent;
+import com.telenav.fiasco.dependencies.repository.maven.MavenPopularArtifacts;
 import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.kernel.interfaces.lifecycle.Initializable;
 
@@ -12,10 +13,9 @@ import com.telenav.kivakit.kernel.interfaces.lifecycle.Initializable;
  *
  * @author jonathanl (shibo)
  */
-public class BuildableModule extends BaseComponent implements
+public class BuildableModule extends BaseDependency implements
         Buildable,
-        Dependency,
-        MavenCommonArtifacts,
+        MavenPopularArtifacts,
         Initializable
 {
     private final Folder root;
@@ -23,6 +23,12 @@ public class BuildableModule extends BaseComponent implements
     public BuildableModule(Folder root)
     {
         this.root = root;
+    }
+
+    @Override
+    public BuildResult build(final BuildListener listener)
+    {
+        return null;
     }
 
     @Override
@@ -48,7 +54,7 @@ public class BuildableModule extends BaseComponent implements
 
     public Folder root()
     {
-        return root();
+        return root;
     }
 
     public Folder sources()

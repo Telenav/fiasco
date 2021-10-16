@@ -2,7 +2,7 @@ package com.telenav.fiasco.build.planning;
 
 import com.telenav.fiasco.build.BuildListener;
 import com.telenav.fiasco.build.Buildables;
-import com.telenav.fiasco.build.builder.Builder;
+import com.telenav.fiasco.build.building.Builder;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 
 /**

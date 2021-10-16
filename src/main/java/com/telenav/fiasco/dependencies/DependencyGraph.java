@@ -1,7 +1,5 @@
-package com.telenav.fiasco.dependencies.graph;
+package com.telenav.fiasco.dependencies;
 
-import com.telenav.fiasco.dependencies.Dependency;
-import com.telenav.fiasco.dependencies.DependencyList;
 import com.telenav.kivakit.kernel.data.validation.ensure.Ensure;
 
 import java.util.Collections;

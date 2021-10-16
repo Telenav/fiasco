@@ -10,12 +10,11 @@ import com.telenav.fiasco.build.phase.testing.TestingPhase;
 import com.telenav.fiasco.build.phase.testing.TestingPhaseMixin;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.filesystem.Folder;
-import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.vm.JavaVirtualMachine;
 
 /**
- * Base class for user build subclasses. The {@link #build()} method builds the set of {@link Buildables} specified by
- * {@link #buildables(Buildables)}. As the build proceeds the {@link BuildListener} specified by {@link
+ * Base class for user build subclasses. The {@link #build()} method builds the set of {@link Buildables} added by
+ * {@link #add(Buildable...)}. As the build proceeds the {@link BuildListener} specified by {@link
  * #listener(BuildListener)} is called with {@link BuildResult}s.
  *
  * <p>
@@ -44,7 +43,7 @@ public abstract class Build extends BaseComponent implements
         InstallationPhaseMixin
 {
     /** Group of {@link Buildable}s to build */
-    private Buildables buildables;
+    private final Buildables buildables = Buildables.create();
 
     /** The current build step */
     private BuildStep step = BuildStep.INITIALIZE;
@@ -54,6 +53,12 @@ public abstract class Build extends BaseComponent implements
 
     protected Build()
     {
+    }
+
+    public Build add(Buildable... buildables)
+    {
+        this.buildables.addAll(buildables);
+        return this;
     }
 
     /**
@@ -83,17 +88,6 @@ public abstract class Build extends BaseComponent implements
 
         // and install it.
         installPackages(this);
-    }
-
-    public Build buildables(Buildables buildables)
-    {
-        this.buildables = buildables;
-        return this;
-    }
-
-    public Build buildables(Buildable... buildables)
-    {
-        return buildables(new Buildables(ObjectList.forArray(buildables)));
     }
 
     public Buildables buildables()

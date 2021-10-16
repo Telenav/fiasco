@@ -1,5 +1,6 @@
 package com.telenav.fiasco.project.metadata;
 
+import com.telenav.fiasco.project.Project;
 import com.telenav.kivakit.kernel.language.values.name.Name;
 
 import java.net.MalformedURLException;
@@ -7,6 +8,11 @@ import java.net.URL;
 
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
 
+/**
+ * An {@link Organization} to which contributors belong and which may originate {@link Project}s
+ *
+ * @author jonathanl (shibo)
+ */
 public class Organization extends Name
 {
     private URL url;
