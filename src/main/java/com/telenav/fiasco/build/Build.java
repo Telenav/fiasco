@@ -1,75 +1,65 @@
 package com.telenav.fiasco.build;
 
+import com.telenav.fiasco.build.phase.Phase;
 import com.telenav.fiasco.build.phase.compilation.CompilationPhaseMixin;
+import com.telenav.fiasco.build.phase.installation.InstallationPhase;
+import com.telenav.fiasco.build.phase.installation.InstallationPhaseMixin;
+import com.telenav.fiasco.build.phase.packaging.PackagingPhase;
 import com.telenav.fiasco.build.phase.packaging.PackagingPhaseMixin;
+import com.telenav.fiasco.build.phase.testing.TestingPhase;
 import com.telenav.fiasco.build.phase.testing.TestingPhaseMixin;
-import com.telenav.fiasco.dependencies.Dependency;
-import com.telenav.fiasco.repository.maven.MavenArtifact;
-import com.telenav.fiasco.repository.maven.MavenCommonArtifacts;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.filesystem.Folder;
+import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
+import com.telenav.kivakit.kernel.language.vm.JavaVirtualMachine;
 
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
-
+/**
+ * Base class for user build subclasses. The {@link #build()} method builds the set of {@link Buildables} specified by
+ * {@link #buildables(Buildables)}. As the build proceeds the {@link BuildListener} specified by {@link
+ * #listener(BuildListener)} is called with {@link BuildResult}s.
+ *
+ * <p>
+ * Builds proceed in a series of {@link BuildStep}s which are grouped into {@link Phase}s:
+ * </p>
+ *
+ * <ol>
+ *     <li>{@link CompilationPhaseMixin#buildSources(Build)} - Builds sources into output files</li>
+ *     <li>{@link TestingPhase#buildTestSources(Build)} - Builds test sources</li>
+ *     <li>{@link TestingPhase#runTests(Build)} - Runs tests</li>
+ *     <li>{@link PackagingPhase#buildPackages(Build)} - Packages output files</li>
+ *     <li>{@link InstallationPhase#installPackages(Build)} - Installs packages</li>
+ * </ol>
+ *
+ * <p>
+ * When a phase completes a step, it calls {@link #nextStep(), which advances the build to the next step, and calls
+ * the* {@link BuildListener#onBuildStep(BuildStep)} method with the new build step.
+ * </p>
+ *
+ * @author jonathanl (shibo)
+ */
 public abstract class Build extends BaseComponent implements
-        BuildListener,
         CompilationPhaseMixin,
-        PackagingPhaseMixin,
         TestingPhaseMixin,
-        MavenCommonArtifacts
+        PackagingPhaseMixin,
+        InstallationPhaseMixin
 {
-    public enum Step
-    {
-        INITIALIZE,
-        GENERATE,
-        PREPROCESS,
-        COMPILE,
-        POSTPROCESS,
-        VERIFY,
-
-        TEST_INITIALIZE,
-        TEST_GENERATE,
-        TEST_PREPROCESS,
-        TEST_COMPILE,
-        TEST_POSTPROCESS,
-        TEST_VERIFY,
-        TEST_EXECUTE,
-
-        PACKAGE_INITIALIZE,
-        PACKAGE_PREPROCESS,
-        PACKAGE_COMPILE,
-        PACKAGE_POSTPROCESS,
-        PACKAGE_VERIFY,
-        PACKAGE_INSTALL,
-        PACKAGE_DEPLOY;
-
-        Step next()
-        {
-            var at = ordinal();
-            for (var state : values())
-            {
-                if (state.ordinal() == at + 1)
-                {
-                    return state;
-                }
-            }
-            return fail("No next step from $", this);
-        }
-    }
-
-    /** The root folder of this build */
-    private Folder root;
+    /** Group of {@link Buildable}s to build */
+    private Buildables buildables;
 
     /** The current build step */
-    private Step step = Step.INITIALIZE;
+    private BuildStep step = BuildStep.INITIALIZE;
 
     /** The build listener to call when the build step changes */
     private BuildListener listener;
 
+    protected Build()
+    {
+    }
+
     /**
      * True if the build is at the given step
      */
-    public boolean atStep(Step step)
+    public boolean atStep(BuildStep step)
     {
         return this.step == step;
     }
@@ -77,21 +67,43 @@ public abstract class Build extends BaseComponent implements
     /**
      * Runs this build with the given root folder
      */
-    public final void build(Folder root)
+    public final void build()
     {
-        this.root = root;
-
         // Compile code,
-        buildCode(this);
+        buildSources(this);
 
         // build the tests,
-        buildTests(this);
+        buildTestSources(this);
 
         // run the tests,
         runTests(this);
 
-        // and build and install the packages.
+        // package up the code,
         buildPackages(this);
+
+        // and install it.
+        installPackages(this);
+    }
+
+    public Build buildables(Buildables buildables)
+    {
+        this.buildables = buildables;
+        return this;
+    }
+
+    public Build buildables(Buildable... buildables)
+    {
+        return buildables(new Buildables(ObjectList.forArray(buildables)));
+    }
+
+    public Buildables buildables()
+    {
+        return buildables;
+    }
+
+    public Folder folderForProperty(String environmentVariable)
+    {
+        return Folder.parse(JavaVirtualMachine.property(environmentVariable));
     }
 
     /**
@@ -103,44 +115,11 @@ public abstract class Build extends BaseComponent implements
     }
 
     /**
-     * Advances this build to the next step
+     * Updates the build step to the given step and calls the build listener with this information
      */
     public void nextStep()
     {
-        step(step.next());
-    }
-
-    /**
-     * @return The root folder of this build
-     */
-    public Folder root()
-    {
-        return root;
-    }
-
-    /**
-     * Updates the build step to the given step and calls the build listener with this information
-     */
-    public void step(Step step)
-    {
-        this.step = step;
-        listener.onStep(step);
-    }
-
-    /**
-     * Adds the given dependency
-     *
-     * @param descriptor The Maven artifact descriptor of the dependency
-     */
-    protected void require(String descriptor)
-    {
-        require(MavenArtifact.parse(descriptor).asLibrary());
-    }
-
-    /**
-     * Adds the given dependency(ies)
-     */
-    protected void require(Dependency... dependency)
-    {
+        this.step = step.next();
+        listener.onBuildStep(step);
     }
 }

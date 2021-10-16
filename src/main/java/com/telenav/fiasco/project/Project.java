@@ -14,32 +14,14 @@
 
 package com.telenav.fiasco.project;
 
-import com.telenav.fiasco.project.metadata.Contributor;
-import com.telenav.fiasco.project.metadata.Organization;
 import com.telenav.fiasco.project.metadata.ProjectMetadata;
 
 public abstract class Project
 {
-    private ProjectMetadata metadata = new ProjectMetadata();
+    private final ProjectMetadata metadata = new ProjectMetadata();
 
     public ProjectMetadata metadata()
     {
         return metadata;
-    }
-
-    protected void contributor(final Contributor contributor)
-    {
-        metadata = metadata.withContributor(contributor);
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    protected void copyright(final String copyright)
-    {
-        metadata = metadata.withCopyright(copyright);
-    }
-
-    protected void organization(final Organization organization)
-    {
-        metadata = metadata.withOrganization(organization);
     }
 }

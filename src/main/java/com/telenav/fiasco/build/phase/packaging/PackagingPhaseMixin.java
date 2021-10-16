@@ -17,19 +17,9 @@ public interface PackagingPhaseMixin extends Component, Mixin
         packagingPhase().onPackageCompile();
     }
 
-    default void onPackageDeploy()
-    {
-        packagingPhase().onPackageDeploy();
-    }
-
     default void onPackageInitialize()
     {
         packagingPhase().onPackageInitialize();
-    }
-
-    default void onPackageInstall()
-    {
-        packagingPhase().onPackageInstall();
     }
 
     default void onPackagePostprocess()

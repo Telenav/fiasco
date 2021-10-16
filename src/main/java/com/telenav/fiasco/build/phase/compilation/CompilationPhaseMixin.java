@@ -7,9 +7,9 @@ import com.telenav.kivakit.kernel.language.mixin.Mixin;
 @SuppressWarnings("DuplicatedCode")
 public interface CompilationPhaseMixin extends Component, Mixin
 {
-    default void buildCode(Build build)
+    default void buildSources(Build build)
     {
-        compilationPhase().build(build);
+        compilationPhase().buildSources(build);
     }
 
     default CompilationPhase compilationPhase()

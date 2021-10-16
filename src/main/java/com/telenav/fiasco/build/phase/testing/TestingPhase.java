@@ -1,17 +1,18 @@
 package com.telenav.fiasco.build.phase.testing;
 
 import com.telenav.fiasco.build.Build;
-import com.telenav.fiasco.build.phase.BasePhase;
+import com.telenav.fiasco.build.TestResult;
+import com.telenav.fiasco.build.phase.Phase;
 
 @SuppressWarnings("DuplicatedCode")
-public class TestingPhase extends BasePhase
+public class TestingPhase extends Phase
 {
     public TestingPhase(final Build build)
     {
         super(build);
     }
 
-    public void buildAndRunTests(Build build)
+    public void buildTestSources(Build build)
     {
         tryFinally(this::testInitialize, build::nextStep);
         tryFinally(this::testGenerate, build::nextStep);
@@ -49,9 +50,9 @@ public class TestingPhase extends BasePhase
 
     }
 
-    public void runTests(Build build)
+    public TestResult runTests(Build build)
     {
-        tryFinally(this::testRunTests, build::nextStep);
+        return tryFinallyReturn(this::testRunTests, build::nextStep);
     }
 
     public final void testCompile()
@@ -79,9 +80,10 @@ public class TestingPhase extends BasePhase
         onTestPreprocess();
     }
 
-    public final void testRunTests()
+    public final TestResult testRunTests()
     {
         onTestRunTests();
+        return null;
     }
 
     public final void testVerify()

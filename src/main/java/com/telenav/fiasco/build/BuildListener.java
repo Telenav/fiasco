@@ -5,9 +5,22 @@ package com.telenav.fiasco.build;
  *
  * @author jonathanl (shibo)
  */
+@FunctionalInterface
 public interface BuildListener
 {
-    default void onStep(Build.Step step)
+    /**
+     * Called with the build result for each {@link Buildable} as it is built.
+     *
+     * @param result The build result
+     */
+    void onBuildResult(BuildResult result);
+
+    /**
+     * Called at each step in the build lifecycle
+     *
+     * @param step The build step
+     */
+    default void onBuildStep(BuildStep step)
     {
     }
 }

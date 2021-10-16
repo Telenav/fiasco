@@ -7,7 +7,7 @@
 
 package com.telenav.fiasco.dependencies;
 
-import com.telenav.fiasco.repository.maven.MavenArtifact;
+import com.telenav.fiasco.dependencies.repository.maven.MavenArtifact;
 import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
 import com.telenav.kivakit.kernel.interfaces.comparison.MatcherSet;
 import com.telenav.kivakit.kernel.language.values.version.Version;

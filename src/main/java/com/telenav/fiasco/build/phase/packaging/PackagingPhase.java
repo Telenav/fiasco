@@ -1,10 +1,10 @@
 package com.telenav.fiasco.build.phase.packaging;
 
 import com.telenav.fiasco.build.Build;
-import com.telenav.fiasco.build.phase.BasePhase;
+import com.telenav.fiasco.build.phase.Phase;
 
 @SuppressWarnings("DuplicatedCode")
-public class PackagingPhase extends BasePhase
+public class PackagingPhase extends Phase
 {
     public PackagingPhase(final Build build)
     {
@@ -18,8 +18,6 @@ public class PackagingPhase extends BasePhase
         tryFinally(this::packageCompile, build::nextStep);
         tryFinally(this::packagePostprocess, build::nextStep);
         tryFinally(this::packageVerify, build::nextStep);
-        tryFinally(this::packageInstall, build::nextStep);
-        tryFinally(this::packageDeploy, build::nextStep);
     }
 
     public void onPackageCompile()
@@ -33,11 +31,6 @@ public class PackagingPhase extends BasePhase
 
     public void onPackageInitialize()
     {
-    }
-
-    public void onPackageInstall()
-    {
-
     }
 
     public void onPackagePostprocess()
@@ -60,19 +53,9 @@ public class PackagingPhase extends BasePhase
         onPackageCompile();
     }
 
-    public final void packageDeploy()
-    {
-        onPackageDeploy();
-    }
-
     public final void packageInitialize()
     {
         onPackageInitialize();
-    }
-
-    public final void packageInstall()
-    {
-        onPackageInstall();
     }
 
     public final void packagePostprocess()

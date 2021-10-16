@@ -64,7 +64,7 @@ package fiasco.tools
 }
 
 '=============================================
-' Module
+' BuildableModule
 '=============================================
 
 package fiasco.module
@@ -125,7 +125,7 @@ package fiasco.build
     BuildPlanner ---> DependencyGraph : "creates"
 
     Builder "1" o-d- "*" Buildable : "    builds    "
-    Builder --> BuildListener : "notifies"
+    Build --> BuildListener : "notifies"
 }
 
 package fiasco

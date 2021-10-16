@@ -1,19 +1,18 @@
 package com.telenav.fiasco.build.phase.compilation;
 
 import com.telenav.fiasco.build.Build;
-import com.telenav.fiasco.build.phase.BasePhase;
-import com.telenav.fiasco.tools.compiler.JavaCompiler;
-import com.telenav.kivakit.resource.path.Extension;
+import com.telenav.fiasco.build.phase.Phase;
+import com.telenav.fiasco.build.tools.compiler.JavaCompiler;
 
 @SuppressWarnings("DuplicatedCode")
-public class CompilationPhase extends BasePhase
+public class CompilationPhase extends Phase
 {
     public CompilationPhase(final Build build)
     {
         super(build);
     }
 
-    public void build(Build build)
+    public void buildSources(Build build)
     {
         tryFinally(this::initialize, build::nextStep);
         tryFinally(this::generate, build::nextStep);
@@ -40,7 +39,7 @@ public class CompilationPhase extends BasePhase
 
     public void onCompile()
     {
-        javaCompiler().sources(javaSources().nestedFiles(Extension.JAVA.fileMatcher())).run();
+        // javaCompiler().sources(javaSources().nestedFiles(Extension.JAVA.fileMatcher())).run();
     }
 
     public void onGenerate()

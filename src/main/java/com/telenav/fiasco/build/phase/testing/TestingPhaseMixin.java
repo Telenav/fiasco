@@ -7,9 +7,9 @@ import com.telenav.kivakit.kernel.language.mixin.Mixin;
 @SuppressWarnings("DuplicatedCode")
 public interface TestingPhaseMixin extends Component, Mixin
 {
-    default void buildTests(Build build)
+    default void buildTestSources(Build build)
     {
-        testingPhase().buildAndRunTests(build);
+        testingPhase().buildTestSources(build);
     }
 
     default void onTestCompile()
