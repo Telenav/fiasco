@@ -1,20 +1,21 @@
 package com.telenav.fiasco.build.phase.installation;
 
-import com.telenav.fiasco.build.Build;
+import com.telenav.fiasco.build.phase.Phase;
+import com.telenav.fiasco.build.project.Project;
 import com.telenav.kivakit.component.Component;
 import com.telenav.kivakit.kernel.language.mixin.Mixin;
 
 @SuppressWarnings("DuplicatedCode")
-public interface InstallationPhaseMixin extends Component, Mixin
+public interface InstallationPhaseMixin extends Component, Mixin, Phase
 {
-    default void installPackages(Build build)
+    default void installPackages()
     {
-        installationPhase().installPackages(build);
+        installationPhase().installPackages();
     }
 
     default InstallationPhase installationPhase()
     {
-        return state(InstallationPhaseMixin.class, () -> new InstallationPhase((Build) this));
+        return state(InstallationPhaseMixin.class, () -> new InstallationPhase(project()));
     }
 
     default void onPackageDeploy()
@@ -25,5 +26,10 @@ public interface InstallationPhaseMixin extends Component, Mixin
     default void onPackageInstall()
     {
         installationPhase().onPackageInstall();
+    }
+
+    default Project project()
+    {
+        return installationPhase().project();
     }
 }

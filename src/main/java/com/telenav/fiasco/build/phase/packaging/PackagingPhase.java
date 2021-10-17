@@ -1,23 +1,23 @@
 package com.telenav.fiasco.build.phase.packaging;
 
-import com.telenav.fiasco.build.Build;
-import com.telenav.fiasco.build.phase.Phase;
+import com.telenav.fiasco.build.phase.BasePhase;
+import com.telenav.fiasco.build.project.Project;
 
 @SuppressWarnings("DuplicatedCode")
-public class PackagingPhase extends Phase
+public class PackagingPhase extends BasePhase
 {
-    public PackagingPhase(final Build build)
+    public PackagingPhase(final Project project)
     {
-        super(build);
+        super(project);
     }
 
-    public void buildPackages(Build build)
+    public void buildPackages()
     {
-        tryFinally(this::packageInitialize, build::nextStep);
-        tryFinally(this::packagePreprocess, build::nextStep);
-        tryFinally(this::packageCompile, build::nextStep);
-        tryFinally(this::packagePostprocess, build::nextStep);
-        tryFinally(this::packageVerify, build::nextStep);
+        tryFinally(this::packageInitialize, this::nextStep);
+        tryFinally(this::packagePreprocess, this::nextStep);
+        tryFinally(this::packageCompile, this::nextStep);
+        tryFinally(this::packagePostprocess, this::nextStep);
+        tryFinally(this::packageVerify, this::nextStep);
     }
 
     public void onPackageCompile()

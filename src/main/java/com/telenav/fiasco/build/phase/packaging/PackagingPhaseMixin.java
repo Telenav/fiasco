@@ -1,15 +1,15 @@
 package com.telenav.fiasco.build.phase.packaging;
 
-import com.telenav.fiasco.build.Build;
+import com.telenav.fiasco.build.project.Project;
 import com.telenav.kivakit.component.Component;
 import com.telenav.kivakit.kernel.language.mixin.Mixin;
 
 @SuppressWarnings("DuplicatedCode")
 public interface PackagingPhaseMixin extends Component, Mixin
 {
-    default void buildPackages(Build build)
+    default void buildPackages()
     {
-        packagingPhase().buildPackages(build);
+        packagingPhase().buildPackages();
     }
 
     default void onPackageCompile()
@@ -39,6 +39,11 @@ public interface PackagingPhaseMixin extends Component, Mixin
 
     default PackagingPhase packagingPhase()
     {
-        return state(PackagingPhaseMixin.class, () -> new PackagingPhase((Build) this));
+        return state(PackagingPhaseMixin.class, () -> new PackagingPhase(project()));
+    }
+
+    default Project project()
+    {
+        return packagingPhase().project();
     }
 }

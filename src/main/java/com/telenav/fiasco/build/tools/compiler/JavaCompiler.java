@@ -11,8 +11,7 @@ public class JavaCompiler extends BaseCompiler
 
     private FileList sources;
 
-    @Override
-    public void onRun()
+    public void compile()
     {
 
     }

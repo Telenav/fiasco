@@ -1,20 +1,20 @@
 package com.telenav.fiasco.build.phase.installation;
 
-import com.telenav.fiasco.build.Build;
-import com.telenav.fiasco.build.phase.Phase;
+import com.telenav.fiasco.build.phase.BasePhase;
+import com.telenav.fiasco.build.project.Project;
 
 @SuppressWarnings("DuplicatedCode")
-public class InstallationPhase extends Phase
+public class InstallationPhase extends BasePhase
 {
-    public InstallationPhase(final Build build)
+    public InstallationPhase(Project project)
     {
-        super(build);
+        super(project);
     }
 
-    public void installPackages(Build build)
+    public void installPackages()
     {
-        tryFinally(this::packageInstall, build::nextStep);
-        tryFinally(this::packageDeploy, build::nextStep);
+        tryFinally(this::packageInstall, this::nextStep);
+        tryFinally(this::packageDeploy, this::nextStep);
     }
 
     public void onPackageDeploy()

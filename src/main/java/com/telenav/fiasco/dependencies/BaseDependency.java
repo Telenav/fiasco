@@ -1,5 +1,7 @@
 package com.telenav.fiasco.dependencies;
 
-public abstract class BaseDependency implements Dependency
+import com.telenav.kivakit.component.BaseComponent;
+
+public abstract class BaseDependency extends BaseComponent implements Dependency
 {
 }

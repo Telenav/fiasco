@@ -14,13 +14,4 @@ public interface BuildListener
      * @param result The build result
      */
     void onBuildResult(BuildResult result);
-
-    /**
-     * Called at each step in the build lifecycle
-     *
-     * @param step The build step
-     */
-    default void onBuildStep(BuildStep step)
-    {
-    }
 }

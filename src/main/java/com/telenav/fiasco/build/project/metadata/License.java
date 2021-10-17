@@ -1,6 +1,4 @@
-package com.telenav.fiasco.project.metadata;
-
-import com.telenav.fiasco.project.Project;
+package com.telenav.fiasco.build.project.metadata;
 
 /**
  * Legal license for a {@link Project}, with a {@link #title} and a {@link #body()}

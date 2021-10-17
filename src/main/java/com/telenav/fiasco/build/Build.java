@@ -1,103 +1,83 @@
 package com.telenav.fiasco.build;
 
-import com.telenav.fiasco.build.phase.Phase;
-import com.telenav.fiasco.build.phase.compilation.CompilationPhaseMixin;
-import com.telenav.fiasco.build.phase.installation.InstallationPhase;
-import com.telenav.fiasco.build.phase.installation.InstallationPhaseMixin;
-import com.telenav.fiasco.build.phase.packaging.PackagingPhase;
-import com.telenav.fiasco.build.phase.packaging.PackagingPhaseMixin;
-import com.telenav.fiasco.build.phase.testing.TestingPhase;
-import com.telenav.fiasco.build.phase.testing.TestingPhaseMixin;
+import com.telenav.fiasco.build.building.Builder;
+import com.telenav.fiasco.build.building.builders.ParallelBuilder;
+import com.telenav.fiasco.build.planning.BuildPlan;
+import com.telenav.fiasco.build.planning.BuildPlanner;
+import com.telenav.fiasco.build.project.Project;
+import com.telenav.fiasco.dependencies.DependencyGraph;
 import com.telenav.kivakit.component.BaseComponent;
-import com.telenav.kivakit.filesystem.Folder;
-import com.telenav.kivakit.kernel.language.vm.JavaVirtualMachine;
+import com.telenav.kivakit.kernel.interfaces.lifecycle.Initializable;
+import com.telenav.kivakit.kernel.interfaces.naming.Named;
+import com.telenav.kivakit.kernel.messaging.messages.status.Announcement;
 
 /**
- * Base class for user build subclasses. The {@link #build()} method builds the set of {@link Buildables} added by
- * {@link #add(Buildable...)}. As the build proceeds the {@link BuildListener} specified by {@link
- * #listener(BuildListener)} is called with {@link BuildResult}s.
+ * Base class for user builds.
  *
  * <p>
- * Builds proceed in a series of {@link BuildStep}s which are grouped into {@link Phase}s:
- * </p>
- *
- * <ol>
- *     <li>{@link CompilationPhaseMixin#buildSources(Build)} - Builds sources into output files</li>
- *     <li>{@link TestingPhase#buildTestSources(Build)} - Builds test sources</li>
- *     <li>{@link TestingPhase#runTests(Build)} - Runs tests</li>
- *     <li>{@link PackagingPhase#buildPackages(Build)} - Packages output files</li>
- *     <li>{@link InstallationPhase#installPackages(Build)} - Installs packages</li>
- * </ol>
- *
- * <p>
- * When a phase completes a step, it calls {@link #nextStep(), which advances the build to the next step, and calls
- * the* {@link BuildListener#onBuildStep(BuildStep)} method with the new build step.
+ * The {@link #build()} method builds the set of {@link Buildables} added by {@link #add(Buildable...)} ({@link
+ * Project}s are {@link Buildable}). As the build proceeds the {@link BuildListener} specified by {@link
+ * #listener(BuildListener)} is called with {@link BuildResult}s. If no build listener is specified, the default
+ * listener broadcasts {@link Announcement} messages for each build that completes.
  * </p>
  *
  * @author jonathanl (shibo)
+ * @see Buildable
+ * @see BuildListener
+ * @see BuildResult
+ * @see Project
  */
-public abstract class Build extends BaseComponent implements
-        CompilationPhaseMixin,
-        TestingPhaseMixin,
-        PackagingPhaseMixin,
-        InstallationPhaseMixin
+public abstract class Build extends BaseComponent implements Buildable, Named, Initializable
 {
     /** Group of {@link Buildable}s to build */
     private final Buildables buildables = Buildables.create();
 
-    /** The current build step */
-    private BuildStep step = BuildStep.INITIALIZE;
-
     /** The build listener to call when the build step changes */
     private BuildListener listener;
 
-    protected Build()
+    public Build()
     {
+        listener = result -> announce("Build completed: $", result);
     }
 
     public Build add(Buildable... buildables)
     {
         this.buildables.addAll(buildables);
+
+        for (var at : buildables)
+        {
+            at.build(this);
+        }
+
         return this;
     }
 
     /**
-     * True if the build is at the given step
+     * Creates a {@link BuildPlan} for the buildables that were added with {@link #add(Buildable...)}, then executes the
+     * plan using the {@link Builder} returned by {@link #builder()}. As the build proceeds the {@link BuildListener} is
+     * called when {@link Buildable}s finish building.
      */
-    public boolean atStep(BuildStep step)
+    public BuildResult build()
     {
-        return this.step == step;
+        var result = new BuildResult(name());
+        result.start();
+        try
+        {
+            var planner = new BuildPlanner();
+            var graph = DependencyGraph.of(null);
+            var plan = planner.plan(graph);
+            plan.build(builder(), listener);
+        }
+        finally
+        {
+            result.end();
+        }
+        return result;
     }
 
-    /**
-     * Runs this build with the given root folder
-     */
-    public final void build()
+    @Override
+    public void build(final Build build)
     {
-        // Compile code,
-        buildSources(this);
-
-        // build the tests,
-        buildTestSources(this);
-
-        // run the tests,
-        runTests(this);
-
-        // package up the code,
-        buildPackages(this);
-
-        // and install it.
-        installPackages(this);
-    }
-
-    public Buildables buildables()
-    {
-        return buildables;
-    }
-
-    public Folder folderForProperty(String environmentVariable)
-    {
-        return Folder.parse(JavaVirtualMachine.property(environmentVariable));
     }
 
     /**
@@ -109,11 +89,10 @@ public abstract class Build extends BaseComponent implements
     }
 
     /**
-     * Updates the build step to the given step and calls the build listener with this information
+     * @return The {@link Builder} to use for this build
      */
-    public void nextStep()
+    protected Builder builder()
     {
-        this.step = step.next();
-        listener.onBuildStep(step);
+        return new ParallelBuilder();
     }
 }

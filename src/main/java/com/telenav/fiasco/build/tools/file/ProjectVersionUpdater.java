@@ -12,8 +12,5 @@ package com.telenav.fiasco.build.tools.file;
  */
 public class ProjectVersionUpdater extends BaseFileTool
 {
-    @Override
-    public void onRun()
-    {
-    }
+
 }

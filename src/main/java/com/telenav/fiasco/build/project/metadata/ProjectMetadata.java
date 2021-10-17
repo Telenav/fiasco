@@ -1,4 +1,4 @@
-package com.telenav.fiasco.project.metadata;
+package com.telenav.fiasco.build.project.metadata;
 
 import com.telenav.kivakit.kernel.interfaces.naming.Named;
 import com.telenav.kivakit.kernel.interfaces.string.StringSource;

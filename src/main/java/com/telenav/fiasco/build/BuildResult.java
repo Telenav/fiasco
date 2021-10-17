@@ -1,33 +1,47 @@
 package com.telenav.fiasco.build;
 
+import com.telenav.kivakit.kernel.language.collections.list.StringList;
+import com.telenav.kivakit.kernel.language.time.Duration;
 import com.telenav.kivakit.kernel.language.time.Time;
 import com.telenav.kivakit.kernel.messaging.Listener;
 import com.telenav.kivakit.kernel.messaging.Message;
 import com.telenav.kivakit.kernel.messaging.listeners.MessageList;
+import com.telenav.kivakit.kernel.messaging.messages.status.Problem;
+import com.telenav.kivakit.kernel.messaging.messages.status.Warning;
 
 /**
  * The result of a building a {@link Buildable}. Captures any messages it hears and saves them. The messages can be
- * retrieved with {@link #messages()}
+ * retrieved with {@link #messages()}.
  *
  * @author jonathanl (shibo)
  */
 public class BuildResult implements Listener
 {
-    private final Time start;
+    /** The time at which the build started */
+    private Time start;
 
-    private final Time end;
+    /** The time at which the build ended */
+    private Time end;
 
+    /** Messages captured during the build */
     private final MessageList messages = new MessageList();
 
-    public BuildResult(final Time start, final Time end)
+    /** The name of the build */
+    private final String buildName;
+
+    public BuildResult(String buildName)
     {
-        this.start = start;
-        this.end = end;
+        this.buildName = buildName;
     }
 
-    public Time end()
+    public Duration elapsed()
     {
-        return end;
+        return end.minus(start);
+    }
+
+    public void end()
+    {
+        this.end = Time.now();
     }
 
     public MessageList messages()
@@ -41,8 +55,27 @@ public class BuildResult implements Listener
         messages.add(message);
     }
 
-    public Time start()
+    public void start()
     {
-        return start;
+        start = Time.now();
+    }
+
+    public StringList statistics()
+    {
+        return messages.statisticsByType(Problem.class, Warning.class);
+    }
+
+    public StringList summary()
+    {
+        return StringList.stringList("Elapsed: " + elapsed());
+    }
+
+    @Override
+    public String toString()
+    {
+        return summary()
+                .appendAll(statistics())
+                .appendAll(messages().asStringList())
+                .titledBox("$ Build Completed", buildName);
     }
 }

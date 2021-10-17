@@ -1,25 +1,25 @@
 package com.telenav.fiasco.build.phase.compilation;
 
-import com.telenav.fiasco.build.Build;
-import com.telenav.fiasco.build.phase.Phase;
+import com.telenav.fiasco.build.phase.BasePhase;
+import com.telenav.fiasco.build.project.Project;
 import com.telenav.fiasco.build.tools.compiler.JavaCompiler;
 
 @SuppressWarnings("DuplicatedCode")
-public class CompilationPhase extends Phase
+public class CompilationPhase extends BasePhase
 {
-    public CompilationPhase(final Build build)
+    public CompilationPhase(final Project project)
     {
-        super(build);
+        super(project);
     }
 
-    public void buildSources(Build build)
+    public void buildSources()
     {
-        tryFinally(this::initialize, build::nextStep);
-        tryFinally(this::generate, build::nextStep);
-        tryFinally(this::preprocess, build::nextStep);
-        tryFinally(this::compile, build::nextStep);
-        tryFinally(this::postprocess, build::nextStep);
-        tryFinally(this::verify, build::nextStep);
+        tryFinally(this::initialize, this::nextStep);
+        tryFinally(this::generate, this::nextStep);
+        tryFinally(this::preprocess, this::nextStep);
+        tryFinally(this::compile, this::nextStep);
+        tryFinally(this::postprocess, this::nextStep);
+        tryFinally(this::verify, this::nextStep);
     }
 
     public final void compile()
@@ -39,6 +39,7 @@ public class CompilationPhase extends Phase
 
     public void onCompile()
     {
+
         // javaCompiler().sources(javaSources().nestedFiles(Extension.JAVA.fileMatcher())).run();
     }
 

@@ -1,14 +1,19 @@
 package com.telenav.fiasco.mockup;
 
 import com.telenav.fiasco.build.Build;
+import com.telenav.kivakit.filesystem.Folder;
 
 public class ExampleBuild extends Build
 {
     @Override
     public void onInitialize()
     {
-        final var home = folderForProperty("WORKSPACE");
+        add(new ExampleProject().in("example"));
+    }
 
-        add(new ExampleModule(home.folder("example")));
+    @Override
+    public Folder workspace()
+    {
+        return Folder.parse("${WORKSPACE}");
     }
 }

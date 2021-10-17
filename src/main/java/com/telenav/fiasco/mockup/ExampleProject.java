@@ -1,15 +1,9 @@
 package com.telenav.fiasco.mockup;
 
-import com.telenav.fiasco.dependencies.BuildableModule;
-import com.telenav.kivakit.filesystem.Folder;
+import com.telenav.fiasco.build.project.Project;
 
-public class ExampleModule extends BuildableModule
+public class ExampleProject extends Project
 {
-    public ExampleModule(final Folder root)
-    {
-        super(root);
-    }
-
     @Override
     public void onInitialize()
     {

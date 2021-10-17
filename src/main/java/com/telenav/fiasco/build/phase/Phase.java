@@ -1,20 +1,8 @@
 package com.telenav.fiasco.build.phase;
 
-import com.telenav.fiasco.build.Build;
-import com.telenav.fiasco.build.BuildStep;
-import com.telenav.kivakit.component.BaseComponent;
+import com.telenav.fiasco.build.project.Project;
 
-public class Phase extends BaseComponent
+public interface Phase
 {
-    private final Build build;
-
-    public Phase(Build build)
-    {
-        this.build = build;
-    }
-
-    public boolean atStep(BuildStep step)
-    {
-        return build.atStep(step);
-    }
+    Project project();
 }

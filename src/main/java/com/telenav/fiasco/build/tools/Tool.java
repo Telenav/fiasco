@@ -12,19 +12,6 @@ import com.telenav.kivakit.component.Component;
 /**
  * Interface for executable tools.
  */
-public interface Tool extends Component, Runnable
+public interface Tool extends Component
 {
-    /**
-     * Tool implementation
-     */
-    void onRun();
-
-    /**
-     * Runs the tool
-     */
-    @Override
-    default void run()
-    {
-        onRun();
-    }
 }

@@ -1,25 +1,24 @@
 package com.telenav.fiasco.build.phase.testing;
 
-import com.telenav.fiasco.build.Build;
-import com.telenav.fiasco.build.TestResult;
-import com.telenav.fiasco.build.phase.Phase;
+import com.telenav.fiasco.build.phase.BasePhase;
+import com.telenav.fiasco.build.project.Project;
 
 @SuppressWarnings("DuplicatedCode")
-public class TestingPhase extends Phase
+public class TestingPhase extends BasePhase
 {
-    public TestingPhase(final Build build)
+    public TestingPhase(final Project project)
     {
-        super(build);
+        super(project);
     }
 
-    public void buildTestSources(Build build)
+    public void buildTestSources()
     {
-        tryFinally(this::testInitialize, build::nextStep);
-        tryFinally(this::testGenerate, build::nextStep);
-        tryFinally(this::testPreprocess, build::nextStep);
-        tryFinally(this::testCompile, build::nextStep);
-        tryFinally(this::testPostprocess, build::nextStep);
-        tryFinally(this::testVerify, build::nextStep);
+        tryFinally(this::testInitialize, this::nextStep);
+        tryFinally(this::testGenerate, this::nextStep);
+        tryFinally(this::testPreprocess, this::nextStep);
+        tryFinally(this::testCompile, this::nextStep);
+        tryFinally(this::testPostprocess, this::nextStep);
+        tryFinally(this::testVerify, this::nextStep);
     }
 
     public void onTestCompile()
@@ -50,9 +49,9 @@ public class TestingPhase extends Phase
 
     }
 
-    public TestResult runTests(Build build)
+    public TestResult runTests()
     {
-        return tryFinallyReturn(this::testRunTests, build::nextStep);
+        return tryFinallyReturn(this::testRunTests, this::nextStep);
     }
 
     public final void testCompile()

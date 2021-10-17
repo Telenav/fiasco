@@ -14,8 +14,4 @@ package com.telenav.fiasco.build.tools.test;
  */
 public class JUnitTester extends BaseTestTool
 {
-    @Override
-    public void onRun()
-    {
-    }
 }

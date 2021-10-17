@@ -7,12 +7,9 @@
 
 package com.telenav.fiasco.build.tools.file;
 
-import com.telenav.kivakit.filesystem.File;
+import com.telenav.kivakit.filesystem.FileList;
 import com.telenav.kivakit.filesystem.Folder;
-import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
-import com.telenav.kivakit.kernel.language.progress.reporters.Progress;
-import com.telenav.kivakit.kernel.language.values.count.Maximum;
-import com.telenav.kivakit.kernel.messaging.filters.operators.All;
+import com.telenav.kivakit.kernel.language.progress.ProgressReporter;
 import com.telenav.kivakit.resource.CopyMode;
 
 /**
@@ -22,53 +19,16 @@ import com.telenav.kivakit.resource.CopyMode;
  */
 public class FileCopier extends BaseFileTool
 {
-    /** The folder to copy to */
-    private Folder to;
+    /** Copying mode */
+    private CopyMode copyMode = CopyMode.OVERWRITE;
 
-    /** The folder to copy from */
-    private Folder from;
-
-    /** The files to copy */
-    private Matcher<File> matcher = new All<>();
-
-    /** Progress in copying files */
-    private final Progress progress = Progress.create(this, "files");
-
-    private CopyMode mode;
-
-    public Folder from()
+    /**
+     * Copies the given files relative to the "from" folder to the "to" folder
+     */
+    public FileCopier copy(Folder from, Folder to, FileList files)
     {
-        return from;
-    }
-
-    public Matcher<File> matching()
-    {
-        return matcher;
-    }
-
-    public FileCopier matching(final Matcher<File> matcher)
-    {
-        this.matcher = matcher;
-        return this;
-    }
-
-    public void mode(final CopyMode mode)
-    {
-        this.mode = mode;
-    }
-
-    public CopyMode mode()
-    {
-        return mode;
-    }
-
-    @Override
-    public void onRun()
-    {
-        // For each source file in the from folder that matches,
-        final var files = from.nestedFiles(matcher);
-        progress.steps(Maximum.maximum(files.size()));
-        progress.start("Copying " + files.size() + " files");
+        // For each source file that matches,
+        var progress = progress("Copying", files);
         for (final var source : files)
         {
             // find the path relative to the root,
@@ -81,14 +41,16 @@ public class FileCopier extends BaseFileTool
             destination.parent().mkdirs();
 
             // and copy the source file to the destination location
-            source.safeCopyTo(destination, CopyMode.OVERWRITE, progress);
+            source.safeCopyTo(destination, copyMode, ProgressReporter.NULL);
             progress.next();
         }
-        progress.end(files.size() + " files copied");
+        progress.end(files.count() + " files copied");
+        return this;
     }
 
-    public Folder to()
+    public FileCopier copyMode(final CopyMode mode)
     {
-        return to;
+        this.copyMode = mode;
+        return this;
     }
 }

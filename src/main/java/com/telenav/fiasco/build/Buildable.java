@@ -1,17 +1,36 @@
 package com.telenav.fiasco.build;
 
+import com.telenav.kivakit.filesystem.Folder;
+
+import java.util.concurrent.Callable;
+
 /**
- * An object that can be built by calling {@link #build(BuildListener)}
+ * An object that can be built by calling {@link #build()}
  *
  * @author jonathanl (shibo)
  */
-public interface Buildable
+public interface Buildable extends Callable<BuildResult>
 {
     /**
-     * Builds this object, calling the given listener as the build progresses.
+     * Specifies the build for this buildable
+     */
+    void build(Build build);
+
+    /**
+     * Builds this object
      *
-     * @param listener The listener to call
      * @return The result of building this object
      */
-    BuildResult build(BuildListener listener);
+    BuildResult build();
+
+    @Override
+    default BuildResult call()
+    {
+        return build();
+    }
+
+    default Folder workspace()
+    {
+        return Folder.parse("${WORKSPACE}");
+    }
 }
