@@ -26,8 +26,5 @@ public interface ProjectDependency extends Dependency
     /**
      * @return The workspace
      */
-    default Folder workspace()
-    {
-        return Folder.parse("${WORKSPACE}");
-    }
+    Folder workspace();
 }

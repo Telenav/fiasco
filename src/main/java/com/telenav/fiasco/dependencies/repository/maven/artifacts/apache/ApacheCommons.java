@@ -1,9 +1,9 @@
 package com.telenav.fiasco.dependencies.repository.maven.artifacts.apache;
 
 import com.telenav.fiasco.dependencies.repository.Artifact;
-import com.telenav.fiasco.dependencies.repository.maven.MavenGroup;
+import com.telenav.fiasco.dependencies.repository.maven.MavenArtifactGroup;
 
-public class ApacheCommons extends MavenGroup
+public class ApacheCommons extends MavenArtifactGroup
 {
     public ApacheCommons()
     {

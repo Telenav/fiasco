@@ -5,15 +5,27 @@ import com.telenav.kivakit.filesystem.FileGlobPattern;
 import com.telenav.kivakit.kernel.interfaces.numeric.Countable;
 import com.telenav.kivakit.kernel.language.progress.reporters.Progress;
 
+/**
+ * Base class for file tools
+ *
+ * @author jonathanl (shibo)
+ */
 public abstract class BaseFileTool extends BaseTool
 {
+    /** progress in performing an action on a set of files */
     private Progress progress;
 
-    protected FileGlobPattern globPattern(final String glob)
+    /**
+     * @return A {@link FileGlobPattern} for the given glob pattern
+     */
+    public FileGlobPattern glob(final String pattern)
     {
-        return FileGlobPattern.parse(glob);
+        return FileGlobPattern.parse(pattern);
     }
 
+    /**
+     * @return A configured {@link Progress} object
+     */
     protected Progress progress(String action, Countable count)
     {
         if (progress == null)

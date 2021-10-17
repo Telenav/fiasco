@@ -1,9 +1,9 @@
 package com.telenav.fiasco.dependencies.repository.maven.artifacts.telenav;
 
 import com.telenav.fiasco.dependencies.repository.Artifact;
-import com.telenav.fiasco.dependencies.repository.maven.MavenGroup;
+import com.telenav.fiasco.dependencies.repository.maven.MavenArtifactGroup;
 
-public class Lexakai extends MavenGroup
+public class Lexakai extends MavenArtifactGroup
 {
     public Lexakai()
     {

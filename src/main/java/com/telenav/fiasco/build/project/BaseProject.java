@@ -10,12 +10,14 @@ import com.telenav.fiasco.build.phase.installation.InstallationPhase;
 import com.telenav.fiasco.build.phase.packaging.PackagingPhase;
 import com.telenav.fiasco.build.phase.testing.TestingPhase;
 import com.telenav.fiasco.build.project.metadata.ProjectMetadata;
+import com.telenav.fiasco.build.tools.repository.Librarian;
 import com.telenav.fiasco.dependencies.BaseProjectDependency;
 import com.telenav.fiasco.dependencies.Dependency;
 import com.telenav.fiasco.dependencies.DependencyList;
+import com.telenav.fiasco.dependencies.repository.Artifact;
+import com.telenav.fiasco.dependencies.repository.ArtifactRepository;
 import com.telenav.fiasco.dependencies.repository.maven.MavenArtifact;
 import com.telenav.kivakit.filesystem.Folder;
-import com.telenav.kivakit.kernel.language.vm.JavaVirtualMachine;
 
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
 
@@ -39,7 +41,7 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNot
  *
  * @author jonathanl (shibo)
  */
-public abstract class BaseProject extends BaseProjectDependency implements Project
+public abstract class BaseProject extends BaseProjectDependency implements Project, ProjectLocationsTrait
 {
     /** The build that is building this project */
     private Build build;
@@ -52,6 +54,9 @@ public abstract class BaseProject extends BaseProjectDependency implements Proje
 
     /** The current build step */
     private BuildStep step = BuildStep.INITIALIZE;
+
+    /** The librarian to resolve artifacts for this project */
+    private final Librarian librarian = new Librarian();
 
     /**
      * True if the build is at the given step
@@ -113,21 +118,6 @@ public abstract class BaseProject extends BaseProjectDependency implements Proje
         return null;
     }
 
-    public Folder folderForProperty(String environmentVariable)
-    {
-        return Folder.parse(JavaVirtualMachine.property(environmentVariable));
-    }
-
-    public Folder javaSources()
-    {
-        return mainSources().folder("java");
-    }
-
-    public Folder mainSources()
-    {
-        return sources().folder("main");
-    }
-
     public void metadata(final ProjectMetadata metadata)
     {
         this.metadata = metadata;
@@ -147,15 +137,10 @@ public abstract class BaseProject extends BaseProjectDependency implements Proje
         narrate("[$]", step.name());
     }
 
-    public Folder output()
+    @Override
+    public ArtifactRepository resolve(final Artifact artifact)
     {
-        return root().folder("target");
-    }
-
-    public BaseProject root(final Folder root)
-    {
-        this.root = root;
-        return this;
+        return librarian.resolve(artifact);
     }
 
     public Folder root()
@@ -163,16 +148,13 @@ public abstract class BaseProject extends BaseProjectDependency implements Proje
         return ensureNotNull(root);
     }
 
-    public Folder sources()
+    public Project root(final Folder root)
     {
-        return root().folder("source");
+        this.root = root;
+        return this;
     }
 
-    public Folder testSources()
-    {
-        return sources().folder("test");
-    }
-
+    @Override
     public Folder workspace()
     {
         return Folder.parse("${WORKSPACE}");

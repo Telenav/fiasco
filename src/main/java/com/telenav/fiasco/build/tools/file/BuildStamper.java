@@ -7,9 +7,20 @@
 
 package com.telenav.fiasco.build.tools.file;
 
+import com.telenav.cactus.build.metadata.BuildMetadataUpdater;
+
 /**
+ * Updates the build.properties file for a project
+ *
  * @author shibo
  */
-public class BuildVersionUpdater extends BaseFileTool
+public class BuildStamper extends BaseFileTool
 {
+    public void save()
+    {
+        BuildMetadataUpdater.main(new String[] { project()
+                .root()
+                .absolute()
+                .path().toString() });
+    }
 }

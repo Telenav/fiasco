@@ -5,6 +5,7 @@ import com.telenav.fiasco.dependencies.Library;
 import com.telenav.fiasco.dependencies.repository.maven.MavenArtifact;
 import com.telenav.kivakit.kernel.interfaces.naming.Named;
 import com.telenav.kivakit.kernel.language.values.version.Version;
+import com.telenav.kivakit.resource.path.FilePath;
 
 /**
  * A dependent artifact with a name, group and version
@@ -24,9 +25,22 @@ public interface Artifact extends Named, Dependency
     }
 
     /**
+     * @return The artifact descriptor [group-name]:[artifact-name]:[version]
+     */
+    default String descriptor()
+    {
+        return group().name() + ":" + name() + ":" + version();
+    }
+
+    /**
      * @return The group to which this artifact belongs
      */
     ArtifactGroup group();
+
+    /**
+     * @return This artifact's path relative to repository root
+     */
+    FilePath path();
 
     /**
      * @return The version of this artifact

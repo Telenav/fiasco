@@ -3,7 +3,7 @@ package com.telenav.fiasco.build.phase.testing;
 import com.telenav.fiasco.build.BuildStep;
 import com.telenav.fiasco.build.phase.BasePhase;
 import com.telenav.fiasco.build.phase.Phase;
-import com.telenav.fiasco.build.project.BaseProject;
+import com.telenav.fiasco.build.project.Project;
 
 /**
  * Executes the steps in the installation phase of a build:
@@ -24,7 +24,7 @@ import com.telenav.fiasco.build.project.BaseProject;
  */
 public class TestingPhase extends BasePhase
 {
-    public TestingPhase(final BaseProject project)
+    public TestingPhase(final Project project)
     {
         super(project);
     }

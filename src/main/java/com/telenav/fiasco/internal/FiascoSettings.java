@@ -87,7 +87,7 @@ public class FiascoSettings extends BaseComponent
 
     public StringList buildNames()
     {
-        var names = StringList.create();
+        var names = new StringList();
         for (var file : buildFiles())
         {
             names.add(buildName(file));

@@ -3,7 +3,7 @@ package com.telenav.fiasco.build.phase.installation;
 import com.telenav.fiasco.build.BuildStep;
 import com.telenav.fiasco.build.phase.BasePhase;
 import com.telenav.fiasco.build.phase.Phase;
-import com.telenav.fiasco.build.project.BaseProject;
+import com.telenav.fiasco.build.project.Project;
 
 /**
  * Executes the steps in the installation phase of a build:
@@ -20,7 +20,7 @@ import com.telenav.fiasco.build.project.BaseProject;
 @SuppressWarnings("DuplicatedCode")
 public class InstallationPhase extends BasePhase
 {
-    public InstallationPhase(BaseProject project)
+    public InstallationPhase(Project project)
     {
         super(project);
     }

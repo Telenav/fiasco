@@ -1,21 +1,30 @@
 package com.telenav.fiasco.build.tools;
 
-import com.telenav.fiasco.build.project.BaseProject;
+import com.telenav.fiasco.build.project.Project;
 import com.telenav.kivakit.component.BaseComponent;
 
+/**
+ * Base class for build tools
+ *
+ * @author jonathanl (shibo)
+ */
 public abstract class BaseTool extends BaseComponent implements Tool
 {
-    private BaseProject project;
+    /** The project that this tool is helping to build */
+    private Project project;
 
-    public void project(final BaseProject project)
+    /**
+     * {@inheritDoc}
+     */
+    public void project(final Project project)
     {
         this.project = project;
     }
 
     /**
-     * @return The project that this tool is running in
+     * {@inheritDoc}
      */
-    public BaseProject project()
+    public Project project()
     {
         return project;
     }

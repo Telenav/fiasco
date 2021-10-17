@@ -7,68 +7,52 @@
 
 package com.telenav.fiasco.build.tools.repository;
 
-import com.telenav.fiasco.dependencies.Library;
 import com.telenav.fiasco.dependencies.repository.Artifact;
-import com.telenav.fiasco.dependencies.repository.Repository;
+import com.telenav.fiasco.dependencies.repository.ArtifactRepository;
+import com.telenav.fiasco.dependencies.repository.ArtifactResolver;
 import com.telenav.fiasco.dependencies.repository.maven.MavenRepository;
-import com.telenav.kivakit.kernel.interfaces.comparison.MatcherSet;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 /**
- * Copies selected files from one folder to another.
+ * Installs dependencies from a list of repositories to {@link #add(ArtifactRepository)}.
  *
  * @author shibo
  */
-public class Librarian extends BaseRepositoryTool implements LibraryResolver
+public class Librarian extends BaseRepositoryTool implements ArtifactResolver
 {
-    private final List<Repository> repositories = new ArrayList<>();
+    /** List of repositories to search for this project, with the local repository first */
+    private final ObjectList<ArtifactRepository> repositories = ObjectList.create();
 
-    private Repository deploymentRepository;
-
-    public Librarian deploy(final Library library)
-    {
-        deploymentRepository.install(library.artifact());
-        return this;
-    }
-
-    public Librarian install(final Library library)
-    {
-        MavenRepository.local().install(library);
-        return this;
-    }
-
-    public Librarian lookIn(final Repository repository)
+    public void add(ArtifactRepository repository)
     {
         repositories.add(repository);
-        return this;
-    }
-
-    public List<Repository> repositories()
-    {
-        return Collections.unmodifiableList(repositories);
     }
 
     @Override
-    public ObjectList<Artifact> resolve(final Library library, final MatcherSet<Library> exclusions)
+    public ArtifactRepository resolve(final Artifact artifact)
     {
-        for (final var repository : repositories)
+        // If the local repository does not contain the artifact,
+        if (!MavenRepository.local().contains(artifact))
         {
-            final var libraries = repository.resolve(library);
-            if (libraries != null)
+            // For each repository starting with the local repository,
+            for (var at : repositories)
             {
-                return libraries;
-            }
-        }
-        return ObjectList.emptyList();
-    }
+                // if the repository contains the artifact,
+                if (at.contains(artifact))
+                {
+                    // then copy it into the local repository,
+                    MavenRepository.local().install(at, artifact);
 
-    public Librarian withDeploymentRepository(final Repository deploymentRepository)
-    {
-        this.deploymentRepository = deploymentRepository;
-        return this;
+                    // and return the repository where we found it.
+                    return at;
+                }
+            }
+
+            throw problem("Cannot resolve: $", artifact).asException();
+        }
+        else
+        {
+            return MavenRepository.local();
+        }
     }
 }

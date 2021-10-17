@@ -4,36 +4,19 @@ import com.telenav.fiasco.dependencies.Library;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 
 /**
- * An {@link Artifact} repository
+ * Resolves a {@link Library} into a set of installed artifacts, possibly copying them from a remote repository.
+ *
+ * @author jonathanl (shibo)
  */
-public interface Repository
+public interface ArtifactResolver
 {
     /**
-     * Puts the given artifact into the repository
-     *
-     * @param artifact The artifact to install
-     */
-    void install(Artifact artifact);
-
-    /**
-     * Installs the artifact dependencies of the given library
-     *
-     * @param library The library
-     */
-    default void install(Library library)
-    {
-        for (var artifact : resolve(library))
-        {
-            install(artifact);
-        }
-    }
-
-    /**
-     * Resolves the give artifact from a remote repository
+     * Resolves the give artifact from a remote repository into the local one
      *
      * @param artifact The artifact to resolve
+     * @return The repository where the artifact was found
      */
-    Artifact resolve(Artifact artifact);
+    ArtifactRepository resolve(Artifact artifact);
 
     /**
      * Resolves the artifact dependencies of the given library by copying them from a remote source into the local
@@ -48,7 +31,9 @@ public interface Repository
         for (var dependency : library.dependencies())
         {
             // resolve the dependency as an artifact (which it must be).
-            artifacts.add(resolve((Artifact) dependency));
+            var artifact = (Artifact) dependency;
+            resolve(artifact);
+            artifacts.add(artifact);
         }
         return artifacts;
     }

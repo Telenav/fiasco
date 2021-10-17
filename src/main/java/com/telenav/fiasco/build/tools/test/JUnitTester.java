@@ -7,6 +7,8 @@
 
 package com.telenav.fiasco.build.tools.test;
 
+import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.unimplemented;
+
 /**
  * Runs unit tests
  *
@@ -14,4 +16,8 @@ package com.telenav.fiasco.build.tools.test;
  */
 public class JUnitTester extends BaseTestTool
 {
+    public void runTests()
+    {
+        unimplemented();
+    }
 }

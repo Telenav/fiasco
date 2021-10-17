@@ -10,7 +10,7 @@ import com.telenav.kivakit.filesystem.Folder;
  *
  * @author jonathanl (shibo)
  */
-public class BaseProjectDependency extends BaseDependency implements ProjectDependency
+public abstract class BaseProjectDependency extends BaseDependency implements ProjectDependency
 {
     /**
      * Builds the classes in the <i>fiasco</i> folder under the given root, then loads classes until one is loaded that
