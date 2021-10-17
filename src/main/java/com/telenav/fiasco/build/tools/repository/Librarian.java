@@ -8,16 +8,15 @@
 package com.telenav.fiasco.build.tools.repository;
 
 import com.telenav.fiasco.dependencies.Library;
-import com.telenav.fiasco.dependencies.LibraryResolver;
+import com.telenav.fiasco.dependencies.repository.Artifact;
 import com.telenav.fiasco.dependencies.repository.Repository;
 import com.telenav.fiasco.dependencies.repository.maven.MavenRepository;
 import com.telenav.kivakit.kernel.interfaces.comparison.MatcherSet;
+import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.unsupported;
 
 /**
  * Copies selected files from one folder to another.
@@ -32,7 +31,7 @@ public class Librarian extends BaseRepositoryTool implements LibraryResolver
 
     public Librarian deploy(final Library library)
     {
-        deploymentRepository.install(library);
+        deploymentRepository.install(library.artifact());
         return this;
     }
 
@@ -48,19 +47,13 @@ public class Librarian extends BaseRepositoryTool implements LibraryResolver
         return this;
     }
 
-    @Override
-    public void onRun()
-    {
-        unsupported();
-    }
-
     public List<Repository> repositories()
     {
         return Collections.unmodifiableList(repositories);
     }
 
     @Override
-    public List<Library> resolve(final Library library, final MatcherSet<Library> exclusions)
+    public ObjectList<Artifact> resolve(final Library library, final MatcherSet<Library> exclusions)
     {
         for (final var repository : repositories)
         {
@@ -70,7 +63,7 @@ public class Librarian extends BaseRepositoryTool implements LibraryResolver
                 return libraries;
             }
         }
-        return Collections.emptyList();
+        return ObjectList.emptyList();
     }
 
     public Librarian withDeploymentRepository(final Repository deploymentRepository)

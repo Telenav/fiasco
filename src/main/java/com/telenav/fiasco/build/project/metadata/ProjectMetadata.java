@@ -11,23 +11,35 @@ import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
  *     <li>The project {@link #name()}</li>
  *     <li>The organization that is the {@link #owner()} of the project</li>
  *     <li>The {@link #contributors()} who have worked on the project</li>
- *     <li>The {@link #licenses()} under which the project may be used</li>
  *     <li>The project {@link #copyright()}</li>
+ *     <li>The {@link #licenses()} under which the project may be used</li>
  * </ul>
  *
  * @author jonathanl (shibo)
  */
 public class ProjectMetadata implements Named
 {
+    public static ProjectMetadata create()
+    {
+        return new ProjectMetadata();
+    }
+
+    /** The list of contributors to this project */
     private ObjectList<Contributor> contributors;
 
+    /** The project copyright notice */
     private Copyright copyright;
 
+    /** The organization maintaining the project */
     private Organization owner;
 
+    /** The set of licenses under which the project is available for use */
     private ObjectList<License> licenses;
 
-    public ProjectMetadata()
+    /** Project source code */
+    private SourceCode code;
+
+    protected ProjectMetadata()
     {
     }
 
@@ -91,6 +103,13 @@ public class ProjectMetadata implements Named
     {
         final var copy = new ProjectMetadata(this);
         copy.owner = owner;
+        return copy;
+    }
+
+    public ProjectMetadata withSourceCode(final SourceCode code)
+    {
+        final var copy = new ProjectMetadata(this);
+        copy.code = code;
         return copy;
     }
 }

@@ -1,12 +1,28 @@
 package com.telenav.fiasco.build.phase.packaging;
 
+import com.telenav.fiasco.build.BuildStep;
 import com.telenav.fiasco.build.phase.BasePhase;
-import com.telenav.fiasco.build.project.Project;
+import com.telenav.fiasco.build.phase.Phase;
+import com.telenav.fiasco.build.project.BaseProject;
 
-@SuppressWarnings("DuplicatedCode")
+/**
+ * Executes the steps in the packaging phase of a build:
+ *
+ * <ol>
+ *     <li>PACKAGE_INITIALIZE</li>
+ *     <li>PACKAGE_PREPROCESS</li>
+ *     <li>PACKAGE_COMPILE</li>
+ *     <li>PACKAGE_POSTPROCESS</li>
+ *     <li>PACKAGE_VERIFY</li>
+ * </ol>
+ *
+ * @author jonathanl (shibo)
+ * @see Phase
+ * @see BuildStep
+ */
 public class PackagingPhase extends BasePhase
 {
-    public PackagingPhase(final Project project)
+    public PackagingPhase(final BaseProject project)
     {
         super(project);
     }

@@ -1,5 +1,6 @@
 package com.telenav.fiasco.build.project.metadata;
 
+import com.telenav.fiasco.build.project.Project;
 import com.telenav.kivakit.kernel.language.collections.set.ObjectSet;
 import com.telenav.kivakit.kernel.language.values.name.Name;
 import com.telenav.kivakit.network.core.EmailAddress;
@@ -42,9 +43,12 @@ public class Contributor extends Name
         return this;
     }
 
-    public Contributor withRole(final Role role)
+    public Contributor withRoles(final Role... roles)
     {
-        roles.add(role);
+        for (var role : roles)
+        {
+            this.roles.add(role);
+        }
         return this;
     }
 }

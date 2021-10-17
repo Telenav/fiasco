@@ -1,4 +1,4 @@
-package com.telenav.fiasco.dependencies;
+package com.telenav.fiasco.build.tools.repository;
 
 import com.telenav.fiasco.dependencies.Library;
 import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;

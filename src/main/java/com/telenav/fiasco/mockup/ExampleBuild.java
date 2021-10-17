@@ -8,12 +8,12 @@ public class ExampleBuild extends Build
     @Override
     public void onInitialize()
     {
-        add(new ExampleProject().in("example"));
+        project("example");
     }
 
     @Override
     public Folder workspace()
     {
-        return Folder.parse("${WORKSPACE}");
+        return Folder.parse("${EXAMPLE_WORKSPACE}");
     }
 }

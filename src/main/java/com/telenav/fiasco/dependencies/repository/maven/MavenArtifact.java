@@ -2,7 +2,6 @@ package com.telenav.fiasco.dependencies.repository.maven;
 
 import com.telenav.fiasco.dependencies.Dependency;
 import com.telenav.fiasco.dependencies.DependencyList;
-import com.telenav.fiasco.dependencies.Library;
 import com.telenav.fiasco.dependencies.repository.Artifact;
 import com.telenav.kivakit.kernel.language.values.version.Version;
 
@@ -11,6 +10,8 @@ import java.util.regex.Pattern;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
 
 /**
+ * A Maven artifact stored in a {@link MavenRepository} and belonging to a {@link MavenGroup}
+ *
  * @author jonathanl (shibo)
  */
 public class MavenArtifact implements Artifact, Dependency
@@ -62,11 +63,6 @@ public class MavenArtifact implements Artifact, Dependency
         version = that.version;
     }
 
-    public Library asLibrary()
-    {
-        return null;
-    }
-
     @Override
     public DependencyList dependencies()
     {
@@ -95,9 +91,10 @@ public class MavenArtifact implements Artifact, Dependency
         return name();
     }
 
-    public Library version(final String version)
+    @Override
+    public Version version()
     {
-        return withVersion(Version.parse(version)).asLibrary();
+        return version;
     }
 
     public MavenArtifact withGroup(final MavenGroup group)

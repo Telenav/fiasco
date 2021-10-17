@@ -1,12 +1,15 @@
 package com.telenav.fiasco.dependencies.repository.maven;
 
+import com.telenav.fiasco.dependencies.repository.ArtifactGroup;
 import com.telenav.kivakit.kernel.interfaces.naming.Named;
 import com.telenav.kivakit.kernel.language.values.version.Version;
 
 /**
+ * A group of artifacts, optionally of a given version
+ *
  * @author jonathanl (shibo)
  */
-public class MavenGroup implements Named
+public class MavenGroup implements Named, ArtifactGroup
 {
     public static MavenGroup create(String name)
     {
@@ -17,9 +20,10 @@ public class MavenGroup implements Named
 
     private Version version;
 
-    public MavenGroup(MavenGroup that)
+    protected MavenGroup(MavenGroup that)
     {
         this.name = that.name;
+        this.version = that.version;
     }
 
     protected MavenGroup(final String name)
@@ -40,7 +44,8 @@ public class MavenGroup implements Named
 
     public MavenGroup version(final String defaultVersion)
     {
-        version = Version.parse(defaultVersion);
-        return this;
+        var copy = new MavenGroup(this);
+        copy.version = Version.parse(defaultVersion);
+        return copy;
     }
 }

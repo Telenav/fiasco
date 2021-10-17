@@ -28,13 +28,13 @@ public class DependencyList extends ObjectList<Dependency>
         return new DependencyList(List.of(dependencies));
     }
 
-    public DependencyList()
-    {
-    }
-
-    public DependencyList(final List<Dependency> dependencies)
+    protected DependencyList(final List<Dependency> dependencies)
     {
         addAll(dependencies);
+    }
+
+    protected DependencyList()
+    {
     }
 
     @Override
@@ -124,7 +124,7 @@ public class DependencyList extends ObjectList<Dependency>
         return queue;
     }
 
-    public DependencyList without(final Collection<Dependency> exclusions)
+    public DependencyList without(final Collection<? extends Dependency> exclusions)
     {
         final var copy = new DependencyList(this);
         copy.removeAll(exclusions);

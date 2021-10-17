@@ -4,9 +4,9 @@ import com.telenav.fiasco.build.building.Builder;
 import com.telenav.fiasco.build.building.builders.ParallelBuilder;
 import com.telenav.fiasco.build.planning.BuildPlan;
 import com.telenav.fiasco.build.planning.BuildPlanner;
-import com.telenav.fiasco.build.project.Project;
+import com.telenav.fiasco.build.project.BaseProject;
+import com.telenav.fiasco.dependencies.BaseProjectDependency;
 import com.telenav.fiasco.dependencies.DependencyGraph;
-import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.kernel.interfaces.lifecycle.Initializable;
 import com.telenav.kivakit.kernel.interfaces.naming.Named;
 import com.telenav.kivakit.kernel.messaging.messages.status.Announcement;
@@ -15,8 +15,8 @@ import com.telenav.kivakit.kernel.messaging.messages.status.Announcement;
  * Base class for user builds.
  *
  * <p>
- * The {@link #build()} method builds the set of {@link Buildables} added by {@link #add(Buildable...)} ({@link
- * Project}s are {@link Buildable}). As the build proceeds the {@link BuildListener} specified by {@link
+ * The {@link #build()} method builds the set of {@link BuildableSet} added by {@link #project(String)} ({@link
+ * BaseProject}s are {@link Buildable}). As the build proceeds the {@link BuildListener} specified by {@link
  * #listener(BuildListener)} is called with {@link BuildResult}s. If no build listener is specified, the default
  * listener broadcasts {@link Announcement} messages for each build that completes.
  * </p>
@@ -25,13 +25,10 @@ import com.telenav.kivakit.kernel.messaging.messages.status.Announcement;
  * @see Buildable
  * @see BuildListener
  * @see BuildResult
- * @see Project
+ * @see BaseProject
  */
-public abstract class Build extends BaseComponent implements Buildable, Named, Initializable
+public abstract class Build extends BaseProjectDependency implements Buildable, Named, Initializable
 {
-    /** Group of {@link Buildable}s to build */
-    private final Buildables buildables = Buildables.create();
-
     /** The build listener to call when the build step changes */
     private BuildListener listener;
 
@@ -40,20 +37,8 @@ public abstract class Build extends BaseComponent implements Buildable, Named, I
         listener = result -> announce("Build completed: $", result);
     }
 
-    public Build add(Buildable... buildables)
-    {
-        this.buildables.addAll(buildables);
-
-        for (var at : buildables)
-        {
-            at.build(this);
-        }
-
-        return this;
-    }
-
     /**
-     * Creates a {@link BuildPlan} for the buildables that were added with {@link #add(Buildable...)}, then executes the
+     * Creates a {@link BuildPlan} for the buildables that were added with {@link #project(String)}, then executes the
      * plan using the {@link Builder} returned by {@link #builder()}. As the build proceeds the {@link BuildListener} is
      * called when {@link Buildable}s finish building.
      */
@@ -73,11 +58,6 @@ public abstract class Build extends BaseComponent implements Buildable, Named, I
             result.end();
         }
         return result;
-    }
-
-    @Override
-    public void build(final Build build)
-    {
     }
 
     /**

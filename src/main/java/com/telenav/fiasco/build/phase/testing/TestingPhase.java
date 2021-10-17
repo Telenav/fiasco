@@ -1,12 +1,30 @@
 package com.telenav.fiasco.build.phase.testing;
 
+import com.telenav.fiasco.build.BuildStep;
 import com.telenav.fiasco.build.phase.BasePhase;
-import com.telenav.fiasco.build.project.Project;
+import com.telenav.fiasco.build.phase.Phase;
+import com.telenav.fiasco.build.project.BaseProject;
 
-@SuppressWarnings("DuplicatedCode")
+/**
+ * Executes the steps in the installation phase of a build:
+ *
+ * <ol>
+ *     <li>TEST_INITIALIZE</li>
+ *     <li>TEST_GENERATE</li>
+ *     <li>TEST_PREPROCESS</li>
+ *     <li>TEST_COMPILE</li>
+ *     <li>TEST_POSTPROCESS</li>
+ *     <li>TEST_VERIFY</li>
+ *     <li>TEST_RUN_TESTS</li>
+ * </ol>
+ *
+ * @author jonathanl (shibo)
+ * @see Phase
+ * @see BuildStep
+ */
 public class TestingPhase extends BasePhase
 {
-    public TestingPhase(final Project project)
+    public TestingPhase(final BaseProject project)
     {
         super(project);
     }

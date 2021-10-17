@@ -1,13 +1,30 @@
 package com.telenav.fiasco.build.phase.compilation;
 
+import com.telenav.fiasco.build.BuildStep;
 import com.telenav.fiasco.build.phase.BasePhase;
-import com.telenav.fiasco.build.project.Project;
-import com.telenav.fiasco.build.tools.compiler.JavaCompiler;
+import com.telenav.fiasco.build.phase.Phase;
+import com.telenav.fiasco.build.project.BaseProject;
 
+/**
+ * Executes the steps in the compilation phase of a build:
+ *
+ * <ol>
+ *     <li>INITIALIZE</li>
+ *     <li>GENERATE</li>
+ *     <li>PREPROCESS</li>
+ *     <li>COMPILE</li>
+ *     <li>POSTPROCESS</li>
+ *     <li>VERIFY</li>
+ * </ol>
+ *
+ * @author jonathanl (shibo)
+ * @see BuildStep
+ * @see Phase
+ */
 @SuppressWarnings("DuplicatedCode")
 public class CompilationPhase extends BasePhase
 {
-    public CompilationPhase(final Project project)
+    public CompilationPhase(final BaseProject project)
     {
         super(project);
     }
@@ -39,8 +56,6 @@ public class CompilationPhase extends BasePhase
 
     public void onCompile()
     {
-
-        // javaCompiler().sources(javaSources().nestedFiles(Extension.JAVA.fileMatcher())).run();
     }
 
     public void onGenerate()
@@ -80,11 +95,6 @@ public class CompilationPhase extends BasePhase
     public final void verify()
     {
         onVerify();
-    }
-
-    protected JavaCompiler javaCompiler()
-    {
-        return new JavaCompiler();
     }
 
     protected void onRuns()

@@ -1,8 +1,6 @@
 package com.telenav.fiasco;
 
 import com.telenav.fiasco.build.Build;
-import com.telenav.fiasco.build.building.Builder;
-import com.telenav.fiasco.build.building.builders.ParallelBuilder;
 import com.telenav.fiasco.internal.FiascoSettings;
 import com.telenav.kivakit.application.Application;
 import com.telenav.kivakit.commandline.ArgumentParser;
@@ -136,11 +134,6 @@ public class Fiasco extends Application
                 fail("Build file couldn't be compiled: $", file);
             }
         }
-    }
-
-    private Builder builder()
-    {
-        return new ParallelBuilder();
     }
 
     /**

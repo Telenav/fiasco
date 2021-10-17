@@ -1,11 +1,11 @@
 package com.telenav.fiasco.dependencies.repository.maven;
 
-import com.telenav.fiasco.dependencies.Library;
+import com.telenav.fiasco.dependencies.repository.Artifact;
 import com.telenav.fiasco.dependencies.repository.Repository;
 
-import java.util.List;
-
 /**
+ * A maven repository containing {@link MavenArtifact}s, organized in {@link MavenGroup}s.
+ *
  * @author jonathanl (shibo)
  */
 public class MavenRepository implements Repository
@@ -22,13 +22,13 @@ public class MavenRepository implements Repository
     }
 
     @Override
-    public void install(final Library library)
+    public void install(final Artifact artifact)
     {
     }
 
     @Override
-    public List<Library> resolve(final Library library)
+    public Artifact resolve(final Artifact artifact)
     {
-        return null;
+        return artifact;
     }
 }

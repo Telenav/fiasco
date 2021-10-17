@@ -1,8 +1,7 @@
 package com.telenav.fiasco.build;
 
-import com.telenav.kivakit.filesystem.Folder;
-
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionService;
 
 /**
  * An object that can be built by calling {@link #build()}
@@ -12,25 +11,20 @@ import java.util.concurrent.Callable;
 public interface Buildable extends Callable<BuildResult>
 {
     /**
-     * Specifies the build for this buildable
-     */
-    void build(Build build);
-
-    /**
      * Builds this object
      *
      * @return The result of building this object
      */
     BuildResult build();
 
+    /**
+     * Allows this buildable object to be submitted to a {@link CompletionService}
+     *
+     * @return The result of building this object
+     */
     @Override
     default BuildResult call()
     {
         return build();
-    }
-
-    default Folder workspace()
-    {
-        return Folder.parse("${WORKSPACE}");
     }
 }

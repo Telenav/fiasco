@@ -34,6 +34,11 @@ public class BuildResult implements Listener
         this.buildName = buildName;
     }
 
+    public String buildName()
+    {
+        return buildName;
+    }
+
     public Duration elapsed()
     {
         return end.minus(start);

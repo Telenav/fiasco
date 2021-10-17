@@ -7,11 +7,16 @@
 
 package com.telenav.fiasco.dependencies;
 
-import com.telenav.fiasco.dependencies.repository.maven.MavenArtifact;
+import com.telenav.fiasco.dependencies.repository.Artifact;
 import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
 import com.telenav.kivakit.kernel.interfaces.comparison.MatcherSet;
 import com.telenav.kivakit.kernel.language.values.version.Version;
 
+/**
+ * A library is an artifact of a particular version, with a set of dependencies and exclusions
+ *
+ * @author jonathanl (shibo)
+ */
 public class Library extends BaseDependency
 {
     @SuppressWarnings("ConstantConditions")
@@ -20,15 +25,19 @@ public class Library extends BaseDependency
         return new Library((Library) null);
     }
 
-    private MavenArtifact artifact;
+    /** The library artifact */
+    private Artifact artifact;
 
+    /** Dependencies of the artifact that should be excluded */
     private final MatcherSet<Dependency> exclusions = new MatcherSet<>();
 
+    /** The dependencies of this library's artifact */
     private final DependencyList dependencies = new DependencyList();
 
+    /** The version of this library's artifact */
     private Version version;
 
-    public Library(final MavenArtifact artifact)
+    public Library(final Artifact artifact)
     {
         this.artifact = artifact;
     }
@@ -39,7 +48,7 @@ public class Library extends BaseDependency
         version = that.version;
     }
 
-    public MavenArtifact artifact()
+    public Artifact artifact()
     {
         return artifact;
     }

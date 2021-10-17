@@ -14,7 +14,8 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
  */
 public class Organization extends Name
 {
-    private URL url;
+    /** Organization website */
+    private URL website;
 
     public Organization(final String name)
     {
@@ -23,20 +24,20 @@ public class Organization extends Name
 
     public URL url()
     {
-        return url;
+        return website;
     }
 
-    public Organization withUrl(final URL url)
+    public Organization withWebsite(final URL url)
     {
-        this.url = url;
+        this.website = url;
         return this;
     }
 
-    public Organization withUrl(final String url)
+    public Organization withWebsite(final String url)
     {
         try
         {
-            return withUrl(new URL(url));
+            return withWebsite(new URL(url));
         }
         catch (final MalformedURLException e)
         {

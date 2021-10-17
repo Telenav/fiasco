@@ -1,11 +1,11 @@
 package com.telenav.fiasco.build.phase.testing;
 
-import com.telenav.fiasco.build.project.Project;
-import com.telenav.kivakit.component.Component;
+import com.telenav.fiasco.build.phase.Phase;
+import com.telenav.fiasco.build.project.BaseProject;
 import com.telenav.kivakit.kernel.language.mixin.Mixin;
 
 @SuppressWarnings("DuplicatedCode")
-public interface TestingPhaseMixin extends Component, Mixin
+public interface TestingPhaseMixin extends Phase, Mixin
 {
     default void buildTestSources()
     {
@@ -37,7 +37,7 @@ public interface TestingPhaseMixin extends Component, Mixin
         testingPhase().onTestVerify();
     }
 
-    default Project project()
+    default BaseProject project()
     {
         return testingPhase().project();
     }
