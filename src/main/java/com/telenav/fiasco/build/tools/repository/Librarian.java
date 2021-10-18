@@ -27,11 +27,17 @@ public class Librarian extends BaseRepositoryTool implements ArtifactResolver
     /** List of repositories to search for this project, with the local repository first */
     private final ObjectList<ArtifactRepository> repositories = ObjectList.create();
 
+    /**
+     * Adds the given repository to the list of repositories that this librarian searches
+     */
     public void add(ArtifactRepository repository)
     {
         repositories.add(repository);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ArtifactRepository resolve(final Artifact artifact)
     {

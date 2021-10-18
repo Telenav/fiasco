@@ -1,6 +1,7 @@
 package com.telenav.fiasco;
 
 import com.telenav.fiasco.build.Build;
+import com.telenav.fiasco.build.tools.compiler.JavaCompiler;
 import com.telenav.fiasco.internal.FiascoSettings;
 import com.telenav.kivakit.application.Application;
 import com.telenav.kivakit.commandline.ArgumentParser;
@@ -10,15 +11,18 @@ import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.collections.set.ObjectSet;
 import com.telenav.kivakit.kernel.language.reflection.Type;
+import com.telenav.kivakit.kernel.language.values.version.Version;
 import com.telenav.kivakit.resource.ResourceProject;
 
-import javax.tools.ToolProvider;
+import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
 
+import static com.telenav.kivakit.filesystem.Folder.Type.CLEAN_UP_ON_EXIT;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
+import static com.telenav.kivakit.resource.path.Extension.CLASS;
 
 /**
  * Fiasco build tool. <a href="https://en.wikipedia.org/wiki/Fiasco_(novel)"><i>Fiasco</i></a> is a science fiction book
@@ -119,7 +123,7 @@ public class Fiasco extends Application
         // For each specified build,
         for (var buildName : buildNames)
         {
-            // get the .java build file
+            // get the .java build file with the given name,
             var file = settings.buildFile(buildName);
 
             // compile the source file into a build class,
@@ -144,24 +148,31 @@ public class Fiasco extends Application
     {
         if (sourceFile.exists())
         {
-            final var compiler = ToolProvider.getSystemJavaCompiler();
-            final var fileManager = compiler.getStandardFileManager(null, null, null);
-            final var files = fileManager.getJavaFileObjectsFromFiles(List.of(sourceFile.asJavaFile()));
+            final var targetFolder = Folder.temporaryForProcess(CLEAN_UP_ON_EXIT);
 
-            if (compiler.getTask(null, fileManager, null, null, null, files).call())
+            var output = new StringWriter();
+
+            final JavaCompiler compiler = new JavaCompiler()
+                    .withOutput(output)
+                    .withSourceVersion(Version.parse("11"))
+                    .withTargetVersion(Version.parse("11"))
+                    .withTargetFolder(targetFolder);
+
+            if (compiler.compile(sourceFile))
             {
-                // TODO Shibo
-                return null;
+                return sourceFile
+                        .withExtension(CLASS)
+                        .relativeTo(targetFolder);
             }
-            else
-            {
-                throw problem("Compile of build file failed: $", sourceFile).asException();
-            }
+
+            problem("Could not build Fiasco build source file: $\n\n$", sourceFile, output);
         }
         else
         {
-            throw problem("Build source file does not exist: $", sourceFile).asException();
+            problem("Build source file does not exist: $", sourceFile);
         }
+
+        return fail();
     }
 
     /**

@@ -18,8 +18,10 @@ import com.telenav.kivakit.network.core.EmailAddress;
  */
 public class Contributor extends Name
 {
+    /** A set of email addresses where the contributor can be contacted */
     private final ObjectSet<EmailAddress> emails = ObjectSet.empty();
 
+    /** A set of roles that the contributor provides */
     private final ObjectSet<Role> roles = ObjectSet.empty();
 
     public Contributor(final String name)

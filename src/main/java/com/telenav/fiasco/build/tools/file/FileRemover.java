@@ -1,11 +1,10 @@
 package com.telenav.fiasco.build.tools.file;
 
-import com.telenav.kivakit.filesystem.File;
 import com.telenav.kivakit.filesystem.FileList;
 
 /**
  * <p>
- * Removes files. For example:
+ * Removes files and any empty parent folders. For example:
  * </p>
  *
  * <p>
@@ -20,7 +19,19 @@ public class FileRemover extends BaseFileTool
 {
     public FileRemover remove(FileList files)
     {
-        files.forEach(File::delete);
+        files.forEach(file ->
+        {
+            // Delete the file
+            file.delete();
+
+            // and if the parent is empty,
+            if (file.parent().isEmpty())
+            {
+                // delete it too.
+                file.parent().delete();
+            }
+        });
+
         return this;
     }
 }

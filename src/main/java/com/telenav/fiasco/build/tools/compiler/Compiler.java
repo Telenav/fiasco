@@ -4,5 +4,4 @@ import com.telenav.fiasco.build.tools.Tool;
 
 public interface Compiler extends Tool
 {
-
 }

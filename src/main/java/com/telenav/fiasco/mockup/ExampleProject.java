@@ -1,5 +1,7 @@
 package com.telenav.fiasco.mockup;
 
+import com.telenav.fiasco.build.project.metadata.SourceCode;
+
 import static com.telenav.fiasco.build.project.metadata.Role.ARCHITECT;
 import static com.telenav.fiasco.build.project.metadata.Role.ARTIST;
 import static com.telenav.fiasco.build.project.metadata.Role.COMMITTER;
@@ -15,6 +17,7 @@ public class ExampleProject extends TelenavProject
     {
         metadata(super.projectMetadata()
                 .withCopyright(copyright(2021))
+                .withSourceCode(SourceCode.create().withRepository("https://github.com/Telenav/example"))
                 .withContributor(jonathan()
                         .withRoles(ARCHITECT, ARTIST, COMMITTER, DEVELOPER, LEAD, ORIGINATOR, WRITER)));
 

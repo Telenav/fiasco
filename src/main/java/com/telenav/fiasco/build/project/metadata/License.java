@@ -16,8 +16,10 @@ public class License
         return new License();
     }
 
+    /** The license title */
     private String title;
 
+    /** The text of the license */
     private String body;
 
     protected License()

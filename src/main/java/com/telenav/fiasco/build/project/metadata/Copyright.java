@@ -12,6 +12,7 @@ import com.telenav.kivakit.resource.Resource;
  */
 public class Copyright
 {
+    /** The copyright text */
     private final String copyright;
 
     /**
