@@ -8,11 +8,12 @@ import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.collections.list.StringList;
 import com.telenav.kivakit.kernel.language.strings.CaseFormat;
 import com.telenav.kivakit.kernel.language.strings.Strip;
-import com.telenav.kivakit.resource.path.Extension;
 
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
+
+import static com.telenav.kivakit.resource.path.Extension.JAVA;
 
 /**
  * <b>Not public API</b>
@@ -25,14 +26,17 @@ import java.util.regex.Pattern;
  */
 public class FiascoSettings extends BaseComponent
 {
-    public void addBuildFolder(Folder folder)
+    /**
+     * Adds the given root folder to Fiasco
+     */
+    public void addProjectRoot(Folder root)
     {
-        var path = folder.path().asString();
-        var buildFolders = buildFoldersNode();
-        var existing = buildFolders.get(path, null);
+        var path = root.path().asString();
+        var node = rootFoldersNode();
+        var existing = node.get(path, null);
         if (existing == null)
         {
-            buildFolders.put(path, "true");
+            node.put(path, "true");
         }
         else
         {
@@ -40,6 +44,9 @@ public class FiascoSettings extends BaseComponent
         }
     }
 
+    /**
+     * @return The source file for the given build name
+     */
     public File buildFile(String buildName)
     {
         for (var file : buildFiles())
@@ -52,39 +59,34 @@ public class FiascoSettings extends BaseComponent
         throw problem("No build file named: $", buildName).asException();
     }
 
+    /**
+     * @return The list of build files in all the project "fiasco" folders that Fiasco knows about
+     */
     public ObjectList<File> buildFiles()
     {
         var files = new ObjectList<File>();
-        for (var folder : buildFolders())
+        for (var folder : projectRoots())
         {
-            files.addAll(folder.files(Extension.JAVA.fileMatcher()));
+            var fiascoFolder = folder.folder("fiasco");
+            files.addAll(fiascoFolder.files(JAVA.fileMatcher()));
         }
         return files;
     }
 
-    public ObjectList<Folder> buildFolders()
-    {
-        try
-        {
-            var folders = new ObjectList<Folder>();
-            for (var path : buildFoldersNode().keys())
-            {
-                folders.add(Folder.parse(path));
-            }
-            return folders;
-        }
-        catch (BackingStoreException e)
-        {
-            throw problem(e, "Cannot retrieve build folders").asException();
-        }
-    }
-
+    /**
+     * @return The build name for the given Fiasco source file. The  file has "Build" and the file extension stripped
+     * from the end, and then it is turned into lowercase hyphenated form. For example, "MyBuild.java" becomes
+     * "my-build".
+     */
     public String buildName(final File file)
     {
         var name = file.baseName().name();
         return CaseFormat.camelCaseToHyphenated(Strip.ending(name, "Build"));
     }
 
+    /**
+     * @return The names of all the builds that Fiasco knows about
+     */
     public StringList buildNames()
     {
         var names = new StringList();
@@ -99,15 +101,46 @@ public class FiascoSettings extends BaseComponent
         return names;
     }
 
-    public void removeBuildFoldersMatching(Matcher<String> matcher)
+    /**
+     * @return The list of project roots that Fiasco knows about
+     */
+    public ObjectList<Folder> projectRoots()
     {
         try
         {
-            for (var key : buildFoldersNode().keys())
+            var roots = new ObjectList<Folder>();
+            for (var path : rootFoldersNode().keys())
+            {
+                roots.add(Folder.parse(path));
+            }
+            return roots;
+        }
+        catch (BackingStoreException e)
+        {
+            throw problem(e, "Cannot retrieve build folders").asException();
+        }
+    }
+
+    /**
+     * Removes all project root folders matching the given pattern
+     */
+    public void removeProjectRoots(Pattern pattern)
+    {
+        removeProjectRoots(key -> pattern.matcher(key).matches());
+    }
+
+    /**
+     * Removes all root folders matching the given matcher
+     */
+    public void removeProjectRoots(Matcher<String> matcher)
+    {
+        try
+        {
+            for (var key : rootFoldersNode().keys())
             {
                 if (matcher.matches(key))
                 {
-                    buildFoldersNode().remove(key);
+                    rootFoldersNode().remove(key);
                 }
             }
         }
@@ -117,18 +150,10 @@ public class FiascoSettings extends BaseComponent
         }
     }
 
-    public void removeBuildFoldersMatching(Pattern pattern)
+    private Preferences rootFoldersNode()
     {
-        removeBuildFoldersMatching(key -> pattern.matcher(key).matches());
-    }
-
-    private Preferences buildFoldersNode()
-    {
-        return fiascoNode().node("build-folders");
-    }
-
-    private Preferences fiascoNode()
-    {
-        return Preferences.userNodeForPackage(getClass()).node("fiasco");
+        return Preferences.userNodeForPackage(getClass())
+                .node("fiasco")
+                .node("root-folders");
     }
 }

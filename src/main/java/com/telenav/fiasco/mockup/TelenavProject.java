@@ -6,6 +6,7 @@ import com.telenav.fiasco.build.project.metadata.Copyright;
 import com.telenav.fiasco.build.project.metadata.License;
 import com.telenav.fiasco.build.project.metadata.Organization;
 import com.telenav.fiasco.build.project.metadata.ProjectMetadata;
+import com.telenav.fiasco.build.tools.compiler.JavaCompiler;
 import com.telenav.kivakit.kernel.interfaces.string.StringSource;
 import com.telenav.kivakit.network.core.EmailAddress;
 
@@ -19,6 +20,15 @@ public class TelenavProject extends BaseProject implements TelenavArtifacts
     protected Copyright copyright(int firstYear)
     {
         return new Copyright(StringSource.of("Copyright (C) " + firstYear));
+    }
+
+    protected JavaCompiler javaCompiler()
+    {
+        return JavaCompiler.create()
+                .withSourceVersion("11")
+                .withTargetVersion("11")
+                .withTargetFolder(root().folder("fiasco"))
+                .withOutput(System.console().writer());
     }
 
     protected Contributor jonathan()

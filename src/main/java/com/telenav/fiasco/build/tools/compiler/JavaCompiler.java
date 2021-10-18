@@ -83,6 +83,11 @@ public class JavaCompiler extends BaseCompiler
         return copy;
     }
 
+    public JavaCompiler withSourceVersion(final String version)
+    {
+        return withSourceVersion(Version.parse(version));
+    }
+
     public JavaCompiler withSourceVersion(final Version version)
     {
         var copy = copy();
@@ -97,6 +102,11 @@ public class JavaCompiler extends BaseCompiler
         this.targetFolder = folder;
         copy.option("-d " + folder);
         return copy;
+    }
+ 
+    public JavaCompiler withTargetVersion(final String version)
+    {
+        return withSourceVersion(Version.parse(version));
     }
 
     public JavaCompiler withTargetVersion(final Version version)
