@@ -25,7 +25,7 @@ public interface Project extends
     @Override
     default Project project()
     {
-        return TestingPhaseMixin.super.project();
+        return this;
     }
 
     /**

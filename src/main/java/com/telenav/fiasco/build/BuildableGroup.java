@@ -7,14 +7,14 @@ import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
  *
  * @author jonathanl (shibo)
  */
-public class BuildableSet extends ObjectList<Buildable>
+public class BuildableGroup extends ObjectList<Buildable>
 {
-    public static BuildableSet create()
+    public static BuildableGroup create()
     {
-        return new BuildableSet();
+        return new BuildableGroup();
     }
 
-    protected BuildableSet()
+    protected BuildableGroup()
     {
     }
 }

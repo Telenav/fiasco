@@ -19,6 +19,8 @@ import com.telenav.fiasco.dependencies.repository.ArtifactRepository;
 import com.telenav.fiasco.dependencies.repository.maven.MavenArtifact;
 import com.telenav.kivakit.filesystem.Folder;
 
+import java.util.Objects;
+
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
 
 /**
@@ -77,7 +79,7 @@ public abstract class BaseProject extends BaseProjectDependency implements Proje
     @Override
     public BuildResult build()
     {
-        var result = new BuildResult(project().name());
+        var result = new BuildResult(metadata.name());
         try
         {
             result.listenTo(this);
@@ -116,6 +118,23 @@ public abstract class BaseProject extends BaseProjectDependency implements Proje
     public DependencyList dependencies()
     {
         return null;
+    }
+
+    @Override
+    public boolean equals(final Object object)
+    {
+        if (object instanceof BaseProject)
+        {
+            BaseProject that = (BaseProject) object;
+            return this.root().equals(that.root());
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(root());
     }
 
     public void metadata(final ProjectMetadata metadata)

@@ -3,7 +3,7 @@ package com.telenav.fiasco.build.building;
 import com.telenav.fiasco.build.BuildListener;
 import com.telenav.fiasco.build.BuildResult;
 import com.telenav.fiasco.build.Buildable;
-import com.telenav.fiasco.build.BuildableSet;
+import com.telenav.fiasco.build.BuildableGroup;
 import com.telenav.kivakit.component.Component;
 
 /**
@@ -15,8 +15,8 @@ import com.telenav.kivakit.component.Component;
 public interface Builder extends Component
 {
     /**
-     * Builds the given {@link BuildableSet}, calling the {@link BuildListener} with each {@link BuildResult} as the
+     * Builds the given {@link BuildableGroup}, calling the {@link BuildListener} with each {@link BuildResult} as the
      * build proceeds.
      */
-    void build(BuildableSet buildables, BuildListener listener);
+    void build(BuildableGroup buildables, BuildListener listener);
 }

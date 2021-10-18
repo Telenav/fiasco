@@ -3,7 +3,7 @@ package com.telenav.fiasco.build.building.builders;
 import com.telenav.fiasco.build.BuildListener;
 import com.telenav.fiasco.build.BuildResult;
 import com.telenav.fiasco.build.Buildable;
-import com.telenav.fiasco.build.BuildableSet;
+import com.telenav.fiasco.build.BuildableGroup;
 import com.telenav.fiasco.build.building.BaseBuilder;
 import com.telenav.kivakit.kernel.language.values.count.Count;
 import com.telenav.kivakit.kernel.language.vm.JavaVirtualMachine;
@@ -41,7 +41,7 @@ public class ParallelBuilder extends BaseBuilder
      * Builds the given {@link Buildable}s, calling the {@link BuildListener} as the build progresses
      */
     @Override
-    public void build(BuildableSet buildables, BuildListener listener)
+    public void build(BuildableGroup buildables, BuildListener listener)
     {
         // Create executor,
         var executor = Executors.newFixedThreadPool(threads.asInt());

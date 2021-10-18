@@ -1,5 +1,7 @@
 package com.telenav.fiasco.build;
 
+import com.telenav.fiasco.dependencies.Dependency;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 
@@ -8,7 +10,7 @@ import java.util.concurrent.CompletionService;
  *
  * @author jonathanl (shibo)
  */
-public interface Buildable extends Callable<BuildResult>
+public interface Buildable extends Dependency, Callable<BuildResult>
 {
     /**
      * Builds this object

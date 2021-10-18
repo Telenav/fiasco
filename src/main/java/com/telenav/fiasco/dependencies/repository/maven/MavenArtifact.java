@@ -8,6 +8,7 @@ import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
 import com.telenav.kivakit.kernel.language.values.version.Version;
 import com.telenav.kivakit.resource.path.FilePath;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
@@ -108,6 +109,17 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
         return dependencies;
     }
 
+    @Override
+    public boolean equals(final Object object)
+    {
+        if (object instanceof MavenArtifact)
+        {
+            MavenArtifact that = (MavenArtifact) object;
+            return this.fullyQualifiedName().equals(that.fullyQualifiedName());
+        }
+        return false;
+    }
+
     /**
      * @return This artifact without the matching dependencies
      */
@@ -133,6 +145,12 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
     public MavenArtifactGroup group()
     {
         return group;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(fullyQualifiedName());
     }
 
     /**
