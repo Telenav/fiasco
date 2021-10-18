@@ -26,28 +26,41 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
 import static com.telenav.kivakit.resource.path.Extension.CLASS;
 
 /**
- * Fiasco build tool. <a href="https://en.wikipedia.org/wiki/Fiasco_(novel)"><i>Fiasco</i></a> is a science fiction book
- * by Stanislaw Lem published in 1986.
+ * Fiasco build tool. <a href="https://en.wikipedia.org/wiki/Fiasco_(novel)"><i>Fiasco</i></a> is a science fiction
+ * novel by Stanislaw Lem published in 1986.
  *
  * <p>
- * Fiasco maintains a list of build folders in the Java preferences store. Each build folder contains one or more
- * <i>.java</i> source files that implement the {@link Build} interface. Fiasco compiles and loads these source files.
- * It then executes loaded build classes by calling {@link Build#build()}.
+ * Fiasco maintains a list of project folders in the Java preferences store. Each project folder must have a "fiasco"
+ * folder that contains one or more <i>.java</i> source files that implement the {@link Build} interface. Each such
+ * source file is a Fiasco build. Fiasco compiles these source files, loads them and executes them by calling {@link
+ * Build#build()}. Because Fiasco remembers where projects are <i><b>it is not necessary to be in the project folder to
+ * build the project</b></i>. Instead, the name of the build is specified and Fiasco locates the project folder.
  * </p>
+ *
+ * <p><b>Command Line Switches</b></p>
+ * <ul>
+ *     <li>-remember=[path] - Remembers the given path as a project folder</li>
+ *     <li>-forget=[glob-pattern] - Forgets all project folders matching the given pattern</li>
+ * </ul>
+ *
+ * <p><b>Examples</b></p>
+ *
+ * <pre>fiasco -remember ./example</pre>
+ * <pre>fiasco -forget ./example</pre>
  *
  * <p>
- * Arguments to Fiasco are the names of one or more builds to execute. If no arguments are provided, a list of available
- * builds is shown. Build names are derived from the names of the <i>.java</i> source files by removing the <i>.java</i>
- * suffix, and any "Build" suffix. The remaining base name is converted from camelcase to lowercase separated by
- * hyphens. For example:
+ * Arguments to Fiasco are the names of one or more builds (found in the list of project  folders that Fiasco remembers) to
+ * execute. If no arguments are provided, a list of available builds is shown. Build names are derived from the names
+ * of the <i>.java</i> source files (in the "fiasco" folder in each remembered project folder) by removing the <i>.java</i>
+ * suffix, and any "Build" suffix. The remaining base name is converted from camelcase to lowercase separated by hyphens:
  * </p>
  *
- * <pre>MyProjectBuild.java => my-project</pre>
+ * <ul>MyExampleBuild.java => my-example</ul>
  *
- * <p>
- * Build folders can be added to Fiasco with the <i>-add=[path]</i> switch and removed with the
- * <i>-remove=[pattern]</i> switch.
- * </p>
+ * <p><b>Examples</b></p>
+ *
+ * <pre>fiasco</pre>
+ * <pre>fiasco my-example</pre>
  *
  * @author jonathanl (shibo)
  */
