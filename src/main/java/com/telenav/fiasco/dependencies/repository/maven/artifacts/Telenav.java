@@ -1,4 +1,6 @@
-package com.telenav.fiasco.dependencies.repository.maven.artifacts.telenav;
+package com.telenav.fiasco.dependencies.repository.maven.artifacts;
+
+import com.telenav.fiasco.dependencies.repository.maven.artifacts.telenav.KivaKit;
 
 /**
  * Telenav, inc.

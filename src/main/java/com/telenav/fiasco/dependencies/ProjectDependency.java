@@ -1,14 +1,19 @@
 package com.telenav.fiasco.dependencies;
 
+import com.telenav.fiasco.build.project.Project;
 import com.telenav.kivakit.filesystem.Folder;
 
+/**
+ * A {@link Project} dependency that must be built (as opposed to an {@link Library} dependency which is already built.
+ *
+ * @author jonathanl (shibo)
+ */
 public interface ProjectDependency extends Dependency
 {
     /**
      * Builds and adds project in the given folder
      *
      * @param folder The project build folder
-     * @return The project
      */
     void project(Folder folder);
 

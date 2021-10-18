@@ -28,24 +28,22 @@ public class DependencyList extends ObjectList<Dependency>
         return new DependencyList(List.of(dependencies));
     }
 
+    public DependencyList()
+    {
+    }
+
     protected DependencyList(final List<Dependency> dependencies)
     {
         addAll(dependencies);
     }
 
-    protected DependencyList()
-    {
-    }
-
+    /**
+     * @return A copy of this dependency list
+     */
     @Override
     public DependencyList copy()
     {
         return new DependencyList(this);
-    }
-
-    public void process(final Listener listener, final Callback<Dependency> callback)
-    {
-        process(listener, Count._1, callback);
     }
 
     /**
@@ -124,6 +122,9 @@ public class DependencyList extends ObjectList<Dependency>
         return queue;
     }
 
+    /**
+     * @return This dependency list without the given exclusions
+     */
     public DependencyList without(final Collection<? extends Dependency> exclusions)
     {
         final var copy = new DependencyList(this);
@@ -131,10 +132,13 @@ public class DependencyList extends ObjectList<Dependency>
         return copy;
     }
 
-    public DependencyList without(final Matcher<Dependency> pattern)
+    /**
+     * @return This dependency list without the matching dependencies
+     */
+    public DependencyList without(final Matcher<Dependency> matcher)
     {
         final var copy = new DependencyList(this);
-        copy.removeIf(pattern::matches);
+        copy.removeIf(matcher::matches);
         return copy;
     }
 }

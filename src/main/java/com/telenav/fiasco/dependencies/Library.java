@@ -9,35 +9,26 @@ package com.telenav.fiasco.dependencies;
 
 import com.telenav.fiasco.dependencies.repository.Artifact;
 import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
-import com.telenav.kivakit.kernel.interfaces.comparison.MatcherSet;
 import com.telenav.kivakit.kernel.language.values.version.Version;
 
 /**
- * A library is an artifact of a particular version, with a set of dependencies and exclusions
+ * A library is an artifact of a particular version, with a set of dependencies from the artifact. Dependencies can be
+ * retrieved with {@link #dependencies()} and excluded with {@link #excluding(Matcher)} or {@link
+ * #excluding(Dependency...)}.
  *
  * @author jonathanl (shibo)
  */
 public class Library extends BaseDependency
 {
-    @SuppressWarnings("ConstantConditions")
-    public static Library parse(final String descriptor)
+    public static Library create(Artifact artifact)
     {
-        return new Library((Library) null);
+        return new Library(artifact);
     }
 
     /** The library artifact */
     private Artifact artifact;
 
-    /** Dependencies of the artifact that should be excluded */
-    private final MatcherSet<Dependency> exclusions = new MatcherSet<>();
-
-    /** The dependencies of this library's artifact */
-    private final DependencyList dependencies = new DependencyList();
-
-    /** The version of this library's artifact */
-    private Version version;
-
-    public Library(final Artifact artifact)
+    protected Library(final Artifact artifact)
     {
         this.artifact = artifact;
     }
@@ -45,35 +36,41 @@ public class Library extends BaseDependency
     protected Library(final Library that)
     {
         artifact = that.artifact;
-        version = that.version;
     }
 
+    /**
+     * @return The artifact for this library
+     */
     public Artifact artifact()
     {
         return artifact;
     }
 
-    @Override
-    public DependencyList dependencies()
-    {
-        return dependencies.copy().without(exclusions.anyMatches());
-    }
-
+    /**
+     * @return This library without the matching dependencies
+     */
     public Library excluding(final Matcher<Dependency> matcher)
     {
-        exclusions.add(matcher);
+        this.artifact = (Artifact) artifact.excluding(matcher);
         return this;
     }
 
-    public Library version(final Version version)
+    /**
+     * @return This library with the given artifact version
+     */
+    public Library withVersion(final Version version)
     {
-        artifact = artifact.withVersion(version);
-        return this;
+        var copy = new Library(this);
+        copy.artifact = artifact.withVersion(version);
+        return copy;
     }
 
-    public Library version(final String version)
+    /**
+     * @return This library with the given artifact version
+     */
+    public Library withVersion(final String version)
     {
-        return version(Version.parse(version));
+        return withVersion(Version.parse(version));
     }
 }
 

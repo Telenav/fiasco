@@ -14,7 +14,11 @@ import com.telenav.fiasco.dependencies.repository.maven.MavenRepository;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 
 /**
- * Installs dependencies from a list of repositories to {@link #add(ArtifactRepository)}.
+ * Locates and installs dependencies from a list of repositories to {@link #add(ArtifactRepository)}. When {@link
+ * #resolve(Artifact)} is called, if the artifact is in the local repository, the librarian returns the local
+ * repository. If the artifact is not in the local repository yet, the librarian looks in each repository until it finds
+ * it, returning the repository that contains the artifact as the result. If the librarian cannot find the artifact in
+ * any repository, an exception is thrown.
  *
  * @author shibo
  */

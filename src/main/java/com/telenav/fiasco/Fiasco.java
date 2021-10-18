@@ -167,7 +167,7 @@ public class Fiasco extends Application
     /**
      * Executes the given {@link Build} class file
      */
-    @SuppressWarnings("resource")
+    @SuppressWarnings({ "resource", "unchecked" })
     private void execute(final File classFile)
     {
         try

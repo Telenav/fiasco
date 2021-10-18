@@ -1,7 +1,6 @@
 package com.telenav.fiasco.build.project.metadata;
 
 import com.telenav.kivakit.kernel.interfaces.naming.Named;
-import com.telenav.kivakit.kernel.interfaces.string.StringSource;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 
 /**
@@ -78,10 +77,10 @@ public class ProjectMetadata implements Named
         return copy;
     }
 
-    public ProjectMetadata withCopyright(final StringSource copyright)
+    public ProjectMetadata withCopyright(final Copyright copyright)
     {
         final var copy = new ProjectMetadata(this);
-        copy.copyright = new Copyright(copyright);
+        copy.copyright = copyright;
         return copy;
     }
 

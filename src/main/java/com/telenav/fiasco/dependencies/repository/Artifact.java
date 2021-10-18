@@ -3,25 +3,24 @@ package com.telenav.fiasco.dependencies.repository;
 import com.telenav.fiasco.dependencies.Dependency;
 import com.telenav.fiasco.dependencies.Library;
 import com.telenav.fiasco.dependencies.repository.maven.MavenArtifact;
-import com.telenav.kivakit.kernel.interfaces.naming.Named;
 import com.telenav.kivakit.kernel.language.values.version.Version;
 import com.telenav.kivakit.resource.path.FilePath;
 
 /**
- * A dependent artifact with a name, group and version
+ * A dependent artifact with an identifier, group and version.
  *
  * @author jonathanl (shibo)
  * @see Dependency
  * @see MavenArtifact
  */
-public interface Artifact extends Named, Dependency
+public interface Artifact extends Dependency
 {
     /**
      * @return This artifact as a library
      */
     default Library asLibrary()
     {
-        return new Library(this);
+        return Library.create(this);
     }
 
     /**
@@ -29,13 +28,18 @@ public interface Artifact extends Named, Dependency
      */
     default String descriptor()
     {
-        return group().name() + ":" + name() + ":" + version();
+        return group().identifier() + ":" + identifier() + ":" + version();
     }
 
     /**
      * @return The group to which this artifact belongs
      */
     ArtifactGroup group();
+
+    /**
+     * @return The artifact identifier
+     */
+    String identifier();
 
     /**
      * @return This artifact's path relative to repository root

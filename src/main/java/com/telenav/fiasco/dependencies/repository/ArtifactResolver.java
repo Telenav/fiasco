@@ -4,7 +4,8 @@ import com.telenav.fiasco.dependencies.Library;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 
 /**
- * Resolves a {@link Library} into a set of installed artifacts, possibly copying them from a remote repository.
+ * Resolves an {@link Artifact} by locating it in some repository, possibly copying it from that repository into the
+ * local repository. Also resolves a {@link Library} into a list of artifacts.
  *
  * @author jonathanl (shibo)
  */

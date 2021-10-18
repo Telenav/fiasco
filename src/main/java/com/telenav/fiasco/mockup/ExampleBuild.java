@@ -3,6 +3,9 @@ package com.telenav.fiasco.mockup;
 import com.telenav.fiasco.build.Build;
 import com.telenav.kivakit.filesystem.Folder;
 
+/**
+ * An example build class
+ */
 public class ExampleBuild extends Build
 {
     @Override

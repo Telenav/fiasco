@@ -1,4 +1,8 @@
-package com.telenav.fiasco.dependencies.repository.maven.artifacts.apache;
+package com.telenav.fiasco.dependencies.repository.maven.artifacts;
+
+import com.telenav.fiasco.dependencies.repository.maven.artifacts.apache.ApacheCommons;
+import com.telenav.fiasco.dependencies.repository.maven.artifacts.apache.ApacheHttpComponents;
+import com.telenav.fiasco.dependencies.repository.maven.artifacts.apache.ApacheWicket;
 
 /**
  * The Apache group

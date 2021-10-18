@@ -1,6 +1,5 @@
 package com.telenav.fiasco.dependencies.repository;
 
-import com.telenav.kivakit.kernel.interfaces.naming.Named;
 import com.telenav.kivakit.resource.path.FilePath;
 
 /**
@@ -8,10 +7,15 @@ import com.telenav.kivakit.resource.path.FilePath;
  *
  * @author jonathanl (shibo)
  */
-public interface ArtifactGroup extends Named
+public interface ArtifactGroup
 {
     /**
-     * @return Path to this group in a repository
+     * @return The identifier of this artifact group
+     */
+    String identifier();
+
+    /**
+     * @return Path to this group relative to a repository root
      */
     FilePath path();
 }

@@ -4,15 +4,24 @@ import com.telenav.fiasco.dependencies.repository.Artifact;
 import com.telenav.fiasco.dependencies.repository.ArtifactRepository;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.filesystem.Folder;
+import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.progress.ProgressReporter;
 import com.telenav.kivakit.resource.CopyMode;
 import com.telenav.kivakit.resource.Resource;
 import com.telenav.kivakit.resource.path.FilePath;
 
-import java.util.List;
-
 /**
- * A maven repository containing {@link MavenArtifact}s, organized in {@link MavenArtifactGroup}s.
+ * A maven repository containing {@link MavenArtifact}s, organized in {@link MavenArtifactGroup}s. A {@link
+ * MavenRepository} can be created with {@link #create(String)}, passing in the name of the repository. The root of the
+ * repository can then be added with {@link #withRoot(FilePath)}. The {@link #local()} method returns the local Maven
+ * repository. The {@link #mavenCentral()} method returns the Maven Central repository.
+ *
+ * <p>
+ * The {@link #contains(Artifact)} method returns true if this repository contains the given artifact. The {@link
+ * #path(Artifact)} method returns the full path to the given artifact within this repository. The {@link
+ * #install(ArtifactRepository, Artifact)} method copies the given artifact from the given repository into this
+ * repository if it is not already there.
+ * </p>
  *
  * @author jonathanl (shibo)
  */
@@ -61,44 +70,63 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
         this.name = name;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean contains(final Artifact artifact)
     {
         return Resource.resolve(path(artifact)).exists();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void install(ArtifactRepository source, final Artifact artifact)
     {
-        // get the .jar, .pom and maven-metadata.xml paths,
-        var path = path(artifact);
-        for (var file : files(path, artifact))
+        // Get the artifact path in this repository,
+        var artifactPath = path(artifact);
+
+        // and then for each resource in the set of resources to be copied,
+        for (var resource : resourcesToCopy(artifactPath, artifact))
         {
-            var resource = Resource.resolve(file);
+            //  if the resource exists,
             if (resource.exists())
             {
+                // copy the artifact into this repository,
                 var destination = Folder.of(path(artifact));
                 resource.safeCopyTo(destination, CopyMode.OVERWRITE, ProgressReporter.NULL);
             }
             else
             {
+                // otherwise, complain.
                 problem("Cannot find artifact resource: $", resource);
             }
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String name()
     {
         return name;
     }
 
+    /**
+     * @return The full path to the given artifact in this repository
+     */
     @Override
     public FilePath path(final Artifact artifact)
     {
         return root.withChild(artifact.path());
     }
 
+    /**
+     * @return This repository with the given root path
+     */
     public MavenRepository withRoot(FilePath root)
     {
         var copy = new MavenRepository(this);
@@ -106,15 +134,15 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
         return copy;
     }
 
-    private List<FilePath> files(final FilePath path, final Artifact artifact)
+    private ObjectList<Resource> resourcesToCopy(final FilePath path, final Artifact artifact)
     {
-        return List.of(
-                path.withChild(artifact.name() + ".jar"),
-                path.withChild(artifact.name() + ".jar.md5"),
-                path.withChild(artifact.name() + ".jar.sha1"),
-                path.withChild(artifact.name() + ".pom"),
-                path.withChild(artifact.name() + ".pom.md5"),
-                path.withChild(artifact.name() + ".pom.sha1")
-        );
+        return ObjectList.objectList(
+                path.withChild(artifact.identifier() + ".jar"),
+                path.withChild(artifact.identifier() + ".jar.md5"),
+                path.withChild(artifact.identifier() + ".jar.sha1"),
+                path.withChild(artifact.identifier() + ".pom"),
+                path.withChild(artifact.identifier() + ".pom.md5"),
+                path.withChild(artifact.identifier() + ".pom.sha1")
+        ).mapped(Resource::resolve);
     }
 }
