@@ -8,6 +8,7 @@ import com.telenav.kivakit.commandline.ArgumentParser;
 import com.telenav.kivakit.commandline.SwitchParser;
 import com.telenav.kivakit.filesystem.File;
 import com.telenav.kivakit.filesystem.Folder;
+import com.telenav.kivakit.filesystem.FolderGlobPattern;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.collections.set.ObjectSet;
 import com.telenav.kivakit.kernel.language.reflection.Type;
@@ -58,12 +59,12 @@ public class Fiasco extends Application
     }
 
     /** Switch to add a build folder to Fiasco */
-    private final SwitchParser<Folder> ADD = Folder.folderSwitchParser("add", "Adds a build folder to Fiasco")
+    private final SwitchParser<Folder> REMEMBER = Folder.folderSwitchParser("remember", "Adds a project root folder to Fiasco")
             .optional()
             .build();
 
     /** Switch to remove a build folder to Fiasco */
-    private final SwitchParser<String> REMOVE = SwitchParser.stringSwitchParser("remove", "Removes one or more build folders from Fiasco by simplified regular expression pattern")
+    private final SwitchParser<String> FORGET = SwitchParser.stringSwitchParser("forget", "Removes one or more project root folders from Fiasco by glob pattern")
             .optional()
             .build();
 
@@ -74,7 +75,7 @@ public class Fiasco extends Application
             .build();
 
     /** Java preferences settings for Fiasco */
-    private final FiascoSettings settings = new FiascoSettings();
+    private final FiascoSettings settings = listenTo(new FiascoSettings());
 
     protected Fiasco()
     {
@@ -90,7 +91,21 @@ public class Fiasco extends Application
     @Override
     protected void onRun()
     {
-        // If there are no arguments
+        // If we are asked to remember a project root,
+        if (has(REMEMBER))
+        {
+            // store it in Java preferences.
+            settings.remember(get(REMEMBER));
+        }
+
+        // If we are asked to forget a project root,
+        if (has(FORGET))
+        {
+            // remove it from Java preferences.
+            settings.forget(FolderGlobPattern.parse(get(FORGET)));
+        }
+
+        // If there are no arguments,
         if (argumentList().isEmpty())
         {
             // then show the available builds
@@ -112,7 +127,7 @@ public class Fiasco extends Application
     @Override
     protected ObjectSet<SwitchParser<?>> switchParsers()
     {
-        return ObjectSet.of(ADD, REMOVE);
+        return ObjectSet.of(REMEMBER, FORGET);
     }
 
     /**

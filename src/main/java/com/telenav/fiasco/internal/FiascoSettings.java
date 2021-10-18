@@ -11,7 +11,6 @@ import com.telenav.kivakit.kernel.language.strings.Strip;
 
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
-import java.util.regex.Pattern;
 
 import static com.telenav.kivakit.resource.path.Extension.JAVA;
 
@@ -26,24 +25,6 @@ import static com.telenav.kivakit.resource.path.Extension.JAVA;
  */
 public class FiascoSettings extends BaseComponent
 {
-    /**
-     * Adds the given root folder to Fiasco
-     */
-    public void addProjectRoot(Folder root)
-    {
-        var path = root.path().asString();
-        var node = rootFoldersNode();
-        var existing = node.get(path, null);
-        if (existing == null)
-        {
-            node.put(path, "true");
-        }
-        else
-        {
-            warning("Build folder already added");
-        }
-    }
-
     /**
      * @return The source file for the given build name
      */
@@ -65,7 +46,7 @@ public class FiascoSettings extends BaseComponent
     public ObjectList<File> buildFiles()
     {
         var files = new ObjectList<File>();
-        for (var folder : projectRoots())
+        for (var folder : memory())
         {
             var fiascoFolder = folder.folder("fiasco");
             files.addAll(fiascoFolder.files(JAVA.fileMatcher()));
@@ -102,9 +83,24 @@ public class FiascoSettings extends BaseComponent
     }
 
     /**
+     * Removes all root folders matching the given matcher
+     */
+    public void forget(Matcher<Folder> matcher)
+    {
+        for (var folder : memory())
+        {
+            if (matcher.matches(folder))
+            {
+                rootFoldersNode().remove(folder.toString());
+                information("Forgot $", folder);
+            }
+        }
+    }
+
+    /**
      * @return The list of project roots that Fiasco knows about
      */
-    public ObjectList<Folder> projectRoots()
+    public ObjectList<Folder> memory()
     {
         try
         {
@@ -122,31 +118,21 @@ public class FiascoSettings extends BaseComponent
     }
 
     /**
-     * Removes all project root folders matching the given pattern
+     * Adds the given root folder to Fiasco
      */
-    public void removeProjectRoots(Pattern pattern)
+    public void remember(Folder root)
     {
-        removeProjectRoots(key -> pattern.matcher(key).matches());
-    }
-
-    /**
-     * Removes all root folders matching the given matcher
-     */
-    public void removeProjectRoots(Matcher<String> matcher)
-    {
-        try
+        var path = root.path().asString();
+        var node = rootFoldersNode();
+        var existing = node.get(path, null);
+        if (existing == null)
         {
-            for (var key : rootFoldersNode().keys())
-            {
-                if (matcher.matches(key))
-                {
-                    rootFoldersNode().remove(key);
-                }
-            }
+            node.put(path, "true");
+            information("Remembering $", root);
         }
-        catch (BackingStoreException e)
+        else
         {
-            problem(e, "Cannot retrieve build folders");
+            warning("Build folder already added");
         }
     }
 
