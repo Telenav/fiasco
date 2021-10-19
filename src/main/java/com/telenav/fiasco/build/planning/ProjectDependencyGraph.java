@@ -18,14 +18,14 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
  *
  * @author shibo
  */
-public class ProjectGraph
+public class ProjectDependencyGraph
 {
     /**
      * @return The dependency graph formed by traversing dependencies starting at the given root
      */
-    public static ProjectGraph of(final Build build)
+    public static ProjectDependencyGraph of(final Build build)
     {
-        return new ProjectGraph(build);
+        return new ProjectDependencyGraph(build);
     }
 
     /**
@@ -39,7 +39,7 @@ public class ProjectGraph
     /** The root of this project graph */
     private final Build build;
 
-    private ProjectGraph(final Build build)
+    private ProjectDependencyGraph(final Build build)
     {
         this.build = build;
     }

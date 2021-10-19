@@ -10,6 +10,8 @@ import com.telenav.fiasco.build.tools.compiler.JavaCompiler;
 import com.telenav.kivakit.kernel.interfaces.string.StringSource;
 import com.telenav.kivakit.network.core.EmailAddress;
 
+import static com.telenav.fiasco.build.tools.compiler.JavaCompiler.JavaVersion.JAVA_11;
+
 /**
  * Base class for Telenav projects
  *
@@ -25,8 +27,8 @@ public class TelenavProject extends BaseProject implements TelenavArtifacts
     protected JavaCompiler javaCompiler()
     {
         return JavaCompiler.create()
-                .withSourceVersion("11")
-                .withTargetVersion("11")
+                .withSourceVersion(JAVA_11)
+                .withTargetVersion(JAVA_11)
                 .withTargetFolder(root().folder("fiasco"))
                 .withOutput(System.console().writer());
     }

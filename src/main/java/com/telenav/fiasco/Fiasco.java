@@ -3,6 +3,7 @@ package com.telenav.fiasco;
 import com.telenav.fiasco.build.Build;
 import com.telenav.fiasco.build.tools.compiler.JavaCompiler;
 import com.telenav.fiasco.internal.FiascoSettings;
+import com.telenav.fiasco.library.classes.Classes;
 import com.telenav.kivakit.application.Application;
 import com.telenav.kivakit.commandline.ArgumentParser;
 import com.telenav.kivakit.commandline.SwitchParser;
@@ -11,19 +12,13 @@ import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.filesystem.FolderGlobPattern;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.collections.set.ObjectSet;
-import com.telenav.kivakit.kernel.language.reflection.Type;
-import com.telenav.kivakit.kernel.language.values.version.Version;
 import com.telenav.kivakit.resource.ResourceProject;
 
 import java.io.StringWriter;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.List;
 
-import static com.telenav.kivakit.filesystem.Folder.Type.CLEAN_UP_ON_EXIT;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
-import static com.telenav.kivakit.resource.path.Extension.CLASS;
 
 /**
  * Fiasco build tool. <a href="https://en.wikipedia.org/wiki/Fiasco_(novel)"><i>Fiasco</i></a> is a science fiction
@@ -152,91 +147,54 @@ public class Fiasco extends Application
         for (var buildName : buildNames)
         {
             // get the .java build file with the given name,
-            var file = settings.buildFile(buildName);
+            var buildSource = settings.buildSourceFile(buildName);
 
             // compile the source file into a build class,
-            var buildClass = compile(file);
+            var buildClass = compile(buildSource);
             if (buildClass != null)
             {
                 // and execute the build.
-                execute(buildClass);
-            }
-            else
-            {
-                fail("Build file couldn't be compiled: $", file);
-            }
-        }
-    }
-
-    /**
-     * @param sourceFile The Java file to compile
-     * @return The class file for the given source file
-     */
-    private File compile(final File sourceFile)
-    {
-        if (sourceFile.exists())
-        {
-            final var targetFolder = Folder.temporaryForProcess(CLEAN_UP_ON_EXIT);
-
-            var output = new StringWriter();
-
-            final JavaCompiler compiler = new JavaCompiler()
-                    .withOutput(output)
-                    .withSourceVersion(Version.parse("11"))
-                    .withTargetVersion(Version.parse("11"))
-                    .withTargetFolder(targetFolder);
-
-            if (compiler.compile(sourceFile))
-            {
-                return sourceFile
-                        .withExtension(CLASS)
-                        .relativeTo(targetFolder);
-            }
-
-            problem("Could not build Fiasco build source file: $\n\n$", sourceFile, output);
-        }
-        else
-        {
-            problem("Build source file does not exist: $", sourceFile);
-        }
-
-        return fail();
-    }
-
-    /**
-     * Executes the given {@link Build} class file
-     */
-    @SuppressWarnings({ "resource", "unchecked" })
-    private void execute(final File classFile)
-    {
-        try
-        {
-            // Attempt to load the Fiasco class from the fiasco folder
-            final URLClassLoader classLoader = new URLClassLoader(new URL[] { classFile.parent().asUrl() });
-            final Class<?> loaded = classLoader.loadClass(classFile.baseName().name());
-
-            // and if the class was loaded,
-            if (loaded != null)
-            {
-                // and it implements the build interface,
-                if (Build.class.isAssignableFrom(loaded))
+                var buildObject = Classes.instantiate(this, buildClass);
+                if (buildObject instanceof Build)
                 {
-                    // then create an instance and run the build on the root folder.
-                    Type.forClass((Class<Build>) loaded).newInstance().build();
+                    ((Build) buildObject).build();
                 }
                 else
                 {
-                    throw problem("Build class does not implement the Build interface: $", classFile).asException();
+                    fail("The file $ does not contain a subclass of Build", buildClass);
                 }
             }
             else
             {
-                throw problem("Unable to load build class file: $", classFile).asException();
+                fail("Build source file couldn't be compiled: $", buildSource);
             }
         }
-        catch (final Exception e)
+    }
+
+    /**
+     * @param source The Java file to compile
+     * @return The class file for the given source file
+     */
+    private File compile(final File source)
+    {
+        if (source.exists())
         {
-            throw problem(e, "Build $ failed", settings.buildName(classFile)).asException();
+            var output = new StringWriter();
+            var compiler = JavaCompiler.compiler(output);
+            if (compiler.compile(source))
+            {
+                return compiler.targetFolder().file(source.fileName());
+            }
+            else
+            {
+                fail("Could not compile Fiasco build source file: $\n\n$", source, output);
+            }
         }
+        else
+        {
+            fail("Build source file does not exist: $", source);
+        }
+
+        return fail();
     }
 }

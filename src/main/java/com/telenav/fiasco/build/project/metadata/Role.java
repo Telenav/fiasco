@@ -12,6 +12,7 @@ public enum Role
     COMMITTER,
     DEBUGGER,
     DEVELOPER,
+    IT,
     LEAD,
     MANAGER,
     ORIGINATOR,

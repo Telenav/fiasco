@@ -12,11 +12,8 @@ import com.telenav.fiasco.build.phase.testing.TestingPhase;
 import com.telenav.fiasco.build.project.metadata.ProjectMetadata;
 import com.telenav.fiasco.build.tools.repository.Librarian;
 import com.telenav.fiasco.dependencies.BaseProjectDependency;
-import com.telenav.fiasco.dependencies.Dependency;
-import com.telenav.fiasco.dependencies.DependencyList;
 import com.telenav.fiasco.dependencies.repository.Artifact;
 import com.telenav.fiasco.dependencies.repository.ArtifactRepository;
-import com.telenav.fiasco.dependencies.repository.maven.MavenArtifact;
 import com.telenav.kivakit.filesystem.Folder;
 
 import java.util.Objects;
@@ -68,6 +65,9 @@ public abstract class BaseProject extends BaseProjectDependency implements Proje
         return this.step == step;
     }
 
+    /**
+     * Sets the build for this project
+     */
     public void build(final Build build)
     {
         this.build = build;
@@ -108,16 +108,13 @@ public abstract class BaseProject extends BaseProjectDependency implements Proje
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public BuildResult call()
     {
         return build();
-    }
-
-    @Override
-    public DependencyList dependencies()
-    {
-        return null;
     }
 
     @Override
@@ -137,11 +134,17 @@ public abstract class BaseProject extends BaseProjectDependency implements Proje
         return Objects.hash(root());
     }
 
+    /**
+     * Sets the metadata for this project
+     */
     public void metadata(final ProjectMetadata metadata)
     {
         this.metadata = metadata;
     }
 
+    /**
+     * @return This project's metadata
+     */
     public ProjectMetadata metadata()
     {
         return metadata;
@@ -156,43 +159,40 @@ public abstract class BaseProject extends BaseProjectDependency implements Proje
         narrate("[$]", step.name());
     }
 
+    /**
+     * Resolves the given artifact into the local repository
+     *
+     * @return The repository where the artifact was found
+     */
     @Override
     public ArtifactRepository resolve(final Artifact artifact)
     {
         return librarian.resolve(artifact);
     }
 
+    /**
+     * @return The root folder of this project
+     */
     public Folder root()
     {
         return ensureNotNull(root);
     }
 
+    /**
+     * @param root The project root folder
+     */
     public Project root(final Folder root)
     {
         this.root = root;
         return this;
     }
 
+    /**
+     * @return The workspace where this project resides
+     */
     @Override
     public Folder workspace()
     {
         return Folder.parse("${WORKSPACE}");
-    }
-
-    /**
-     * Adds the given dependency
-     *
-     * @param descriptor The Maven artifact descriptor of the dependency
-     */
-    protected void require(String descriptor)
-    {
-        require(MavenArtifact.parse(descriptor).asLibrary());
-    }
-
-    /**
-     * Adds the given dependency(ies)
-     */
-    protected void require(Dependency... dependency)
-    {
     }
 }

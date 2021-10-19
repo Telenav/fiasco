@@ -26,35 +26,6 @@ import static com.telenav.kivakit.resource.path.Extension.JAVA;
 public class FiascoSettings extends BaseComponent
 {
     /**
-     * @return The source file for the given build name
-     */
-    public File buildFile(String buildName)
-    {
-        for (var file : buildFiles())
-        {
-            if (buildName(file).equals(buildName))
-            {
-                return file;
-            }
-        }
-        throw problem("No build file named: $", buildName).asException();
-    }
-
-    /**
-     * @return The list of build files in all the project "fiasco" folders that Fiasco knows about
-     */
-    public ObjectList<File> buildFiles()
-    {
-        var files = new ObjectList<File>();
-        for (var folder : memory())
-        {
-            var fiascoFolder = folder.folder("fiasco");
-            files.addAll(fiascoFolder.files(JAVA.fileMatcher()));
-        }
-        return files;
-    }
-
-    /**
      * @return The build name for the given Fiasco source file. The  file has "Build" and the file extension stripped
      * from the end, and then it is turned into lowercase hyphenated form. For example, "MyBuild.java" becomes
      * "my-build".
@@ -71,7 +42,7 @@ public class FiascoSettings extends BaseComponent
     public StringList buildNames()
     {
         var names = new StringList();
-        for (var file : buildFiles())
+        for (var file : buildSourceFiles())
         {
             names.add(buildName(file));
         }
@@ -83,33 +54,62 @@ public class FiascoSettings extends BaseComponent
     }
 
     /**
-     * Removes all root folders matching the given matcher
+     * @return The source file for the given build name
+     */
+    public File buildSourceFile(String buildName)
+    {
+        for (var file : buildSourceFiles())
+        {
+            if (buildName(file).equals(buildName))
+            {
+                return file;
+            }
+        }
+        throw problem("No build file named: $", buildName).asException();
+    }
+
+    /**
+     * @return The list of build files in all the "fiasco" folders that Fiasco knows about
+     */
+    public ObjectList<File> buildSourceFiles()
+    {
+        var files = new ObjectList<File>();
+        for (var folder : projects())
+        {
+            var fiascoFolder = folder.folder("fiasco");
+            files.addAll(fiascoFolder.files(JAVA.fileMatcher()));
+        }
+        return files;
+    }
+
+    /**
+     * Removes all project folders matching the given matcher
      */
     public void forget(Matcher<Folder> matcher)
     {
-        for (var folder : memory())
+        for (var folder : projects())
         {
             if (matcher.matches(folder))
             {
-                rootFoldersNode().remove(folder.toString());
+                projectFoldersNode().remove(folder.toString());
                 information("Forgot $", folder);
             }
         }
     }
 
     /**
-     * @return The list of project roots that Fiasco knows about
+     * @return The list of project folders that Fiasco knows about
      */
-    public ObjectList<Folder> memory()
+    public ObjectList<Folder> projects()
     {
         try
         {
-            var roots = new ObjectList<Folder>();
-            for (var path : rootFoldersNode().keys())
+            var projects = new ObjectList<Folder>();
+            for (var path : projectFoldersNode().keys())
             {
-                roots.add(Folder.parse(path));
+                projects.add(Folder.parse(path));
             }
-            return roots;
+            return projects;
         }
         catch (BackingStoreException e)
         {
@@ -118,17 +118,17 @@ public class FiascoSettings extends BaseComponent
     }
 
     /**
-     * Adds the given root folder to Fiasco
+     * Adds the given project folder to Fiasco
      */
-    public void remember(Folder root)
+    public void remember(Folder project)
     {
-        var path = root.path().asString();
-        var node = rootFoldersNode();
+        var path = project.path().asString();
+        var node = projectFoldersNode();
         var existing = node.get(path, null);
         if (existing == null)
         {
             node.put(path, "true");
-            information("Remembering $", root);
+            information("Remembering $", project);
         }
         else
         {
@@ -136,10 +136,10 @@ public class FiascoSettings extends BaseComponent
         }
     }
 
-    private Preferences rootFoldersNode()
+    private Preferences projectFoldersNode()
     {
         return Preferences.userNodeForPackage(getClass())
                 .node("fiasco")
-                .node("root-folders");
+                .node("project-folders");
     }
 }
