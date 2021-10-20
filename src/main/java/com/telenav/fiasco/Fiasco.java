@@ -1,24 +1,20 @@
 package com.telenav.fiasco;
 
 import com.telenav.fiasco.build.Build;
-import com.telenav.fiasco.build.tools.compiler.JavaCompiler;
+import com.telenav.fiasco.internal.FiascoProject;
 import com.telenav.fiasco.internal.FiascoSettings;
-import com.telenav.fiasco.library.classes.Classes;
 import com.telenav.kivakit.application.Application;
 import com.telenav.kivakit.commandline.ArgumentParser;
 import com.telenav.kivakit.commandline.SwitchParser;
-import com.telenav.kivakit.filesystem.File;
 import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.filesystem.FolderGlobPattern;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.collections.set.ObjectSet;
 import com.telenav.kivakit.resource.ResourceProject;
 
-import java.io.StringWriter;
 import java.util.List;
 
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
 
 /**
  * Fiasco build tool. <a href="https://en.wikipedia.org/wiki/Fiasco_(novel)"><i>Fiasco</i></a> is a science fiction
@@ -26,10 +22,9 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
  *
  * <p>
  * Fiasco maintains a list of project folders in the Java preferences store. Each project folder must have a "fiasco"
- * folder that contains one or more <i>.java</i> source files that implement the {@link Build} interface. Each such
- * source file is a Fiasco build. Fiasco compiles these source files, loads them and executes them by calling {@link
- * Build#build()}. Because Fiasco remembers where projects are <i><b>it is not necessary to be in the project folder to
- * build the project</b></i>. Instead, the name of the build is specified and Fiasco locates the project folder.
+ * folder that contains one or more Java source files that end with "Build.java" and implement the {@link Build}
+ * interface. Each such source file is a Fiasco build definition. Fiasco compiles these source files, loads them and
+ * executes them by calling {@link Build#build()}.
  * </p>
  *
  * <p><b>Command Line Switches</b></p>
@@ -40,14 +35,17 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
  *
  * <p><b>Examples</b></p>
  *
- * <pre>fiasco -remember ./example</pre>
- * <pre>fiasco -forget ./example</pre>
+ * <pre>fiasco -remember=./example</pre>
+ * <pre>fiasco -forget=./example</pre>
+ * <pre>fiasco -forget=*</pre>
+ *
+ * <p><b>Command Line Arguments</b></p>
  *
  * <p>
- * Arguments to Fiasco are the names of one or more builds (found in the list of project  folders that Fiasco remembers) to
+ * Arguments to Fiasco are the names of one or more builds (found in the list of project folders that Fiasco remembers) to
  * execute. If no arguments are provided, a list of available builds is shown. Build names are derived from the names
- * of the <i>.java</i> source files (in the "fiasco" folder in each remembered project folder) by removing the <i>.java</i>
- * suffix, and any "Build" suffix. The remaining base name is converted from camelcase to lowercase separated by hyphens:
+ * of the <i>.java</i> source files (in the "fiasco" folder in each remembered project folder) by removing the <i>Build.java</i>
+ * suffix. The remaining base name is converted from camelcase to lowercase separated by hyphens:
  * </p>
  *
  * <ul>MyExampleBuild.java => my-example</ul>
@@ -56,6 +54,13 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
  *
  * <pre>fiasco</pre>
  * <pre>fiasco my-example</pre>
+ *
+ * <p><b>NOTE</b></p>
+ *
+ * <p>
+ * Because Fiasco remembers where projects are <i><b>it is not necessary to be in the project folder to build the
+ * project</b></i>. Instead, the name of the build is specified and Fiasco locates the associated project folder.
+ * </p>
  *
  * @author jonathanl (shibo)
  */
@@ -147,54 +152,16 @@ public class Fiasco extends Application
         for (var buildName : buildNames)
         {
             // get the .java build file with the given name,
-            var buildSource = settings.buildSourceFile(buildName);
-
-            // compile the source file into a build class,
-            var buildClass = compile(buildSource);
-            if (buildClass != null)
+            var source = settings.buildSourceFile(buildName);
+            var build = FiascoProject.compileAndInstantiate(this, source, Build.class);
+            if (build != null)
             {
-                // and execute the build.
-                var buildObject = Classes.instantiate(this, buildClass);
-                if (buildObject instanceof Build)
-                {
-                    ((Build) buildObject).build();
-                }
-                else
-                {
-                    fail("The file $ does not contain a subclass of Build", buildClass);
-                }
+                build.build();
             }
             else
             {
-                fail("Build source file couldn't be compiled: $", buildSource);
+                problem("Unable to run build defined in: $", source);
             }
         }
-    }
-
-    /**
-     * @param source The Java file to compile
-     * @return The class file for the given source file
-     */
-    private File compile(final File source)
-    {
-        if (source.exists())
-        {
-            var output = new StringWriter();
-            var compiler = JavaCompiler.compiler(output);
-            if (compiler.compile(source))
-            {
-                return compiler.targetFolder().file(source.fileName());
-            }
-            else
-            {
-                fail("Could not compile Fiasco build source file: $\n\n$", source, output);
-            }
-        }
-        else
-        {
-            fail("Build source file does not exist: $", source);
-        }
-
-        return fail();
     }
 }

@@ -3,7 +3,7 @@ package com.telenav.fiasco.dependencies;
 import com.telenav.fiasco.build.project.Project;
 import com.telenav.fiasco.build.tools.compiler.JavaCompiler;
 import com.telenav.fiasco.dependencies.repository.Artifact;
-import com.telenav.fiasco.library.classes.Classes;
+import com.telenav.fiasco.internal.FiascoProject;
 import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
 
@@ -12,7 +12,6 @@ import java.io.StringWriter;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.unsupported;
-import static com.telenav.kivakit.resource.path.Extension.CLASS;
 
 /**
  * Base class for dependencies that can have {@link Project}s as dependencies. Not all dependencies can have dependent
@@ -29,9 +28,9 @@ public abstract class BaseProjectDependency extends BaseDependency implements Pr
     }
 
     /**
-     * Builds the classes in the <i>fiasco</i> folder under the given root, then loads classes until one is loaded that
-     * implements the {@link Project} interface. This class is instantiated and the resulting object is added to the set
-     * of {@link #dependencies()}.
+     * Builds the classes in the <i>fiasco</i> folder under the given root, then loads classes ending in "Project". Each
+     * class is instantiated and the resulting object tested to see if it implements the {@link Project} interface. If
+     * it does, the project object is added to the set of {@link #dependencies()}.
      *
      * @param projectRoot The project root folder
      */
@@ -50,11 +49,11 @@ public abstract class BaseProjectDependency extends BaseDependency implements Pr
             // get the target folder
             var target = compiler.targetFolder();
 
-            // and try loading each class file
+            // and try loading each class file ending in Project,
             var count = 0;
-            for (var classFile : target.files(CLASS.fileMatcher()))
+            for (var classFile : target.files(file -> file.fileName().endsWith("Project.java")))
             {
-                var project = Classes.instantiate(this, classFile);
+                var project = FiascoProject.instantiate(this, classFile, Project.class);
                 if (project instanceof Project)
                 {
                     dependencies().add((Project) project);
@@ -62,7 +61,7 @@ public abstract class BaseProjectDependency extends BaseDependency implements Pr
                 }
             }
 
-            ensure(count > 0, "Could not find any .java files implementing Project in: $", fiasco);
+            ensure(count > 0, "Could not find any '*Project.java' files implementing Project in: $", fiasco);
         }
         else
         {

@@ -56,7 +56,7 @@ public class ProjectDependencyGraph
 
         while (true)
         {
-            var group = BuildableGroup.create();
+            var group = new BuildableGroup();
 
             depthFirst(build, new HashSet<>(), at ->
             {
@@ -113,16 +113,14 @@ public class ProjectDependencyGraph
      */
     private boolean isLeaf(Buildable node, Set<Dependency> visited)
     {
-        boolean hasChild = false;
-
         for (var at : node.dependencies())
         {
             if (!visited.contains(at))
             {
-                hasChild = true;
+                return false;
             }
         }
 
-        return !hasChild;
+        return true;
     }
 }

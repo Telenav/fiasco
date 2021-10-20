@@ -4,8 +4,6 @@ open module com.telenav.fiasco
     requires kivakit.application;
     requires kivakit.network.core;
 
-    requires cactus.build.metadata;
-    
     // Java
     requires java.compiler;
     requires java.prefs;

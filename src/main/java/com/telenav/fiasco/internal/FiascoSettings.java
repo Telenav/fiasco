@@ -1,5 +1,6 @@
 package com.telenav.fiasco.internal;
 
+import com.telenav.kivakit.application.Application;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.filesystem.File;
 import com.telenav.kivakit.filesystem.Folder;
@@ -12,7 +13,7 @@ import com.telenav.kivakit.kernel.language.strings.Strip;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-import static com.telenav.kivakit.resource.path.Extension.JAVA;
+import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
 
 /**
  * <b>Not public API</b>
@@ -32,8 +33,7 @@ public class FiascoSettings extends BaseComponent
      */
     public String buildName(final File file)
     {
-        var name = file.baseName().name();
-        return CaseFormat.camelCaseToHyphenated(Strip.ending(name, "Build"));
+        return CaseFormat.camelCaseToHyphenated(Strip.ending(file.fileName().name(), "Build.java"));
     }
 
     /**
@@ -69,17 +69,30 @@ public class FiascoSettings extends BaseComponent
     }
 
     /**
-     * @return The list of build files in all the "fiasco" folders that Fiasco knows about
+     * @return The list of build files (ending in Build.java) in all the projects that Fiasco knows about
      */
     public ObjectList<File> buildSourceFiles()
     {
         var files = new ObjectList<File>();
-        for (var folder : projects())
+        for (var project : projects())
         {
-            var fiascoFolder = folder.folder("fiasco");
-            files.addAll(fiascoFolder.files(JAVA.fileMatcher()));
+            files.addAll(project.folder("fiasco")
+                    .files(file -> file.fileName().endsWith("Build.java")));
         }
         return files;
+    }
+
+    /**
+     * @return The cache folder for Fiasco
+     */
+    public Folder cacheFolder()
+    {
+        final var version = Application.get().version();
+        if (version != null)
+        {
+            return Folder.parse("$/.fiasco/$", System.getProperty("user.home"), version);
+        }
+        return fail("Unable to get version for fiasco cache folder");
     }
 
     /**
@@ -122,18 +135,30 @@ public class FiascoSettings extends BaseComponent
      */
     public void remember(Folder project)
     {
-        var path = project.path().asString();
-        var node = projectFoldersNode();
-        var existing = node.get(path, null);
-        if (existing == null)
+        if (FiascoProject.isFiascoProject(project))
         {
-            node.put(path, "true");
-            information("Remembering $", project);
+            var path = project.path().asString();
+            var node = projectFoldersNode();
+            var existing = node.get(path, null);
+            if (existing == null)
+            {
+                node.put(path, "true");
+                information("Remembering $", project);
+            }
+            else
+            {
+                warning("Build folder already added");
+            }
         }
         else
         {
-            warning("Build folder already added");
+            fail("Folder is not a fiasco project: $", project);
         }
+    }
+
+    public Folder targetFolder()
+    {
+        return cacheFolder().folder("target");
     }
 
     private Preferences projectFoldersNode()

@@ -1,4 +1,4 @@
-package com.telenav.fiasco.mockup;
+package com.telenav.fiasco.mockup.fiasco;
 
 import com.telenav.fiasco.build.project.BaseProject;
 import com.telenav.fiasco.build.project.metadata.Contributor;

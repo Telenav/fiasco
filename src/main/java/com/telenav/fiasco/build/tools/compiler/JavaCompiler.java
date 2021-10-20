@@ -1,5 +1,6 @@
 package com.telenav.fiasco.build.tools.compiler;
 
+import com.telenav.fiasco.internal.FiascoSettings;
 import com.telenav.kivakit.filesystem.File;
 import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.kernel.language.collections.list.StringList;
@@ -10,7 +11,6 @@ import java.io.Writer;
 import java.util.List;
 
 import static com.telenav.fiasco.build.tools.compiler.JavaCompiler.JavaVersion.JAVA_11;
-import static com.telenav.kivakit.filesystem.Folder.Type.CLEAN_UP_ON_EXIT;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
 import static com.telenav.kivakit.resource.path.Extension.JAVA;
@@ -33,7 +33,8 @@ public class JavaCompiler extends BaseCompiler
                 .withOutput(output)
                 .withSourceVersion(JAVA_11)
                 .withTargetVersion(JAVA_11)
-                .withTargetFolder(Folder.temporaryForProcess(CLEAN_UP_ON_EXIT));
+                .withTargetFolder(new FiascoSettings().targetFolder())
+                .withOption("-implicit:class");
     }
 
     public static JavaCompiler create()
@@ -97,14 +98,14 @@ public class JavaCompiler extends BaseCompiler
     }
 
     /**
-     * Builds all the Java source files in the given folder
+     * Builds all the Java source files in the given folder, writing classes to the {@link #targetFolder()}
      *
      * @return True if the build succeeded, false if it failed
      */
-    public boolean compile(Folder folder)
+    public boolean compile(Folder source)
     {
         // then for each source file,
-        for (var sourceFile : folder.files(JAVA.fileMatcher()))
+        for (var sourceFile : source.files(JAVA.fileMatcher()))
         {
             // build it.
             if (!compile(sourceFile))
@@ -180,8 +181,9 @@ public class JavaCompiler extends BaseCompiler
     public JavaCompiler withSourceVersion(final JavaVersion version)
     {
         var copy = copy();
-        sourceVersion = version;
-        copy.options.add("--source " + version);
+        copy.sourceVersion = version;
+        copy.options.add("--source");
+        copy.options.add(version.version());
         return copy;
     }
 
@@ -191,8 +193,9 @@ public class JavaCompiler extends BaseCompiler
     public JavaCompiler withTargetFolder(Folder folder)
     {
         var copy = copy();
-        this.targetFolder = folder;
-        copy.options.add("-d " + folder);
+        copy.targetFolder = folder;
+        copy.options.add("-d");
+        copy.options.add(folder.toString());
         return copy;
     }
 
@@ -202,8 +205,9 @@ public class JavaCompiler extends BaseCompiler
     public JavaCompiler withTargetVersion(final JavaVersion version)
     {
         var copy = copy();
-        targetVersion = version;
-        copy.options.add("--target " + version);
+        copy.targetVersion = version;
+        copy.options.add("--target");
+        copy.options.add(version.version());
         return copy;
     }
 

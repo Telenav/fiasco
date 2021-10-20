@@ -1,4 +1,4 @@
-package com.telenav.fiasco.mockup;
+package com.telenav.fiasco.mockup.fiasco;
 
 import com.telenav.fiasco.build.project.metadata.SourceCode;
 
@@ -10,7 +10,7 @@ import static com.telenav.fiasco.build.project.metadata.Role.LEAD;
 import static com.telenav.fiasco.build.project.metadata.Role.ORIGINATOR;
 import static com.telenav.fiasco.build.project.metadata.Role.WRITER;
 
-public class ExampleProject extends TelenavProject
+public class MockupProject extends TelenavProject
 {
     @Override
     public void onInitialize()

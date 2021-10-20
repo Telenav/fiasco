@@ -1,4 +1,4 @@
-package com.telenav.fiasco.mockup;
+package com.telenav.fiasco.mockup.fiasco;
 
 import com.telenav.fiasco.build.Build;
 import com.telenav.kivakit.filesystem.Folder;
@@ -6,7 +6,7 @@ import com.telenav.kivakit.filesystem.Folder;
 /**
  * An example build class
  */
-public class ExampleBuild extends Build
+public class MockupBuild extends Build
 {
     @Override
     public void onInitialize()

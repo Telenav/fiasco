@@ -9,12 +9,4 @@ import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
  */
 public class BuildableGroup extends ObjectList<Buildable>
 {
-    public static BuildableGroup create()
-    {
-        return new BuildableGroup();
-    }
-
-    protected BuildableGroup()
-    {
-    }
 }
