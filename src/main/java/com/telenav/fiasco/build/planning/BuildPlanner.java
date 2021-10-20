@@ -26,6 +26,7 @@ public class BuildPlanner
     public BuildPlan plan(Build build)
     {
         var plan = new BuildPlan();
+        build.onInitialize();
         ProjectDependencyGraph.of(build).visitLeafGroups(plan::add);
         return plan;
     }

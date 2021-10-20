@@ -1,5 +1,3 @@
-package com.telenav.fiasco.mockup.fiasco;
-
 import com.telenav.fiasco.build.project.metadata.SourceCode;
 
 import static com.telenav.fiasco.build.project.metadata.Role.ARCHITECT;

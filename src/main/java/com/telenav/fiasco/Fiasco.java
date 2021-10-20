@@ -1,7 +1,7 @@
 package com.telenav.fiasco;
 
 import com.telenav.fiasco.build.Build;
-import com.telenav.fiasco.internal.FiascoProject;
+import com.telenav.fiasco.internal.FiascoCompiler;
 import com.telenav.fiasco.internal.FiascoSettings;
 import com.telenav.kivakit.application.Application;
 import com.telenav.kivakit.commandline.ArgumentParser;
@@ -10,7 +10,6 @@ import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.filesystem.FolderGlobPattern;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.collections.set.ObjectSet;
-import com.telenav.kivakit.resource.ResourceProject;
 
 import java.util.List;
 
@@ -90,9 +89,12 @@ public class Fiasco extends Application
     /** Java preferences settings for Fiasco */
     private final FiascoSettings settings = listenTo(new FiascoSettings());
 
+    /** Project-related utilities */
+    private final FiascoCompiler project = listenTo(new FiascoCompiler());
+
     protected Fiasco()
     {
-        super(ResourceProject.get());
+        super(new FiascoProject());
     }
 
     @Override
@@ -153,7 +155,7 @@ public class Fiasco extends Application
         {
             // get the .java build file with the given name,
             var source = settings.buildSourceFile(buildName);
-            var build = FiascoProject.compileAndInstantiate(this, source, Build.class);
+            var build = project.compileAndInstantiate(this, source, Build.class);
             if (build != null)
             {
                 build.build();

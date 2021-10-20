@@ -29,11 +29,14 @@ public class JavaCompiler extends BaseCompiler
      */
     public static JavaCompiler compiler(Writer output)
     {
+        final var settings = new FiascoSettings();
         return JavaCompiler.create()
                 .withOutput(output)
                 .withSourceVersion(JAVA_11)
                 .withTargetVersion(JAVA_11)
-                .withTargetFolder(new FiascoSettings().targetFolder())
+                .withTargetFolder(settings.targetFolder())
+                .withOption("-classpath")
+                .withOption(settings.fiascoRuntimeJar().toString())
                 .withOption("-implicit:class");
     }
 
@@ -143,6 +146,11 @@ public class JavaCompiler extends BaseCompiler
     public Folder targetFolder()
     {
         return targetFolder;
+    }
+
+    public String toString()
+    {
+        return "javac " + options.join(" ");
     }
 
     /**

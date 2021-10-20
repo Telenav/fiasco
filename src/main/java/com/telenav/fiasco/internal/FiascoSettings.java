@@ -9,6 +9,7 @@ import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.collections.list.StringList;
 import com.telenav.kivakit.kernel.language.strings.CaseFormat;
 import com.telenav.kivakit.kernel.language.strings.Strip;
+import com.telenav.kivakit.kernel.language.values.version.Version;
 
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -87,12 +88,30 @@ public class FiascoSettings extends BaseComponent
      */
     public Folder cacheFolder()
     {
-        final var version = Application.get().version();
+        final var version = fiascoVersion();
         if (version != null)
         {
             return Folder.parse("$/.fiasco/$", System.getProperty("user.home"), version);
         }
         return fail("Unable to get version for fiasco cache folder");
+    }
+
+    /**
+     * @return The Fiasco runtime jar
+     */
+    public File fiascoRuntimeJar()
+    {
+        return cacheFolder()
+                .folder("downloads")
+                .file("fiasco-runtime-$.jar", fiascoVersion());
+    }
+
+    /**
+     * @return The version of Fiasco running in this Java virtual machine
+     */
+    public Version fiascoVersion()
+    {
+        return Application.get().version();
     }
 
     /**
@@ -135,7 +154,7 @@ public class FiascoSettings extends BaseComponent
      */
     public void remember(Folder project)
     {
-        if (FiascoProject.isFiascoProject(project))
+        if (new FiascoCompiler().isFiascoProject(project))
         {
             var path = project.path().asString();
             var node = projectFoldersNode();

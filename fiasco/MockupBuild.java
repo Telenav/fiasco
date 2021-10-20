@@ -1,5 +1,3 @@
-package com.telenav.fiasco.mockup.fiasco;
-
 import com.telenav.fiasco.build.Build;
 import com.telenav.kivakit.filesystem.Folder;
 
@@ -11,7 +9,7 @@ public class MockupBuild extends Build
     @Override
     public void onInitialize()
     {
-        project("example");
+        project("mockup");
     }
 
     @Override

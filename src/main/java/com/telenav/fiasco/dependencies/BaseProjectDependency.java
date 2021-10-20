@@ -3,7 +3,7 @@ package com.telenav.fiasco.dependencies;
 import com.telenav.fiasco.build.project.Project;
 import com.telenav.fiasco.build.tools.compiler.JavaCompiler;
 import com.telenav.fiasco.dependencies.repository.Artifact;
-import com.telenav.fiasco.internal.FiascoProject;
+import com.telenav.fiasco.internal.FiascoCompiler;
 import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
 
@@ -51,14 +51,11 @@ public abstract class BaseProjectDependency extends BaseDependency implements Pr
 
             // and try loading each class file ending in Project,
             var count = 0;
+            var bootstrap = listenTo(new FiascoCompiler());
             for (var classFile : target.files(file -> file.fileName().endsWith("Project.java")))
             {
-                var project = FiascoProject.instantiate(this, classFile, Project.class);
-                if (project instanceof Project)
-                {
-                    dependencies().add((Project) project);
-                    count++;
-                }
+                dependencies().add(bootstrap.instantiate(this, classFile, Project.class));
+                count++;
             }
 
             ensure(count > 0, "Could not find any '*Project.java' files implementing Project in: $", fiasco);
