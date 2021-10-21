@@ -1,12 +1,12 @@
-package com.telenav.fiasco.build.project.metadata;
+package com.telenav.fiasco.build.metadata;
 
-import com.telenav.fiasco.build.project.Project;
+import com.telenav.fiasco.build.FiascoBuild;
 import com.telenav.kivakit.kernel.language.collections.set.ObjectSet;
 import com.telenav.kivakit.kernel.language.values.name.Name;
 import com.telenav.kivakit.network.core.EmailAddress;
 
 /**
- * An individual, human {@link Project} contributor with:
+ * An individual, human {@link FiascoBuild} contributor with:
  *
  * <ul>
  *     <li>A {@link #name()}</li>

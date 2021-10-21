@@ -1,4 +1,4 @@
-package com.telenav.fiasco.build.building;
+package com.telenav.fiasco.build;
 
 import com.telenav.fiasco.build.BuildListener;
 import com.telenav.fiasco.build.BuildResult;
@@ -18,5 +18,5 @@ public interface Builder extends Component
      * Builds the given {@link BuildableGroup}, calling the {@link BuildListener} with each {@link BuildResult} as the
      * build proceeds.
      */
-    void build(BuildableGroup buildables, BuildListener listener);
+    void build(BuildListener listener, BuildableGroup buildables);
 }

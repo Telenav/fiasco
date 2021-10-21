@@ -1,9 +1,11 @@
-import com.telenav.fiasco.build.project.BaseProject;
-import com.telenav.fiasco.build.project.metadata.Contributor;
-import com.telenav.fiasco.build.project.metadata.Copyright;
-import com.telenav.fiasco.build.project.metadata.License;
-import com.telenav.fiasco.build.project.metadata.Organization;
-import com.telenav.fiasco.build.project.metadata.ProjectMetadata;
+package fiasco;
+
+import com.telenav.fiasco.build.BaseFiascoBuild;
+import com.telenav.fiasco.build.metadata.Contributor;
+import com.telenav.fiasco.build.metadata.Copyright;
+import com.telenav.fiasco.build.metadata.License;
+import com.telenav.fiasco.build.metadata.Organization;
+import com.telenav.fiasco.build.BuildMetadata;
 import com.telenav.fiasco.build.tools.compiler.JavaCompiler;
 import com.telenav.kivakit.kernel.interfaces.string.StringSource;
 import com.telenav.kivakit.network.core.EmailAddress;
@@ -15,7 +17,7 @@ import static com.telenav.fiasco.build.tools.compiler.JavaCompiler.JavaVersion.J
  *
  * @author jonathanl (shibo)
  */
-public class TelenavProject extends BaseProject implements TelenavArtifacts
+public abstract class TelenavBuild extends BaseFiascoBuild implements TelenavArtifacts
 {
     protected Copyright copyright(int firstYear)
     {
@@ -42,12 +44,12 @@ public class TelenavProject extends BaseProject implements TelenavArtifacts
         return License.create().withBody(packageResource("LICENSE"));
     }
 
-    protected ProjectMetadata projectMetadata()
+    protected BuildMetadata projectMetadata()
     {
         var telenav = new Organization("Telenav")
                 .withWebsite("https://www.telenav.com");
 
-        return ProjectMetadata.create()
+        return BuildMetadata.create()
                 .withOriginator(telenav)
                 .withOwner(telenav)
                 .withLicense(license());

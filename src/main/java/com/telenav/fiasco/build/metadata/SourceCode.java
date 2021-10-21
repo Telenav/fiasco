@@ -1,4 +1,4 @@
-package com.telenav.fiasco.build.project.metadata;
+package com.telenav.fiasco.build.metadata;
 
 import java.net.MalformedURLException;
 import java.net.URL;

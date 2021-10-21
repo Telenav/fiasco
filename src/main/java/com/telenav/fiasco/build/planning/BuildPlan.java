@@ -3,7 +3,7 @@ package com.telenav.fiasco.build.planning;
 import com.telenav.fiasco.build.BuildListener;
 import com.telenav.fiasco.build.Buildable;
 import com.telenav.fiasco.build.BuildableGroup;
-import com.telenav.fiasco.build.building.Builder;
+import com.telenav.fiasco.build.Builder;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 
 /**
@@ -29,6 +29,6 @@ public class BuildPlan
      */
     public void build(Builder builder, BuildListener listener)
     {
-        groups.forEach(group -> builder.build(group, listener));
+        groups.forEach(group -> builder.build(listener, group));
     }
 }

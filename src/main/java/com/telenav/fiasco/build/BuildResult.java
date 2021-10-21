@@ -1,6 +1,7 @@
 package com.telenav.fiasco.build;
 
 import com.telenav.kivakit.kernel.language.collections.list.StringList;
+import com.telenav.kivakit.kernel.language.strings.Strip;
 import com.telenav.kivakit.kernel.language.time.Duration;
 import com.telenav.kivakit.kernel.language.time.Time;
 import com.telenav.kivakit.kernel.messaging.Listener;
@@ -80,7 +81,6 @@ public class BuildResult implements Listener
     {
         return summary()
                 .appendAll(statistics())
-                .appendAll(messages().asStringList())
-                .titledBox("$ Build Completed", buildName);
+                .titledBox("$ Build Completed", Strip.trailing(buildName, "Build"));
     }
 }

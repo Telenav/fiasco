@@ -18,7 +18,7 @@ public interface CompilationPhaseMixin extends Initializable, Phase, Mixin
 
     default CompilationPhase compilationPhase()
     {
-        return state(CompilationPhaseMixin.class, () -> new CompilationPhase(project()));
+        return state(CompilationPhaseMixin.class, () -> new CompilationPhase(build()));
     }
 
     default void onCompile()

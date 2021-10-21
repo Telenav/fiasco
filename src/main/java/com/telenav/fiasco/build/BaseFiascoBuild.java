@@ -1,26 +1,25 @@
-package com.telenav.fiasco.build.project;
+package com.telenav.fiasco.build;
 
-import com.telenav.fiasco.build.Build;
-import com.telenav.fiasco.build.BuildListener;
-import com.telenav.fiasco.build.BuildResult;
-import com.telenav.fiasco.build.BuildStep;
 import com.telenav.fiasco.build.phase.Phase;
 import com.telenav.fiasco.build.phase.compilation.CompilationPhaseMixin;
 import com.telenav.fiasco.build.phase.installation.InstallationPhase;
 import com.telenav.fiasco.build.phase.packaging.PackagingPhase;
 import com.telenav.fiasco.build.phase.testing.TestingPhase;
-import com.telenav.fiasco.build.project.metadata.ProjectMetadata;
 import com.telenav.fiasco.build.tools.repository.Librarian;
 import com.telenav.fiasco.dependencies.BaseProjectDependency;
 import com.telenav.fiasco.dependencies.repository.Artifact;
 import com.telenav.fiasco.dependencies.repository.ArtifactRepository;
 import com.telenav.kivakit.filesystem.Folder;
+import com.telenav.kivakit.kernel.interfaces.lifecycle.Initializable;
+import com.telenav.kivakit.kernel.interfaces.naming.Named;
 
 import java.util.Objects;
 
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
 
 /**
+ * Base class for Fiasco build definitions
+ *
  * <p>
  * Builds proceed in a series of {@link BuildStep}s which are grouped into {@link Phase}s:
  * </p>
@@ -32,21 +31,30 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNot
  *     <li>{@link PackagingPhase#buildPackages()} - Packages output files</li>
  *     <li>{@link InstallationPhase#installPackages()} - Installs packages</li>
  * </ol>
- *
  * <p>
- * When a phase completes a step, it calls {@link #nextStep(), which advances the build to the next step, and calls
- * the {@link BuildListener#onBuildStep(BuildStep)} method with the new build step.
- * </p>
+ * <p>
  *
  * @author jonathanl (shibo)
+ * @author jonathanl (shibo)
+ * @see Buildable
+ * @see BuildListener
+ * @see BuildResult
+ * @see BaseFiascoBuild
+ *
+ * <p>
+ * When a phase completes a step, it calls {@link #nextStep(), which advances the build to the next step, and calls the
+ * {@link BuildListener#onBuildStep(BuildStep)} method with the new build step.
+ * </p>
  */
-public abstract class BaseProject extends BaseProjectDependency implements Project, ProjectLocationsTrait
+public abstract class BaseFiascoBuild extends BaseProjectDependency implements
+        Named,
+        Buildable,
+        Initializable,
+        FiascoBuild,
+        ProjectLocationsTrait
 {
-    /** The build that is building this project */
-    private Build build;
-
     /** Metadata for this project */
-    private ProjectMetadata metadata;
+    private BuildMetadata metadata;
 
     /** The project root folder */
     private Folder root;
@@ -66,20 +74,32 @@ public abstract class BaseProject extends BaseProjectDependency implements Proje
     }
 
     /**
-     * Sets the build for this project
+     * {@inheritDoc}
      */
-    public void build(final Build build)
+    @Override
+    public BuildResult call()
     {
-        this.build = build;
+        return executeBuild();
+    }
+
+    @Override
+    public boolean equals(final Object object)
+    {
+        if (object instanceof BaseFiascoBuild)
+        {
+            BaseFiascoBuild that = (BaseFiascoBuild) object;
+            return this.root().equals(that.root());
+        }
+        return false;
     }
 
     /**
      * Builds this project
      */
-    @Override
-    public BuildResult build()
+    public BuildResult executeBuild()
     {
-        var result = new BuildResult(metadata.name());
+        initialize();
+        var result = new BuildResult(getClass().getSimpleName());
         try
         {
             result.listenTo(this);
@@ -108,26 +128,6 @@ public abstract class BaseProject extends BaseProjectDependency implements Proje
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public BuildResult call()
-    {
-        return build();
-    }
-
-    @Override
-    public boolean equals(final Object object)
-    {
-        if (object instanceof BaseProject)
-        {
-            BaseProject that = (BaseProject) object;
-            return this.root().equals(that.root());
-        }
-        return false;
-    }
-
     @Override
     public int hashCode()
     {
@@ -137,7 +137,7 @@ public abstract class BaseProject extends BaseProjectDependency implements Proje
     /**
      * Sets the metadata for this project
      */
-    public void metadata(final ProjectMetadata metadata)
+    public void metadata(final BuildMetadata metadata)
     {
         this.metadata = metadata;
     }
@@ -145,7 +145,7 @@ public abstract class BaseProject extends BaseProjectDependency implements Proje
     /**
      * @return This project's metadata
      */
-    public ProjectMetadata metadata()
+    public BuildMetadata metadata()
     {
         return metadata;
     }
@@ -181,7 +181,7 @@ public abstract class BaseProject extends BaseProjectDependency implements Proje
     /**
      * @param root The project root folder
      */
-    public Project root(final Folder root)
+    public FiascoBuild root(final Folder root)
     {
         this.root = root;
         return this;

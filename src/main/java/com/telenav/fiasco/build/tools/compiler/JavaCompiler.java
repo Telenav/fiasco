@@ -1,17 +1,15 @@
 package com.telenav.fiasco.build.tools.compiler;
 
 import com.telenav.fiasco.internal.FiascoSettings;
-import com.telenav.kivakit.filesystem.File;
+import com.telenav.kivakit.filesystem.FileList;
 import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.kernel.language.collections.list.StringList;
 
 import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.ToolProvider;
 import java.io.Writer;
-import java.util.List;
 
 import static com.telenav.fiasco.build.tools.compiler.JavaCompiler.JavaVersion.JAVA_11;
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
 import static com.telenav.kivakit.resource.path.Extension.JAVA;
 
@@ -107,35 +105,21 @@ public class JavaCompiler extends BaseCompiler
      */
     public boolean compile(Folder source)
     {
-        // then for each source file,
-        for (var sourceFile : source.files(JAVA.fileMatcher()))
-        {
-            // build it.
-            if (!compile(sourceFile))
-            {
-                problem("Unable to compile: $\n\n$\n", sourceFile, output);
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Compiles the given source file
-     *
-     * @param file The .java source file to compile
-     * @return True if there were no errors compiling the source file
-     */
-    public boolean compile(File file)
-    {
-        ensure(file.hasExtension(JAVA));
-
         ensureNotNull(sourceVersion, "No source version specified");
         ensureNotNull(targetVersion, "No target version specified");
         ensureNotNull(targetFolder, "No target output folder specified");
 
-        return task(file, output, options).call();
+        // then for each source file,
+        var files = source.nestedFiles(JAVA.fileMatcher());
+        if (task(files, output, options).call())
+        {
+            return true;
+        }
+        else
+        {
+            problem("Compilation failed:\n\n$\n", output);
+            return false;
+        }
     }
 
     public Writer out()
@@ -228,25 +212,17 @@ public class JavaCompiler extends BaseCompiler
     }
 
     /**
-     * @param sourceFile The Java file to compile
+     * @param sourceFiles The Java files to compile
      * @param out The writer to write output to
      * @param options The options to use
      * @return A compilation task for the given source file and compiler options
      */
-    private CompilationTask task(final File sourceFile, Writer out, StringList options)
+    private CompilationTask task(final FileList sourceFiles, Writer out, StringList options)
     {
-        // If the source file exists,
-        if (sourceFile.exists())
-        {
-            final var compiler = ToolProvider.getSystemJavaCompiler();
-            final var fileManager = compiler.getStandardFileManager(null, null, null);
-            final var sources = fileManager.getJavaFileObjectsFromFiles(List.of(sourceFile.asJavaFile()));
+        final var compiler = ToolProvider.getSystemJavaCompiler();
+        final var fileManager = compiler.getStandardFileManager(null, null, null);
+        final var sources = fileManager.getJavaFileObjectsFromFiles(sourceFiles.asJavaFiles());
 
-            return compiler.getTask(out, fileManager, null, options, null, sources);
-        }
-        else
-        {
-            throw problem("Build source file does not exist: $", sourceFile).asException();
-        }
+        return compiler.getTask(out, fileManager, null, options, null, sources);
     }
 }

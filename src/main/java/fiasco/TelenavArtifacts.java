@@ -1,3 +1,5 @@
+package fiasco;
+
 import com.telenav.fiasco.dependencies.repository.maven.MavenPopularArtifacts;
 import com.telenav.fiasco.dependencies.repository.maven.artifacts.apache.ApacheCommons;
 import com.telenav.fiasco.dependencies.repository.maven.artifacts.apache.ApacheWicket;

@@ -1,8 +1,8 @@
 package com.telenav.fiasco.build.planning;
 
-import com.telenav.fiasco.build.Build;
 import com.telenav.fiasco.build.Buildable;
 import com.telenav.fiasco.build.BuildableGroup;
+import com.telenav.fiasco.build.FiascoBuild;
 
 /**
  * Plans a build by determining the build order and which {@link Buildable}s can be built in parallel
@@ -12,7 +12,7 @@ import com.telenav.fiasco.build.BuildableGroup;
 public class BuildPlanner
 {
     /**
-     * Creates a build plan from the {@link Build} project dependency graph.
+     * Creates a build plan from the {@link FiascoBuild} dependency graph.
      *
      * <p><b>The Algorithm</b></p>
      *
@@ -23,10 +23,9 @@ public class BuildPlanner
      *     <li>If there are more <i>unvisited</i> leaves left to process, go to Step 1</li>
      * </ol>
      */
-    public BuildPlan plan(Build build)
+    public BuildPlan plan(FiascoBuild build)
     {
         var plan = new BuildPlan();
-        build.onInitialize();
         ProjectDependencyGraph.of(build).visitLeafGroups(plan::add);
         return plan;
     }

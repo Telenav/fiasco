@@ -1,6 +1,6 @@
 package com.telenav.fiasco.dependencies;
 
-import com.telenav.fiasco.build.project.Project;
+import com.telenav.fiasco.build.FiascoBuild;
 import com.telenav.fiasco.build.tools.compiler.JavaCompiler;
 import com.telenav.fiasco.dependencies.repository.Artifact;
 import com.telenav.fiasco.internal.FiascoCompiler;
@@ -14,8 +14,9 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.unsupported;
 
 /**
- * Base class for dependencies that can have {@link Project}s as dependencies. Not all dependencies can have dependent
- * projects. For example, {@link Artifact}s cannot have {@link Project} dependencies (because they are already built).
+ * Base class for dependencies that can have {@link FiascoBuild}s as dependencies. Not all dependencies can have
+ * dependent projects. For example, {@link Artifact}s cannot have {@link FiascoBuild} dependencies (because they are
+ * already built).
  *
  * @author jonathanl (shibo)
  */
@@ -29,36 +30,34 @@ public abstract class BaseProjectDependency extends BaseDependency implements Pr
 
     /**
      * Builds the classes in the <i>fiasco</i> folder under the given root, then loads classes ending in "Project". Each
-     * class is instantiated and the resulting object tested to see if it implements the {@link Project} interface. If
-     * it does, the project object is added to the set of {@link #dependencies()}.
+     * class is instantiated and the resulting object tested to see if it implements the {@link FiascoBuild} interface.
+     * If it does, the project object is added to the set of {@link #dependencies()}.
      *
      * @param projectRoot The project root folder
      */
     public void project(final Folder projectRoot)
     {
         // Get the fiasco sub-folder where the build files are,
-        var fiasco = projectRoot.folder("fiasco");
+        var fiasco = projectRoot.folder("src/main/java/fiasco");
 
         // create a compiler
         var output = new StringWriter();
-        var compiler = JavaCompiler.compiler(output);
+        var compiler = listenTo(JavaCompiler.compiler(output));
 
         // and if we can compile the source files,
         if (compiler.compile(fiasco))
         {
             // get the target folder
-            var target = compiler.targetFolder();
+            var classes = compiler.targetFolder().folder("fiasco");
 
             // and try loading each class file ending in Project,
-            var count = 0;
             var bootstrap = listenTo(new FiascoCompiler());
-            for (var classFile : target.files(file -> file.fileName().endsWith("Project.java")))
+            for (var classFile : classes.files(file -> file.fileName().endsWith("Build.class")))
             {
-                dependencies().add(bootstrap.instantiate(this, classFile, Project.class));
-                count++;
+                dependencies().addIfNotNull(bootstrap.instantiate(classFile, FiascoBuild.class));
             }
 
-            ensure(count > 0, "Could not find any '*Project.java' files implementing Project in: $", fiasco);
+            ensure(dependencies().size() > 0, "Could not find any '*Project.java' files implementing FiascoProject in: $", fiasco);
         }
         else
         {

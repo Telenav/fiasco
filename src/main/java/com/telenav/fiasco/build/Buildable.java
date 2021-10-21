@@ -6,19 +6,12 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 
 /**
- * An object that can be built by calling {@link #build()}
+ * An object that can be built by calling {@link #executeBuild()}
  *
  * @author jonathanl (shibo)
  */
 public interface Buildable extends Dependency, Callable<BuildResult>
 {
-    /**
-     * Builds this object
-     *
-     * @return The result of building this object
-     */
-    BuildResult build();
-
     /**
      * Allows this buildable object to be submitted to a {@link CompletionService}
      *
@@ -27,6 +20,13 @@ public interface Buildable extends Dependency, Callable<BuildResult>
     @Override
     default BuildResult call()
     {
-        return build();
+        return executeBuild();
     }
+
+    /**
+     * Builds this object
+     *
+     * @return The result of building this object
+     */
+    BuildResult executeBuild();
 }

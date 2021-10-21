@@ -1,6 +1,13 @@
 package com.telenav.fiasco;
 
-import com.telenav.fiasco.build.Build;
+import com.telenav.fiasco.build.BuildListener;
+import com.telenav.fiasco.build.BuildResult;
+import com.telenav.fiasco.build.Buildable;
+import com.telenav.fiasco.build.Builder;
+import com.telenav.fiasco.build.FiascoBuild;
+import com.telenav.fiasco.build.builders.ParallelBuilder;
+import com.telenav.fiasco.build.planning.BuildPlan;
+import com.telenav.fiasco.build.planning.BuildPlanner;
 import com.telenav.fiasco.internal.FiascoCompiler;
 import com.telenav.fiasco.internal.FiascoSettings;
 import com.telenav.kivakit.application.Application;
@@ -10,6 +17,8 @@ import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.filesystem.FolderGlobPattern;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.collections.set.ObjectSet;
+import com.telenav.kivakit.kernel.messaging.messages.status.Announcement;
+import com.telenav.kivakit.kernel.project.Project;
 
 import java.util.List;
 
@@ -21,9 +30,9 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
  *
  * <p>
  * Fiasco maintains a list of project folders in the Java preferences store. Each project folder must have a "fiasco"
- * folder that contains one or more Java source files that end with "Build.java" and implement the {@link Build}
- * interface. Each such source file is a Fiasco build definition. Fiasco compiles these source files, loads them and
- * executes them by calling {@link Build#build()}.
+ * folder that contains one or more Java source files that end with "Build.java" and implement the {@link FiascoBuild}
+ * interface. Each such source file defines a build. Fiasco compiles these source files, loads them and executes them by
+ * calling {@link FiascoBuild#executeBuild()}.
  * </p>
  *
  * <p><b>Command Line Switches</b></p>
@@ -92,7 +101,7 @@ public class Fiasco extends Application
     /** Project-related utilities */
     private final FiascoCompiler project = listenTo(new FiascoCompiler());
 
-    protected Fiasco()
+    public Fiasco(final Project... projects)
     {
         super(new FiascoProject());
     }
@@ -101,6 +110,14 @@ public class Fiasco extends Application
     protected List<ArgumentParser<?>> argumentParsers()
     {
         return List.of(BUILDS);
+    }
+
+    /**
+     * @return The {@link Builder} to use for this build
+     */
+    protected Builder builder()
+    {
+        return new ParallelBuilder();
     }
 
     @Override
@@ -134,8 +151,8 @@ public class Fiasco extends Application
                 ensure(settings.buildNames().contains(buildName), "Not a valid build: $", buildName);
             }
 
-            // and build.
-            build(arguments(BUILDS));
+            // and build, announcing each build as it completes.
+            build(result -> announce(result.toString()), arguments(BUILDS));
         }
     }
 
@@ -146,24 +163,57 @@ public class Fiasco extends Application
     }
 
     /**
-     * Compiles and runs the named builds
+     * Compiles and runs the named builds, reporting build completions to the given listener
      */
-    private void build(ObjectList<String> buildNames)
+    private void build(BuildListener buildListener, ObjectList<String> buildNames)
     {
         // For each specified build,
         for (var buildName : buildNames)
         {
             // get the .java build file with the given name,
-            var source = settings.buildSourceFile(buildName);
-            var build = project.compileAndInstantiate(this, source, Build.class);
+            var source = settings.sourceFile(buildName);
+            var build = project.compileAndInstantiate(source, FiascoBuild.class);
             if (build != null)
             {
-                build.build();
+                listenTo(build);
+
+                var projectRoot = source.parent() // fiasco
+                        .parent() // java
+                        .parent() // main
+                        .parent() // src
+                        .parent(); // [root]
+
+                build.root(projectRoot);
+                build(buildListener, build);
             }
             else
             {
-                problem("Unable to run build defined in: $", source);
+                problem("Unable to load build defined in: $", source);
             }
+        }
+    }
+
+    /**
+     * Creates a {@link BuildPlan} for the buildables that were added to the given {@link FiascoBuild} with {@link
+     * FiascoBuild#project(String)}, then executes the plan using the {@link Builder} returned by {@link #builder()}. As
+     * the build proceeds the {@link BuildListener} is called when {@link Buildable}s finish building. If no build
+     * listener is specified, the default listener broadcasts {@link Announcement} messages for each build that
+     * completes.
+     * </p>
+     */
+    private void build(final BuildListener listener, final FiascoBuild build)
+    {
+        var result = new BuildResult(name());
+        result.start();
+        try
+        {
+            new BuildPlanner()
+                    .plan(build)
+                    .build(listenTo(builder()), listener);
+        }
+        finally
+        {
+            result.end();
         }
     }
 }

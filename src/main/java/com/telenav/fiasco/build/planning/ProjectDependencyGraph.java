@@ -1,9 +1,8 @@
 package com.telenav.fiasco.build.planning;
 
-import com.telenav.fiasco.build.Build;
 import com.telenav.fiasco.build.Buildable;
 import com.telenav.fiasco.build.BuildableGroup;
-import com.telenav.fiasco.build.project.Project;
+import com.telenav.fiasco.build.FiascoBuild;
 import com.telenav.fiasco.dependencies.Dependency;
 import com.telenav.kivakit.kernel.data.validation.ensure.Ensure;
 
@@ -14,7 +13,7 @@ import java.util.function.Consumer;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
 
 /**
- * Processes the graph of projects from the root {@link Build}.
+ * Processes the graph of projects from the root {@link FiascoBuild}.
  *
  * @author shibo
  */
@@ -23,7 +22,7 @@ public class ProjectDependencyGraph
     /**
      * @return The dependency graph formed by traversing dependencies starting at the given root
      */
-    public static ProjectDependencyGraph of(final Build build)
+    public static ProjectDependencyGraph of(final FiascoBuild build)
     {
         return new ProjectDependencyGraph(build);
     }
@@ -37,9 +36,9 @@ public class ProjectDependencyGraph
     }
 
     /** The root of this project graph */
-    private final Build build;
+    private final FiascoBuild build;
 
-    private ProjectDependencyGraph(final Build build)
+    private ProjectDependencyGraph(final FiascoBuild build)
     {
         this.build = build;
     }
@@ -60,7 +59,7 @@ public class ProjectDependencyGraph
 
             depthFirst(build, new HashSet<>(), at ->
             {
-                if (isLeaf(at, visitedLeaves) && at != build)
+                if (isLeaf(at, visitedLeaves))
                 {
                     group.add(at);
                 }
@@ -72,6 +71,11 @@ public class ProjectDependencyGraph
             }
 
             visitor.at(group);
+
+            if (group.size() == 1 && group.get(0).equals(build))
+            {
+                break;
+            }
         }
     }
 
@@ -96,10 +100,10 @@ public class ProjectDependencyGraph
         for (final var child : at.dependencies())
         {
             // and if it's a project,
-            if (child instanceof Project)
+            if (child instanceof FiascoBuild)
             {
                 // explore it (in a depth-first traversal)
-                depthFirst((Project) child, visited, visitor);
+                depthFirst((FiascoBuild) child, visited, visitor);
             }
         }
 

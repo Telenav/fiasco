@@ -1,8 +1,8 @@
-package com.telenav.fiasco.build.building.builders;
+package com.telenav.fiasco.build.builders;
 
 import com.telenav.fiasco.build.BuildListener;
 import com.telenav.fiasco.build.BuildableGroup;
-import com.telenav.fiasco.build.building.BaseBuilder;
+import com.telenav.fiasco.build.BaseBuilder;
 
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.unimplemented;
 
@@ -14,7 +14,7 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.unimpleme
 public class RemoteBuilder extends BaseBuilder
 {
     @Override
-    public void build(BuildableGroup buildables, BuildListener listener)
+    public void build(BuildListener listener, BuildableGroup buildables)
     {
         unimplemented();
     }

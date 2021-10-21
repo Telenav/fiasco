@@ -10,4 +10,5 @@ open module com.telenav.fiasco
 
     // Exports
     exports com.telenav.fiasco;
+    exports com.telenav.fiasco.build;
 }

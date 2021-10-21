@@ -42,6 +42,6 @@ public interface PackagingPhaseMixin extends Phase, Mixin
 
     default PackagingPhase packagingPhase()
     {
-        return state(PackagingPhaseMixin.class, () -> new PackagingPhase(project()));
+        return state(PackagingPhaseMixin.class, () -> new PackagingPhase(build()));
     }
 }

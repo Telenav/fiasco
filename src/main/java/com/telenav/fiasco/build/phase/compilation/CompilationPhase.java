@@ -3,7 +3,7 @@ package com.telenav.fiasco.build.phase.compilation;
 import com.telenav.fiasco.build.BuildStep;
 import com.telenav.fiasco.build.phase.BasePhase;
 import com.telenav.fiasco.build.phase.Phase;
-import com.telenav.fiasco.build.project.Project;
+import com.telenav.fiasco.build.FiascoBuild;
 
 /**
  * Executes the steps in the compilation phase of a build:
@@ -24,9 +24,9 @@ import com.telenav.fiasco.build.project.Project;
 @SuppressWarnings("DuplicatedCode")
 public class CompilationPhase extends BasePhase
 {
-    public CompilationPhase(final Project project)
+    public CompilationPhase(final FiascoBuild build)
     {
-        super(project);
+        super(build);
     }
 
     public void buildSources()

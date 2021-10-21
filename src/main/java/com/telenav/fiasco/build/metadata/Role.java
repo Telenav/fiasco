@@ -1,4 +1,4 @@
-package com.telenav.fiasco.build.project.metadata;
+package com.telenav.fiasco.build.metadata;
 
 /**
  * A role assumed by a {@link Contributor}

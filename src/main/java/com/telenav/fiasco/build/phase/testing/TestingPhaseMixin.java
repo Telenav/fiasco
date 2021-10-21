@@ -1,12 +1,17 @@
 package com.telenav.fiasco.build.phase.testing;
 
 import com.telenav.fiasco.build.phase.Phase;
-import com.telenav.fiasco.build.project.Project;
+import com.telenav.fiasco.build.FiascoBuild;
 import com.telenav.kivakit.kernel.language.mixin.Mixin;
 
 @SuppressWarnings("DuplicatedCode")
 public interface TestingPhaseMixin extends Phase, Mixin
 {
+    default FiascoBuild build()
+    {
+        return testingPhase().build();
+    }
+
     default void buildTestSources()
     {
         testingPhase().buildTestSources();
@@ -37,11 +42,6 @@ public interface TestingPhaseMixin extends Phase, Mixin
         testingPhase().onTestVerify();
     }
 
-    default Project project()
-    {
-        return testingPhase().project();
-    }
-
     default void runTests()
     {
         testingPhase().runTests();
@@ -49,6 +49,6 @@ public interface TestingPhaseMixin extends Phase, Mixin
 
     default TestingPhase testingPhase()
     {
-        return state(TestingPhaseMixin.class, () -> new TestingPhase(project()));
+        return state(TestingPhaseMixin.class, () -> new TestingPhase(build()));
     }
 }

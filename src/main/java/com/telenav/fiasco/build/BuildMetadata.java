@@ -1,6 +1,10 @@
-package com.telenav.fiasco.build.project.metadata;
+package com.telenav.fiasco.build;
 
-import com.telenav.kivakit.kernel.interfaces.naming.Named;
+import com.telenav.fiasco.build.metadata.Contributor;
+import com.telenav.fiasco.build.metadata.Copyright;
+import com.telenav.fiasco.build.metadata.License;
+import com.telenav.fiasco.build.metadata.Organization;
+import com.telenav.fiasco.build.metadata.SourceCode;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 
 /**
@@ -16,15 +20,15 @@ import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
  *
  * @author jonathanl (shibo)
  */
-public class ProjectMetadata implements Named
+public class BuildMetadata
 {
-    public static ProjectMetadata create()
+    public static BuildMetadata create()
     {
-        return new ProjectMetadata();
+        return new BuildMetadata();
     }
 
     /** The list of contributors to this project */
-    private ObjectList<Contributor> contributors;
+    private ObjectList<Contributor> contributors = ObjectList.create();
 
     /** The project copyright notice */
     private Copyright copyright;
@@ -33,16 +37,16 @@ public class ProjectMetadata implements Named
     private Organization owner;
 
     /** The set of licenses under which the project is available for use */
-    private ObjectList<License> licenses;
+    private ObjectList<License> licenses = ObjectList.create();
 
     /** Project source code */
     private SourceCode code;
 
-    protected ProjectMetadata()
+    protected BuildMetadata()
     {
     }
 
-    protected ProjectMetadata(final ProjectMetadata that)
+    protected BuildMetadata(final BuildMetadata that)
     {
         copyright = that.copyright;
         contributors = that.contributors.copy();
@@ -70,44 +74,44 @@ public class ProjectMetadata implements Named
         return owner;
     }
 
-    public ProjectMetadata withContributor(final Contributor contributor)
+    public BuildMetadata withContributor(final Contributor contributor)
     {
-        final var copy = new ProjectMetadata(this);
+        final var copy = new BuildMetadata(this);
         copy.contributors.add(contributor);
         return copy;
     }
 
-    public ProjectMetadata withCopyright(final Copyright copyright)
+    public BuildMetadata withCopyright(final Copyright copyright)
     {
-        final var copy = new ProjectMetadata(this);
+        final var copy = new BuildMetadata(this);
         copy.copyright = copyright;
         return copy;
     }
 
-    public ProjectMetadata withLicense(final License license)
+    public BuildMetadata withLicense(final License license)
     {
-        final var copy = new ProjectMetadata(this);
+        final var copy = new BuildMetadata(this);
         copy.licenses.add(license);
         return copy;
     }
 
-    public ProjectMetadata withOriginator(final Organization organization)
+    public BuildMetadata withOriginator(final Organization organization)
     {
-        final var copy = new ProjectMetadata(this);
+        final var copy = new BuildMetadata(this);
         copy.owner = organization;
         return copy;
     }
 
-    public ProjectMetadata withOwner(final Organization owner)
+    public BuildMetadata withOwner(final Organization owner)
     {
-        final var copy = new ProjectMetadata(this);
+        final var copy = new BuildMetadata(this);
         copy.owner = owner;
         return copy;
     }
 
-    public ProjectMetadata withSourceCode(final SourceCode code)
+    public BuildMetadata withSourceCode(final SourceCode code)
     {
-        final var copy = new ProjectMetadata(this);
+        final var copy = new BuildMetadata(this);
         copy.code = code;
         return copy;
     }
