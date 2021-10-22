@@ -6,20 +6,40 @@ import com.telenav.kivakit.kernel.interfaces.lifecycle.Initializable;
 import com.telenav.kivakit.kernel.language.mixin.Mixin;
 
 /**
- * {@link Mixin} for {@link CompilationPhase}
+ * {@link Mixin} for {@link BaseCompilationPhase}
  *
  * @author jonathanl (shibo)
  */
 public interface CompilationPhaseMixin extends Initializable, Phase, Mixin
 {
-    default void buildSources()
+    default BaseCompilationPhase compilationPhase()
     {
-        compilationPhase().buildSources();
+        return state(CompilationPhaseMixin.class, () -> new BaseCompilationPhase(build()));
     }
 
-    default CompilationPhase compilationPhase()
+    default void compile()
     {
-        return state(CompilationPhaseMixin.class, () -> new CompilationPhase(build()));
+        onCompile();
+    }
+
+    default void compileSources()
+    {
+        tryFinally(this::initialize, this::nextStep);
+        tryFinally(this::generate, this::nextStep);
+        tryFinally(this::preprocess, this::nextStep);
+        tryFinally(this::compile, this::nextStep);
+        tryFinally(this::postprocess, this::nextStep);
+        tryFinally(this::verify, this::nextStep);
+    }
+
+    default void generate()
+    {
+        onGenerate();
+    }
+
+    default void initialize()
+    {
+        onInitialize();
     }
 
     default JavaCompiler javaCompiler()
@@ -27,28 +47,47 @@ public interface CompilationPhaseMixin extends Initializable, Phase, Mixin
         return compilationPhase().javaCompiler();
     }
 
+    default void nextStep()
+    {
+        compilationPhase().nextStep();
+    }
+
     default void onCompile()
     {
-        compilationPhase().onCompile();
+    }
+
+    default void onGenerate()
+    {
     }
 
     default void onInitialize()
     {
-        compilationPhase().onInitialize();
     }
 
     default void onPostprocess()
     {
-        compilationPhase().onPostprocess();
     }
 
     default void onPreprocess()
     {
-        compilationPhase().onPreprocess();
     }
 
     default void onVerify()
     {
-        compilationPhase().onVerify();
+    }
+
+    default void postprocess()
+    {
+        onPostprocess();
+    }
+
+    default void preprocess()
+    {
+        onPreprocess();
+    }
+
+    default void verify()
+    {
+        onVerify();
     }
 }

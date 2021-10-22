@@ -19,7 +19,7 @@ public class MockupBuild extends TelenavBuild
     @Override
     public void onCompile()
     {
-        javaCompiler().compile(sources());
+        listenTo(javaCompiler()).compile(sources());
     }
 
     @Override

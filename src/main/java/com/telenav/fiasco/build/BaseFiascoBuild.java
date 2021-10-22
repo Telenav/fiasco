@@ -33,7 +33,7 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.unsupport
  * </p>
  *
  * <ol>
- *     <li>{@link CompilationPhaseMixin#buildSources()} - Builds sources into output files</li>
+ *     <li>{@link CompilationPhaseMixin#compileSources()} - Builds sources into output files</li>
  *     <li>{@link TestingPhase#buildTestSources()} - Builds test sources</li>
  *     <li>{@link TestingPhase#runTests()} ()} - Runs tests</li>
  *     <li>{@link PackagingPhase#buildPackages()} - Packages output files</li>
@@ -121,7 +121,7 @@ public abstract class BaseFiascoBuild extends BaseDependency implements
             result.start();
 
             // Compile code,
-            buildSources();
+            compileSources();
 
             // build the tests,
             buildTestSources();

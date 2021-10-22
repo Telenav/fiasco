@@ -183,10 +183,10 @@ public class JavaCompiler extends BaseCompiler
     /**
      * @return This compiler with the given output writer
      */
-    public JavaCompiler withOutput(Writer out)
+    public JavaCompiler withOutput(Writer output)
     {
         var copy = copy();
-        copy.output = out;
+        copy.output = output;
         return copy;
     }
 
