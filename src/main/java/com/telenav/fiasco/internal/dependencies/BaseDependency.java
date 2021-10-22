@@ -40,8 +40,8 @@ public abstract class BaseDependency extends BaseComponent implements Dependency
     /**
      * Adds the given dependency(ies)
      */
-    protected void require(Dependency... dependency)
+    protected void require(Dependency... dependencies)
     {
-        dependencies.addAll(Arrays.asList(dependency));
+        this.dependencies.addAll(Arrays.asList(dependencies));
     }
 }

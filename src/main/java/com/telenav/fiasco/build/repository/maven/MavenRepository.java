@@ -42,7 +42,7 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
      */
     public static MavenRepository local(Listener listener)
     {
-        return create(listener, "local")
+        return create(listener, "Local Repository")
                 .withRoot(FilePath.parseFilePath("${user.home}/.m2/repository"));
     }
 

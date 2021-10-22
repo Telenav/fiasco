@@ -85,7 +85,7 @@ public class Librarian extends BaseComponent implements ArtifactResolver
         }
         else
         {
-            information("Resolved $ => $", local, artifact);
+            information("Resolved $ => $", artifact, local);
             return local;
         }
     }
@@ -95,16 +95,26 @@ public class Librarian extends BaseComponent implements ArtifactResolver
      *
      * @param dependency The dependency to resolve
      */
-    public boolean resolveAll(Dependency dependency)
+    public ObjectList<Artifact> resolveAll(Dependency dependency)
+    {
+        var artifacts = new ObjectList<Artifact>();
+        resolveAll(dependency, artifacts);
+        return artifacts;
+    }
+
+    /**
+     * Resolves all transitive dependencies of the given dependency
+     *
+     * @param dependency The dependency to resolve
+     */
+    public void resolveAll(Dependency dependency, ObjectList<Artifact> artifacts)
     {
         for (var at : dependency.dependencies())
         {
             if (at instanceof Artifact)
             {
-                return resolve((Artifact) at) != null;
+                resolve((Artifact) at);
             }
         }
-
-        return true;
     }
 }

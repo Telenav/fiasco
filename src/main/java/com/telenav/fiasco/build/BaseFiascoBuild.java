@@ -25,6 +25,7 @@ import com.telenav.kivakit.kernel.data.validation.Validator;
 import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
 import com.telenav.kivakit.kernel.interfaces.lifecycle.Initializable;
 import com.telenav.kivakit.kernel.interfaces.naming.Named;
+import com.telenav.kivakit.kernel.language.strings.AsciiArt;
 
 import java.io.StringWriter;
 import java.util.Objects;
@@ -263,7 +264,7 @@ public abstract class BaseFiascoBuild extends BaseDependency implements
      */
     public void step(BuildStep step)
     {
-        narrate("[$]", step.name());
+        narrate(AsciiArt.line(step.name()));
         this.step = step;
     }
 
