@@ -1,9 +1,14 @@
 package com.telenav.fiasco.build.phase.compilation;
 
 import com.telenav.fiasco.build.BuildStep;
+import com.telenav.fiasco.build.FiascoBuild;
 import com.telenav.fiasco.build.phase.BasePhase;
 import com.telenav.fiasco.build.phase.Phase;
-import com.telenav.fiasco.build.FiascoBuild;
+import com.telenav.fiasco.build.tools.compiler.JavaCompiler;
+import com.telenav.fiasco.internal.FiascoSettings;
+import com.telenav.kivakit.kernel.language.vm.Console;
+
+import static com.telenav.fiasco.build.tools.compiler.JavaCompiler.JavaVersion.JAVA_11;
 
 /**
  * Executes the steps in the compilation phase of a build:
@@ -95,6 +100,20 @@ public class CompilationPhase extends BasePhase
     public final void verify()
     {
         onVerify();
+    }
+
+    protected JavaCompiler javaCompiler()
+    {
+        var settings = require(FiascoSettings.class);
+        
+        return JavaCompiler.create()
+                .withOutput(Console.instance().printWriter())
+                .withSourceVersion(JAVA_11)
+                .withTargetVersion(JAVA_11)
+                .withTargetFolder(build().projectRoot().folder("target").mkdirs())
+                .withOption("-classpath")
+                .withOption(settings.fiascoRuntimeJar().toString())
+                .withOption("-implicit:class");
     }
 
     protected void onRuns()

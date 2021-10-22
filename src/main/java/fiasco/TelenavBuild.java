@@ -1,16 +1,13 @@
 package fiasco;
 
 import com.telenav.fiasco.build.BaseFiascoBuild;
+import com.telenav.fiasco.build.BuildMetadata;
 import com.telenav.fiasco.build.metadata.Contributor;
 import com.telenav.fiasco.build.metadata.Copyright;
 import com.telenav.fiasco.build.metadata.License;
 import com.telenav.fiasco.build.metadata.Organization;
-import com.telenav.fiasco.build.BuildMetadata;
-import com.telenav.fiasco.build.tools.compiler.JavaCompiler;
 import com.telenav.kivakit.kernel.interfaces.string.StringSource;
 import com.telenav.kivakit.network.core.EmailAddress;
-
-import static com.telenav.fiasco.build.tools.compiler.JavaCompiler.JavaVersion.JAVA_11;
 
 /**
  * Base class for Telenav projects
@@ -22,15 +19,6 @@ public abstract class TelenavBuild extends BaseFiascoBuild implements TelenavArt
     protected Copyright copyright(int firstYear)
     {
         return new Copyright(StringSource.of("Copyright (C) " + firstYear));
-    }
-
-    protected JavaCompiler javaCompiler()
-    {
-        return JavaCompiler.create()
-                .withSourceVersion(JAVA_11)
-                .withTargetVersion(JAVA_11)
-                .withTargetFolder(root().folder("fiasco"))
-                .withOutput(System.console().writer());
     }
 
     protected Contributor jonathan()

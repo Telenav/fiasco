@@ -3,12 +3,15 @@ package com.telenav.fiasco.internal;
 import com.telenav.fiasco.build.tools.compiler.JavaCompiler;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.filesystem.File;
+import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.kernel.language.reflection.Type;
 import com.telenav.kivakit.resource.path.Extension;
 
 import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLClassLoader;
+
+import static java.lang.reflect.Modifier.isAbstract;
 
 /**
  * <b>Not public API</b>
@@ -21,6 +24,22 @@ import java.net.URLClassLoader;
  */
 public class FiascoCompiler extends BaseComponent
 {
+    /**
+     * @return True if the source files in the given folder were successfully compiled
+     */
+    public boolean compile(Folder folder)
+    {
+        var output = new StringWriter();
+        var compiler = listenTo(JavaCompiler.compiler(output));
+        if (!compiler.compile(folder))
+        {
+            problem("Could not compile folder: $\n\n$", folder, output);
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * Compiles the given source file, instantiates the resulting class, and if the class is assignable to the expected
      * type, returns the build object
@@ -65,15 +84,24 @@ public class FiascoCompiler extends BaseComponent
             // and if the class was loaded,
             if (loaded != null)
             {
-                // and it is assignable to the expected type,
-                if (expectedType.isAssignableFrom(loaded))
+                // and it's not abstract,
+                if (!isAbstract(loaded.getModifiers()))
                 {
-                    // then return a new instance of the class.
-                    return (T) Type.forClass(loaded).newInstance();
+                    // and it is assignable to the expected type,
+                    if (expectedType.isAssignableFrom(loaded))
+                    {
+                        // then return a new instance of the class.
+                        return (T) Type.forClass(loaded).newInstance();
+                    }
+                    else
+                    {
+                        problem("The class file $ does not contain a subclass of ${class}", classFile, expectedType);
+                    }
                 }
                 else
                 {
-                    problem("The class file $ does not contain a subclass of ${class}", classFile, expectedType);
+                    // Silently skip abstract classes
+                    return null;
                 }
             }
             else
@@ -99,7 +127,6 @@ public class FiascoCompiler extends BaseComponent
         {
             var output = new StringWriter();
             var compiler = listenTo(JavaCompiler.compiler(output));
-            announce("Compiling $ $", compiler, source);
             if (compiler.compile(source.parent()))
             {
                 return compiler.targetFolder()

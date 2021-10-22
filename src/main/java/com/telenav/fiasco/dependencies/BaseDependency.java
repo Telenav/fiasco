@@ -3,6 +3,8 @@ package com.telenav.fiasco.dependencies;
 import com.telenav.fiasco.dependencies.repository.maven.MavenArtifact;
 import com.telenav.kivakit.component.BaseComponent;
 
+import java.util.Arrays;
+
 /**
  * Base class for dependencies
  *
@@ -40,5 +42,6 @@ public abstract class BaseDependency extends BaseComponent implements Dependency
      */
     protected void require(Dependency... dependency)
     {
+        dependencies.addAll(Arrays.asList(dependency));
     }
 }

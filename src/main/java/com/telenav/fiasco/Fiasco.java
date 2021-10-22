@@ -77,6 +77,9 @@ public class Fiasco extends Application
     public static void main(final String[] arguments)
     {
         new Fiasco().run(arguments);
+
+        // Java 16 reference handling deadlocks sometimes
+        System.exit(0);
     }
 
     /** Switch to add a build folder to Fiasco */
@@ -96,7 +99,7 @@ public class Fiasco extends Application
             .build();
 
     /** Java preferences settings for Fiasco */
-    private final FiascoSettings settings = listenTo(new FiascoSettings());
+    private final FiascoSettings settings = listenTo(register(new FiascoSettings()));
 
     /** Project-related utilities */
     private final FiascoCompiler project = listenTo(new FiascoCompiler());
@@ -183,7 +186,7 @@ public class Fiasco extends Application
                         .parent() // src
                         .parent(); // [root]
 
-                build.root(projectRoot);
+                build.projectRoot(projectRoot);
                 build(buildListener, build);
             }
             else

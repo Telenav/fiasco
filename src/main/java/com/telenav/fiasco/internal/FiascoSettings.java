@@ -11,13 +11,13 @@ import com.telenav.kivakit.kernel.language.collections.list.StringList;
 import com.telenav.kivakit.kernel.language.strings.CaseFormat;
 import com.telenav.kivakit.kernel.language.strings.Strip;
 import com.telenav.kivakit.kernel.language.values.version.Version;
-import com.telenav.kivakit.kernel.messaging.Listener;
 
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
 
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
+import static com.telenav.kivakit.resource.path.Extension.JAVA;
 
 /**
  * <b>Not public API</b>
@@ -108,7 +108,7 @@ public class FiascoSettings extends BaseComponent
      */
     public boolean isFiascoProject(Folder project)
     {
-        var fiasco = project.folder("fiasco");
+        var fiasco = project.folder("src/main/java/fiasco");
         return fiasco.exists() && !fiasco.files(Pattern.compile(".*Build.java")).isEmpty();
     }
 
@@ -179,19 +179,26 @@ public class FiascoSettings extends BaseComponent
     public ObjectList<File> sourceFiles()
     {
         var files = new ObjectList<File>();
+
+        // Go through each project,
         for (var project : projects())
         {
-            final var compiler = Listener.none().listenTo(new FiascoCompiler());
-            files.addAll(project.folder("src/main/java/fiasco")
+            // build the 'fiasco' folder,
+            final var compiler = listenTo(new FiascoCompiler());
+            final var fiasco = project.folder("src/main/java/fiasco");
+            compiler.compile(fiasco);
+
+            // then go through the target files,
+            files.addAll(targetFolder()
+                    .folder("fiasco")
                     .files(file ->
                     {
-                        if (file.fileName().endsWith("Build.java"))
-                        {
-                            return compiler.compileAndInstantiate(file, FiascoBuild.class) != null;
-                        }
-                        return false;
-                    }));
+                        // and add the file to the list if it is a build class file and it can be instantiated,
+                        return file.fileName().endsWith("Build.class") && compiler.instantiate(file, FiascoBuild.class) != null;
+                    })
+                    .mapped(file -> fiasco.file(file.fileName().withoutExtension().withExtension(JAVA))));
         }
+
         return files;
     }
 

@@ -30,25 +30,25 @@ public interface ProjectLocationsTrait
      */
     default Folder output()
     {
-        return root().folder("target");
+        return projectRoot().folder("target");
     }
 
     /**
      * @return The project root folder
      */
-    Folder root();
+    Folder projectRoot();
 
     /**
      * @param root The project root folder
      */
-    FiascoBuild root(final Folder root);
+    FiascoBuild projectRoot(final Folder root);
 
     /**
      * @return The source folder
      */
     default Folder sources()
     {
-        return root().folder("src");
+        return projectRoot().folder("src");
     }
 
     /**

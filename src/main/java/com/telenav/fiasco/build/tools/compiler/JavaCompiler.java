@@ -4,10 +4,12 @@ import com.telenav.fiasco.internal.FiascoSettings;
 import com.telenav.kivakit.filesystem.FileList;
 import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.kernel.language.collections.list.StringList;
+import com.telenav.kivakit.kernel.language.objects.Objects;
 
 import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.ToolProvider;
 import java.io.Writer;
+import java.util.prefs.Preferences;
 
 import static com.telenav.fiasco.build.tools.compiler.JavaCompiler.JavaVersion.JAVA_11;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
@@ -80,7 +82,7 @@ public class JavaCompiler extends BaseCompiler
     private Writer output;
 
     /** Folder for class files and other generated resources */
-    private Folder targetFolder;
+    private Folder target;
 
     /** Compiler options */
     private final StringList options = StringList.stringList();
@@ -94,7 +96,7 @@ public class JavaCompiler extends BaseCompiler
         this.sourceVersion = that.sourceVersion;
         this.targetVersion = that.targetVersion;
         this.output = that.output;
-        this.targetFolder = that.targetFolder;
+        this.target = that.target;
         this.options.addAll(that.options);
     }
 
@@ -107,18 +109,39 @@ public class JavaCompiler extends BaseCompiler
     {
         ensureNotNull(sourceVersion, "No source version specified");
         ensureNotNull(targetVersion, "No target version specified");
-        ensureNotNull(targetFolder, "No target output folder specified");
+        ensureNotNull(target, "No target folder specified");
 
-        // then for each source file,
-        var files = source.nestedFiles(JAVA.fileMatcher());
-        if (task(files, output, options).call())
+        var node = Preferences.userNodeForPackage(getClass()).node("fiasco");
+
+        var lastSourceDigest = node.getByteArray("sourceDigest", null);
+        var lastTargetDigest = node.getByteArray("targetDigest", null);
+        var sourceDigest = source.nestedFiles().digest();
+        var targetDigest = target.nestedFiles().digest();
+
+        // If the source and target folders are identical to the last compile,
+        if (Objects.equalPairs(lastSourceDigest, sourceDigest, lastTargetDigest, targetDigest))
         {
+            // then we can skip compiling
+            trace("Source and target folders are unchanged, skipping compilation");
             return true;
         }
         else
         {
-            problem("Compilation failed:\n\n$\n", output);
-            return false;
+            // otherwise, build the source files.
+            announce("Compiling $ $", this, source);
+            var files = source.nestedFiles(JAVA.fileMatcher());
+            if (task(files, output, options).call())
+            {
+                // and store the digests for next time
+                node.putByteArray("sourceDigest", sourceDigest);
+                node.putByteArray("targetDigest", targetDigest);
+                return true;
+            }
+            else
+            {
+                problem("Compilation failed:\n\n$\n", output);
+                return false;
+            }
         }
     }
 
@@ -129,7 +152,7 @@ public class JavaCompiler extends BaseCompiler
 
     public Folder targetFolder()
     {
-        return targetFolder;
+        return target;
     }
 
     public String toString()
@@ -185,7 +208,7 @@ public class JavaCompiler extends BaseCompiler
     public JavaCompiler withTargetFolder(Folder folder)
     {
         var copy = copy();
-        copy.targetFolder = folder;
+        copy.target = folder;
         copy.options.add("-d");
         copy.options.add(folder.toString());
         return copy;

@@ -1,15 +1,16 @@
-package com.telenav.fiasco.dependencies;
+package com.telenav.fiasco.build;
 
-import com.telenav.fiasco.build.FiascoBuild;
+import com.telenav.fiasco.dependencies.Dependency;
+import com.telenav.fiasco.dependencies.Library;
 import com.telenav.kivakit.filesystem.Folder;
 
 /**
- * A {@link FiascoBuild} dependency that must be built (as opposed to an {@link Library} dependency which is already
- * built.
+ * A {@link FiascoBuild} project dependency that must be built (as opposed to an {@link Library} dependency which is
+ * already built.
  *
  * @author jonathanl (shibo)
  */
-public interface ProjectDependency extends Dependency
+public interface BuildableProject extends Dependency
 {
     /**
      * Builds and adds project in the given folder
