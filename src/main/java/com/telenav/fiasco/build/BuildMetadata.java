@@ -11,7 +11,6 @@ import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
  * Data about a project, including:
  *
  * <ul>
- *     <li>The project {@link #name()}</li>
  *     <li>The organization that is the {@link #owner()} of the project</li>
  *     <li>The {@link #contributors()} who have worked on the project</li>
  *     <li>The project {@link #copyright()}</li>

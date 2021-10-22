@@ -1,5 +1,7 @@
 package com.telenav.fiasco.build.tools.compiler;
 
-public class ProtobufCompiler extends BaseCompiler
+import com.telenav.kivakit.component.BaseComponent;
+
+public class ProtobufCompiler extends BaseComponent
 {
 }

@@ -1,11 +1,14 @@
 package com.telenav.fiasco.build;
 
-import com.telenav.fiasco.build.phase.compilation.CompilationPhaseMixin;
-import com.telenav.fiasco.build.phase.installation.InstallationPhaseMixin;
-import com.telenav.fiasco.build.phase.packaging.PackagingPhaseMixin;
-import com.telenav.fiasco.build.phase.testing.TestingPhaseMixin;
-import com.telenav.fiasco.dependencies.repository.ArtifactResolver;
-import com.telenav.fiasco.dependencies.repository.maven.MavenPopularArtifacts;
+import com.telenav.fiasco.build.repository.ArtifactResolver;
+import com.telenav.fiasco.build.repository.maven.MavenPopularArtifacts;
+import com.telenav.fiasco.internal.Buildable;
+import com.telenav.fiasco.internal.BuildableProject;
+import com.telenav.fiasco.internal.ProjectFoldersTrait;
+import com.telenav.fiasco.internal.phase.compilation.CompilationPhaseMixin;
+import com.telenav.fiasco.internal.phase.installation.InstallationPhaseMixin;
+import com.telenav.fiasco.internal.phase.packaging.PackagingPhaseMixin;
+import com.telenav.fiasco.internal.phase.testing.TestingPhaseMixin;
 import com.telenav.kivakit.kernel.interfaces.lifecycle.Initializable;
 
 public interface FiascoBuild extends
@@ -16,7 +19,7 @@ public interface FiascoBuild extends
         TestingPhaseMixin,
         PackagingPhaseMixin,
         InstallationPhaseMixin,
-        ProjectLocationsTrait,
+        ProjectFoldersTrait,
         BuildableProject,
         ArtifactResolver
 {

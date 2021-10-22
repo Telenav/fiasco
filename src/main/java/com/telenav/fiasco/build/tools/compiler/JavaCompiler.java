@@ -1,10 +1,14 @@
 package com.telenav.fiasco.build.tools.compiler;
 
-import com.telenav.fiasco.internal.FiascoSettings;
+import com.telenav.fiasco.build.FiascoBuild;
+import com.telenav.fiasco.internal.utility.FiascoResources;
+import com.telenav.kivakit.component.BaseComponent;
+import com.telenav.kivakit.configuration.lookup.Registry;
 import com.telenav.kivakit.filesystem.FileList;
 import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.kernel.language.collections.list.StringList;
 import com.telenav.kivakit.kernel.language.objects.Objects;
+import com.telenav.kivakit.kernel.messaging.Listener;
 
 import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.ToolProvider;
@@ -20,29 +24,30 @@ import static com.telenav.kivakit.resource.path.Extension.JAVA;
  *
  * @author jonathanl (shibo)
  */
-public class JavaCompiler extends BaseCompiler
+public class JavaCompiler extends BaseComponent
 {
     /**
      * A compiler with a default configuration for building fiasco files
      *
      * @return The target files
      */
-    public static JavaCompiler compiler(Writer output)
+    public static JavaCompiler compiler(Listener listener, Writer output)
     {
-        final var settings = new FiascoSettings();
-        return JavaCompiler.create()
+        final var resources = Registry.global().require(FiascoResources.class);
+
+        return JavaCompiler.create(listener)
                 .withOutput(output)
                 .withSourceVersion(JAVA_11)
                 .withTargetVersion(JAVA_11)
-                .withTargetFolder(settings.targetFolder())
+                .withTargetFolder(resources.targetFolder())
                 .withOption("-classpath")
-                .withOption(settings.fiascoRuntimeJar().toString())
+                .withOption(resources.fiascoRuntimeJar().toString())
                 .withOption("-implicit:class");
     }
 
-    public static JavaCompiler create()
+    public static JavaCompiler create(Listener listener)
     {
-        return new JavaCompiler();
+        return new JavaCompiler(listener);
     }
 
     public enum JavaVersion
@@ -87,8 +92,9 @@ public class JavaCompiler extends BaseCompiler
     /** Compiler options */
     private final StringList options = StringList.stringList();
 
-    protected JavaCompiler()
+    protected JavaCompiler(final Listener listener)
     {
+        addListener(ensureNotNull(listener));
     }
 
     protected JavaCompiler(JavaCompiler that)
@@ -98,6 +104,17 @@ public class JavaCompiler extends BaseCompiler
         this.output = that.output;
         this.target = that.target;
         this.options.addAll(that.options);
+        this.copyListeners(that);
+    }
+
+    /**
+     * Builds all the Java source files in the given folder, writing classes to the {@link #targetFolder()}
+     *
+     * @return True if the build succeeded, false if it failed
+     */
+    public boolean compile(FiascoBuild build)
+    {
+        return compile(build.sourceFolder());
     }
 
     /**
@@ -115,6 +132,7 @@ public class JavaCompiler extends BaseCompiler
 
         var lastSourceDigest = node.getByteArray("sourceDigest", null);
         var lastTargetDigest = node.getByteArray("targetDigest", null);
+
         var sourceDigest = source.nestedFiles().digest();
         var targetDigest = target.nestedFiles().digest();
 
@@ -135,6 +153,8 @@ public class JavaCompiler extends BaseCompiler
                 // and store the digests for next time
                 node.putByteArray("sourceDigest", sourceDigest);
                 node.putByteArray("targetDigest", targetDigest);
+                
+                tryCatch(node::flush, "Failed to flush preferences");
                 return true;
             }
             else

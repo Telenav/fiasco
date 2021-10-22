@@ -1,15 +1,16 @@
 package com.telenav.fiasco;
 
-import com.telenav.fiasco.build.BuildListener;
-import com.telenav.fiasco.build.BuildResult;
-import com.telenav.fiasco.build.Buildable;
-import com.telenav.fiasco.build.Builder;
 import com.telenav.fiasco.build.FiascoBuild;
-import com.telenav.fiasco.build.builders.ParallelBuilder;
-import com.telenav.fiasco.build.planning.BuildPlan;
-import com.telenav.fiasco.build.planning.BuildPlanner;
-import com.telenav.fiasco.internal.FiascoCompiler;
-import com.telenav.fiasco.internal.FiascoSettings;
+import com.telenav.fiasco.internal.BuildListener;
+import com.telenav.fiasco.internal.BuildResult;
+import com.telenav.fiasco.internal.Buildable;
+import com.telenav.fiasco.internal.Builder;
+import com.telenav.fiasco.internal.builders.ParallelBuilder;
+import com.telenav.fiasco.internal.planning.BuildPlan;
+import com.telenav.fiasco.internal.planning.BuildPlanner;
+import com.telenav.fiasco.internal.utility.FiascoCompiler;
+import com.telenav.fiasco.internal.utility.FiascoPreferences;
+import com.telenav.fiasco.internal.utility.FiascoResources;
 import com.telenav.kivakit.application.Application;
 import com.telenav.kivakit.commandline.ArgumentParser;
 import com.telenav.kivakit.commandline.SwitchParser;
@@ -99,7 +100,10 @@ public class Fiasco extends Application
             .build();
 
     /** Java preferences settings for Fiasco */
-    private final FiascoSettings settings = listenTo(register(new FiascoSettings()));
+    private final FiascoPreferences settings = listenTo(register(new FiascoPreferences()));
+
+    /** Locations of fiasco resources */
+    private final FiascoResources resources = listenTo(register(new FiascoResources()));
 
     /** Project-related utilities */
     private final FiascoCompiler project = listenTo(new FiascoCompiler());
@@ -186,7 +190,7 @@ public class Fiasco extends Application
                         .parent() // src
                         .parent(); // [root]
 
-                build.projectRoot(projectRoot);
+                build.projectRootFolder(projectRoot);
                 build(buildListener, build);
             }
             else

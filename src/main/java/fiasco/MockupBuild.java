@@ -17,12 +17,6 @@ import static com.telenav.fiasco.build.metadata.Role.WRITER;
 public class MockupBuild extends TelenavBuild
 {
     @Override
-    public void onCompile()
-    {
-        listenTo(javaCompiler()).compile(sources());
-    }
-
-    @Override
     public void onInitialize()
     {
         metadata(super.projectMetadata()

@@ -1,5 +1,7 @@
 package com.telenav.fiasco.build.tools.compiler;
 
-public class GrpcCompiler extends BaseCompiler
+import com.telenav.kivakit.component.BaseComponent;
+
+public class GrpcCompiler extends BaseComponent
 {
 }

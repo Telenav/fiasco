@@ -18,32 +18,42 @@
 
 package com.telenav.fiasco.build.tools.repository;
 
-import com.telenav.fiasco.dependencies.repository.Artifact;
-import com.telenav.fiasco.dependencies.repository.ArtifactRepository;
-import com.telenav.fiasco.dependencies.repository.ArtifactResolver;
-import com.telenav.fiasco.dependencies.repository.maven.MavenRepository;
+import com.telenav.fiasco.build.repository.Artifact;
+import com.telenav.fiasco.build.repository.ArtifactRepository;
+import com.telenav.fiasco.build.repository.ArtifactResolver;
+import com.telenav.fiasco.build.repository.maven.MavenRepository;
+import com.telenav.fiasco.internal.dependencies.Dependency;
+import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
+import com.telenav.kivakit.kernel.messaging.Listener;
 
 /**
- * Locates and installs dependencies from a list of repositories to {@link #add(ArtifactRepository)}. When {@link
- * #resolve(Artifact)} is called, if the artifact is in the local repository, the librarian returns the local
+ * Locates and installs dependencies from a list of repositories to {@link #addRepository(ArtifactRepository)}. When
+ * {@link #resolve(Artifact)} is called, if the artifact is in the local repository, the librarian returns the local
  * repository. If the artifact is not in the local repository yet, the librarian looks in each repository until it finds
  * it, returning the repository that contains the artifact as the result. If the librarian cannot find the artifact in
  * any repository, an exception is thrown.
  *
  * @author shibo
  */
-public class Librarian extends BaseRepositoryTool implements ArtifactResolver
+public class Librarian extends BaseComponent implements ArtifactResolver
 {
     /** List of repositories to search for this project, with the local repository first */
     private final ObjectList<ArtifactRepository> repositories = ObjectList.create();
 
+    public Librarian(Listener listener)
+    {
+        addListener(listener);
+    }
+
     /**
      * Adds the given repository to the list of repositories that this librarian searches
      */
-    public void add(ArtifactRepository repository)
+    public Librarian addRepository(ArtifactRepository repository)
     {
         repositories.add(repository);
+        information("Repository => $", repository);
+        return this;
     }
 
     /**
@@ -53,7 +63,7 @@ public class Librarian extends BaseRepositoryTool implements ArtifactResolver
     public ArtifactRepository resolve(final Artifact artifact)
     {
         // If the local repository does not contain the artifact,
-        if (!MavenRepository.local().contains(artifact))
+        if (!MavenRepository.local(this).contains(artifact))
         {
             // For each repository starting with the local repository,
             for (var at : repositories)
@@ -62,9 +72,10 @@ public class Librarian extends BaseRepositoryTool implements ArtifactResolver
                 if (at.contains(artifact))
                 {
                     // then copy it into the local repository,
-                    MavenRepository.local().install(at, artifact);
+                    MavenRepository.local(this).install(at, artifact);
 
                     // and return the repository where we found it.
+                    information("Resolved $ => $", artifact, at);
                     return at;
                 }
             }
@@ -73,7 +84,25 @@ public class Librarian extends BaseRepositoryTool implements ArtifactResolver
         }
         else
         {
-            return MavenRepository.local();
+            return MavenRepository.local(this);
         }
+    }
+
+    /**
+     * Resolves all transitive dependencies of the given dependency
+     *
+     * @param dependency The dependency to resolve
+     */
+    public boolean resolveAll(Dependency dependency)
+    {
+        for (var at : dependency.dependencies())
+        {
+            if (at instanceof Artifact)
+            {
+                return resolve((Artifact) at) != null;
+            }
+        }
+
+        return true;
     }
 }

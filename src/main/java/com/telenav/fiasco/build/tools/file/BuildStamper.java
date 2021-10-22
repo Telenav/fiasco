@@ -30,7 +30,7 @@ public class BuildStamper extends BaseFileTool
     public void save()
     {
         BuildMetadataUpdater.main(new String[] { build()
-                .projectRoot()
+                .projectRootFolder()
                 .absolute()
                 .path().toString() });
     }

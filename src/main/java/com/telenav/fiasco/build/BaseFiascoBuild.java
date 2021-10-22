@@ -1,18 +1,27 @@
 package com.telenav.fiasco.build;
 
-import com.telenav.fiasco.build.phase.Phase;
-import com.telenav.fiasco.build.phase.compilation.CompilationPhaseMixin;
-import com.telenav.fiasco.build.phase.installation.InstallationPhase;
-import com.telenav.fiasco.build.phase.packaging.PackagingPhase;
-import com.telenav.fiasco.build.phase.testing.TestingPhase;
+import com.telenav.fiasco.build.repository.Artifact;
+import com.telenav.fiasco.build.repository.ArtifactRepository;
 import com.telenav.fiasco.build.tools.compiler.JavaCompiler;
 import com.telenav.fiasco.build.tools.repository.Librarian;
-import com.telenav.fiasco.dependencies.BaseDependency;
-import com.telenav.fiasco.dependencies.Dependency;
-import com.telenav.fiasco.dependencies.repository.Artifact;
-import com.telenav.fiasco.dependencies.repository.ArtifactRepository;
-import com.telenav.fiasco.internal.FiascoCompiler;
+import com.telenav.fiasco.internal.BuildListener;
+import com.telenav.fiasco.internal.BuildResult;
+import com.telenav.fiasco.internal.BuildStep;
+import com.telenav.fiasco.internal.Buildable;
+import com.telenav.fiasco.internal.BuildableProject;
+import com.telenav.fiasco.internal.ProjectFoldersTrait;
+import com.telenav.fiasco.internal.dependencies.BaseDependency;
+import com.telenav.fiasco.internal.dependencies.Dependency;
+import com.telenav.fiasco.internal.phase.Phase;
+import com.telenav.fiasco.internal.phase.compilation.CompilationPhaseMixin;
+import com.telenav.fiasco.internal.phase.installation.InstallationPhase;
+import com.telenav.fiasco.internal.phase.packaging.PackagingPhase;
+import com.telenav.fiasco.internal.phase.testing.TestingPhase;
+import com.telenav.fiasco.internal.utility.FiascoCompiler;
 import com.telenav.kivakit.filesystem.Folder;
+import com.telenav.kivakit.kernel.data.validation.BaseValidator;
+import com.telenav.kivakit.kernel.data.validation.ValidationType;
+import com.telenav.kivakit.kernel.data.validation.Validator;
 import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
 import com.telenav.kivakit.kernel.interfaces.lifecycle.Initializable;
 import com.telenav.kivakit.kernel.interfaces.naming.Named;
@@ -20,6 +29,11 @@ import com.telenav.kivakit.kernel.interfaces.naming.Named;
 import java.io.StringWriter;
 import java.util.Objects;
 
+import static com.telenav.fiasco.internal.BuildStep.INITIALIZE;
+import static com.telenav.fiasco.internal.BuildStep.PACKAGE_INITIALIZE;
+import static com.telenav.fiasco.internal.BuildStep.PACKAGE_INSTALL;
+import static com.telenav.fiasco.internal.BuildStep.TEST_INITIALIZE;
+import static com.telenav.fiasco.internal.BuildStep.TEST_RUN_TESTS;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
@@ -60,7 +74,7 @@ public abstract class BaseFiascoBuild extends BaseDependency implements
         BuildableProject,
         Initializable,
         FiascoBuild,
-        ProjectLocationsTrait
+        ProjectFoldersTrait
 {
     /** Metadata for this project */
     private BuildMetadata metadata;
@@ -69,10 +83,10 @@ public abstract class BaseFiascoBuild extends BaseDependency implements
     private Folder root;
 
     /** The current build step */
-    private BuildStep step = BuildStep.INITIALIZE;
+    private BuildStep step = BuildStep.FIASCO_STARTUP;
 
     /** The librarian to resolve artifacts for this project */
-    private final Librarian librarian = new Librarian();
+    private final Librarian librarian = new Librarian(this);
 
     /**
      * True if the build is at the given step
@@ -97,7 +111,7 @@ public abstract class BaseFiascoBuild extends BaseDependency implements
         if (object instanceof BaseFiascoBuild)
         {
             BaseFiascoBuild that = (BaseFiascoBuild) object;
-            return this.projectRoot().equals(that.projectRoot());
+            return this.projectRootFolder().equals(that.projectRootFolder());
         }
         return false;
     }
@@ -113,7 +127,11 @@ public abstract class BaseFiascoBuild extends BaseDependency implements
      */
     public BuildResult executeBuild()
     {
+        // Advance from FIASCO_STARTUP to INITIALIZING
+        nextStep();
+
         initialize();
+
         var result = new BuildResult(getClass().getSimpleName());
         try
         {
@@ -121,18 +139,23 @@ public abstract class BaseFiascoBuild extends BaseDependency implements
             result.start();
 
             // Compile code,
+            ensure(isAt(INITIALIZE));
             compileSources();
 
             // build the tests,
+            ensure(isAt(TEST_INITIALIZE));
             buildTestSources();
 
             // run the tests,
+            ensure(isAt(TEST_RUN_TESTS));
             runTests();
 
             // package up the code,
+            ensure(isAt(PACKAGE_INITIALIZE));
             buildPackages();
 
             // and install it.
+            ensure(isAt(PACKAGE_INSTALL));
             installPackages();
 
             return result;
@@ -146,7 +169,12 @@ public abstract class BaseFiascoBuild extends BaseDependency implements
     @Override
     public int hashCode()
     {
-        return Objects.hash(projectRoot());
+        return Objects.hash(projectRootFolder());
+    }
+
+    public boolean isAt(final BuildStep at)
+    {
+        return step == at;
     }
 
     /**
@@ -188,7 +216,7 @@ public abstract class BaseFiascoBuild extends BaseDependency implements
 
         // create a compiler
         var output = new StringWriter();
-        var compiler = listenTo(JavaCompiler.compiler(output));
+        var compiler = JavaCompiler.compiler(this, output);
 
         // and if we can compile the source files,
         if (compiler.compile(fiasco))
@@ -214,7 +242,7 @@ public abstract class BaseFiascoBuild extends BaseDependency implements
     /**
      * @return The root folder of this project
      */
-    public Folder projectRoot()
+    public Folder projectRootFolder()
     {
         return ensureNotNull(root);
     }
@@ -222,7 +250,7 @@ public abstract class BaseFiascoBuild extends BaseDependency implements
     /**
      * @param root The project root folder
      */
-    public FiascoBuild projectRoot(final Folder root)
+    public FiascoBuild projectRootFolder(final Folder root)
     {
         this.root = root;
         return this;
@@ -237,6 +265,20 @@ public abstract class BaseFiascoBuild extends BaseDependency implements
     public ArtifactRepository resolve(final Artifact artifact)
     {
         return librarian.resolve(artifact);
+    }
+
+    @Override
+    public Validator validator(final ValidationType type)
+    {
+        return new BaseValidator()
+        {
+            @Override
+            protected void onValidate()
+            {
+                problemIf(root == null, "No build root folder");
+                problemIf(!root.exists(), "Root folder does not exist: $", root);
+            }
+        };
     }
 
     /**
