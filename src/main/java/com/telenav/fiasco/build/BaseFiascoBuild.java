@@ -29,6 +29,7 @@ import com.telenav.kivakit.kernel.interfaces.naming.Named;
 import java.io.StringWriter;
 import java.util.Objects;
 
+import static com.telenav.fiasco.internal.BuildStep.FIASCO_STARTUP;
 import static com.telenav.fiasco.internal.BuildStep.INITIALIZE;
 import static com.telenav.fiasco.internal.BuildStep.PACKAGE_INITIALIZE;
 import static com.telenav.fiasco.internal.BuildStep.PACKAGE_INSTALL;
@@ -83,18 +84,10 @@ public abstract class BaseFiascoBuild extends BaseDependency implements
     private Folder root;
 
     /** The current build step */
-    private BuildStep step = BuildStep.FIASCO_STARTUP;
+    private BuildStep step;
 
     /** The librarian to resolve artifacts for this project */
     private final Librarian librarian = new Librarian(this);
-
-    /**
-     * True if the build is at the given step
-     */
-    public boolean atStep(BuildStep step)
-    {
-        return this.step == step;
-    }
 
     /**
      * {@inheritDoc}
@@ -102,6 +95,7 @@ public abstract class BaseFiascoBuild extends BaseDependency implements
     @Override
     public BuildResult call()
     {
+        step(FIASCO_STARTUP);
         return executeBuild();
     }
 
@@ -127,9 +121,7 @@ public abstract class BaseFiascoBuild extends BaseDependency implements
      */
     public BuildResult executeBuild()
     {
-        // Advance from FIASCO_STARTUP to INITIALIZING
-        nextStep();
-
+        step(INITIALIZE);
         initialize();
 
         var result = new BuildResult(getClass().getSimpleName());
@@ -198,8 +190,7 @@ public abstract class BaseFiascoBuild extends BaseDependency implements
      */
     public void nextStep()
     {
-        this.step = step.next();
-        narrate("[$]", step.name());
+        step(step.next());
     }
 
     /**
@@ -265,6 +256,15 @@ public abstract class BaseFiascoBuild extends BaseDependency implements
     public ArtifactRepository resolve(final Artifact artifact)
     {
         return librarian.resolve(artifact);
+    }
+
+    /**
+     * True if the build is at the given step
+     */
+    public void step(BuildStep step)
+    {
+        narrate("[$]", step.name());
+        this.step = step;
     }
 
     @Override

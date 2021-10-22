@@ -23,7 +23,7 @@ public interface CompilationPhaseMixin extends
 {
     default BaseCompilationPhase compilationPhase()
     {
-        return state(CompilationPhaseMixin.class, () -> new BaseCompilationPhase(build()));
+        return state(CompilationPhaseMixin.class, () -> listenTo(new BaseCompilationPhase(build())));
     }
 
     default void compile()
