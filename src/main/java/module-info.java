@@ -2,7 +2,7 @@ open module com.telenav.fiasco
 {
     // KivaKit
     requires kivakit.application;
-    requires kivakit.network.core;
+    requires kivakit.network.http;
 
     // Java
     requires java.compiler;

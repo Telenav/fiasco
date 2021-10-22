@@ -74,7 +74,7 @@
         </dependency>
         <dependency>
             <groupId>com.telenav.kivakit</groupId>
-            <artifactId>kivakit-network-core</artifactId>
+            <artifactId>kivakit-network-http</artifactId>
             <version>${kivakit.version}</version>
         </dependency>
 

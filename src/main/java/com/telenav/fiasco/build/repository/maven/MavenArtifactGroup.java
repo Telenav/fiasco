@@ -84,6 +84,11 @@ public class MavenArtifactGroup implements ArtifactGroup
         return FilePath.parseFilePath(identifier().replace(".", "/"));
     }
 
+    public String toString()
+    {
+        return identifier();
+    }
+
     /**
      * @return This group with the given default version. The {@link #artifact(String)} method will use this default.
      */

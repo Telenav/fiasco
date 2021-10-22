@@ -26,6 +26,11 @@ public interface ArtifactRepository extends Named, Component
     void install(ArtifactRepository source, Artifact artifact);
 
     /**
+     * @return True if this repository is remote
+     */
+    boolean isRemote();
+
+    /**
      * @return Path to the folder containing the given artifact in this repository
      */
     FilePath path(Artifact artifact);

@@ -5,17 +5,18 @@ import com.telenav.fiasco.build.repository.ArtifactRepository;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
-import com.telenav.kivakit.kernel.language.progress.ProgressReporter;
 import com.telenav.kivakit.kernel.messaging.Listener;
-import com.telenav.kivakit.resource.CopyMode;
 import com.telenav.kivakit.resource.Resource;
 import com.telenav.kivakit.resource.path.FilePath;
 
+import static com.telenav.kivakit.kernel.language.progress.ProgressReporter.NULL;
+import static com.telenav.kivakit.resource.CopyMode.OVERWRITE;
+
 /**
  * A maven repository containing {@link MavenArtifact}s, organized in {@link MavenArtifactGroup}s. A {@link
- * MavenRepository} can be created with {@link #create(String)}, passing in the name of the repository. The root of the
- * repository can then be added with {@link #withRoot(FilePath)}. The {@link #local(Listener)} method returns the local
- * Maven repository. The {@link #mavenCentral(Listener)} method returns the Maven Central repository.
+ * MavenRepository} can be created with {@link #create(Listener, String)}, passing in the name of the repository. The
+ * root of the repository can then be added with {@link #withRoot(FilePath)}. The {@link #local(Listener)} method
+ * returns the local Maven repository. The {@link #mavenCentral(Listener)} method returns the Maven Central repository.
  *
  * <p>
  * The {@link #contains(Artifact)} method returns true if this repository contains the given artifact. The {@link
@@ -31,9 +32,9 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
     /**
      * @return A {@link MavenRepository} instance with the given name (but no root path)
      */
-    public static MavenRepository create(String name)
+    public static MavenRepository create(Listener listener, String name)
     {
-        return new MavenRepository(name);
+        return listener.listenTo(new MavenRepository(name));
     }
 
     /**
@@ -41,7 +42,7 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
      */
     public static MavenRepository local(Listener listener)
     {
-        return create("local")
+        return create(listener, "local")
                 .withRoot(FilePath.parseFilePath("${user.home}/.m2/repository"));
     }
 
@@ -50,7 +51,7 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
      */
     public static MavenRepository mavenCentral(Listener listener)
     {
-        return create("Maven Central")
+        return create(listener, "Maven Central")
                 .withRoot(FilePath.parseFilePath("https://repo1.maven.org/maven2/"));
     }
 
@@ -77,7 +78,8 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
     @Override
     public boolean contains(final Artifact artifact)
     {
-        return Resource.resolve(path(artifact)).exists();
+        return Resource.resolve(this, path(artifact)
+                .withChild(artifact.identifier() + ".jar")).exists();
     }
 
     /**
@@ -87,24 +89,20 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
     public void install(ArtifactRepository source, final Artifact artifact)
     {
         // Get the artifact path in this repository,
-        var artifactPath = path(artifact);
+        var remoteArtifactPath = source.path(artifact);
 
         // and then for each resource in the set of resources to be copied,
-        for (var resource : resourcesToCopy(artifactPath, artifact))
+        for (var resource : resourcesToCopy(remoteArtifactPath, artifact))
         {
-            //  if the resource exists,
-            if (resource.exists())
-            {
-                // copy the artifact into this repository,
-                var destination = Folder.of(path(artifact));
-                resource.safeCopyTo(destination, CopyMode.OVERWRITE, ProgressReporter.NULL);
-            }
-            else
-            {
-                // otherwise, complain.
-                problem("Cannot find artifact resource: $", resource);
-            }
+            // copy the artifact into this repository,
+            resource.safeCopyTo(Folder.of(path(artifact)).mkdirs(), OVERWRITE, NULL);
         }
+    }
+
+    @Override
+    public boolean isRemote()
+    {
+        return !name.equals("local");
     }
 
     /**
@@ -122,7 +120,7 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
     @Override
     public FilePath path(final Artifact artifact)
     {
-        return root.withChild(artifact.path());
+        return root.withoutTrailingSlash().withChild(artifact.path());
     }
 
     public String toString()
@@ -149,6 +147,6 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
                 path.withChild(artifact.identifier() + ".pom"),
                 path.withChild(artifact.identifier() + ".pom.md5"),
                 path.withChild(artifact.identifier() + ".pom.sha1")
-        ).mapped(Resource::resolve);
+        ).mapped(resource -> Resource.resolve(this, resource));
     }
 }

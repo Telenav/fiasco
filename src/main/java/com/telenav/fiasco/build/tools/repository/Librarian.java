@@ -63,16 +63,17 @@ public class Librarian extends BaseComponent implements ArtifactResolver
     public ArtifactRepository resolve(final Artifact artifact)
     {
         // If the local repository does not contain the artifact,
-        if (!MavenRepository.local(this).contains(artifact))
+        final var local = MavenRepository.local(this);
+        if (!local.contains(artifact))
         {
             // For each repository starting with the local repository,
             for (var at : repositories)
             {
                 // if the repository contains the artifact,
-                if (at.contains(artifact))
+                if (at.isRemote() && at.contains(artifact))
                 {
                     // then copy it into the local repository,
-                    MavenRepository.local(this).install(at, artifact);
+                    local.install(at, artifact);
 
                     // and return the repository where we found it.
                     information("Resolved $ => $", artifact, at);
@@ -84,7 +85,8 @@ public class Librarian extends BaseComponent implements ArtifactResolver
         }
         else
         {
-            return MavenRepository.local(this);
+            information("Resolved $ => $", local, artifact);
+            return local;
         }
     }
 

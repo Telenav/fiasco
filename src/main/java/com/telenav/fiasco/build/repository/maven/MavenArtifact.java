@@ -179,10 +179,9 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
     @Override
     public FilePath path()
     {
-        final var child = FilePath.parseFilePath(fullyQualifiedName().replace(".", "/"));
         return group()
                 .path()
-                .withChild(child)
+                .withChild(identifier())
                 .withChild(version.toString());
     }
 
