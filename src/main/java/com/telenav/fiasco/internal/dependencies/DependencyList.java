@@ -38,7 +38,6 @@ public class DependencyList extends ObjectList<Dependency>
     protected DependencyList(final List<Dependency> dependencies)
     {
         dependencies.forEach(this::add);
-        addAll(dependencies);
     }
 
     @Override
