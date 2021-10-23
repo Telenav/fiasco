@@ -3,7 +3,7 @@ package com.telenav.fiasco.internal.dependencies;
 import com.telenav.kivakit.collections.set.ConcurrentHashSet;
 import com.telenav.kivakit.kernel.interfaces.code.Callback;
 import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
-import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
+import com.telenav.kivakit.kernel.language.collections.set.ObjectSet;
 import com.telenav.kivakit.kernel.language.threading.Threads;
 import com.telenav.kivakit.kernel.language.threading.locks.Monitor;
 import com.telenav.kivakit.kernel.language.values.count.Count;
@@ -24,20 +24,20 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
  *
  * @author jonathanl (shibo)
  */
-public class DependencyList extends ObjectList<Dependency>
+public class DependencySet extends ObjectSet<Dependency>
 {
-    public static DependencyList of(final Dependency... dependencies)
+    public static DependencySet of(final Dependency... dependencies)
     {
-        return new DependencyList(List.of(dependencies));
+        return new DependencySet(List.of(dependencies));
     }
 
-    public DependencyList()
+    public DependencySet()
     {
     }
 
-    protected DependencyList(final List<Dependency> dependencies)
+    protected DependencySet(final Collection<Dependency> dependencies)
     {
-        dependencies.forEach(this::add);
+        this.addAll(dependencies);
     }
 
     @Override
@@ -50,17 +50,25 @@ public class DependencyList extends ObjectList<Dependency>
         }
         else
         {
-            return fail("Invalid dependency: $", dependency);
+            fail("Invalid dependency: $", dependency);
+            return false;
         }
+    }
+
+    @Override
+    public boolean addAll(final Collection<? extends Dependency> objects)
+    {
+        objects.forEach(this::add);
+        return true;
     }
 
     /**
      * @return A copy of this dependency list
      */
     @Override
-    public DependencyList copy()
+    public DependencySet copy()
     {
-        return new DependencyList(this);
+        return new DependencySet(this);
     }
 
     /**
@@ -142,9 +150,9 @@ public class DependencyList extends ObjectList<Dependency>
     /**
      * @return This dependency list without the given exclusions
      */
-    public DependencyList without(final Collection<? extends Dependency> exclusions)
+    public DependencySet without(final Collection<? extends Dependency> exclusions)
     {
-        final var copy = new DependencyList(this);
+        final var copy = new DependencySet(this);
         copy.removeAll(exclusions);
         return copy;
     }
@@ -152,9 +160,9 @@ public class DependencyList extends ObjectList<Dependency>
     /**
      * @return This dependency list without the matching dependencies
      */
-    public DependencyList without(final Matcher<Dependency> matcher)
+    public DependencySet without(final Matcher<Dependency> matcher)
     {
-        final var copy = new DependencyList(this);
+        final var copy = new DependencySet(this);
         copy.removeIf(matcher::matches);
         return copy;
     }

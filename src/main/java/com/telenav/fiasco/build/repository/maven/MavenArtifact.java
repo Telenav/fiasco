@@ -3,7 +3,7 @@ package com.telenav.fiasco.build.repository.maven;
 import com.telenav.fiasco.build.repository.Artifact;
 import com.telenav.fiasco.internal.dependencies.BaseDependency;
 import com.telenav.fiasco.internal.dependencies.Dependency;
-import com.telenav.fiasco.internal.dependencies.DependencyList;
+import com.telenav.fiasco.internal.dependencies.DependencySet;
 import com.telenav.kivakit.kernel.data.validation.BaseValidator;
 import com.telenav.kivakit.kernel.data.validation.ValidationType;
 import com.telenav.kivakit.kernel.data.validation.Validator;
@@ -87,7 +87,7 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
     private Version version;
 
     /** The dependencies that this artifact depends on */
-    private DependencyList dependencies = new DependencyList();
+    private DependencySet dependencies = new DependencySet();
 
     public MavenArtifact(final MavenArtifact that)
     {
@@ -116,7 +116,7 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
      * @return The artifacts that this artifact depends on
      */
     @Override
-    public DependencyList dependencies()
+    public DependencySet dependencies()
     {
         return dependencies;
     }
@@ -126,7 +126,7 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
     {
         if (object instanceof MavenArtifact)
         {
-            MavenArtifact that = (MavenArtifact) object;
+            var that = (MavenArtifact) object;
             return this.fullyQualifiedName().equals(that.fullyQualifiedName());
         }
         return false;

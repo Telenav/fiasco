@@ -15,13 +15,13 @@ import java.util.Arrays;
 public abstract class BaseDependency extends BaseComponent implements Dependency
 {
     /** The list of dependencies of this dependency */
-    private final DependencyList dependencies = new DependencyList();
+    private final DependencySet dependencies = new DependencySet();
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public DependencyList dependencies()
+    public DependencySet dependencies()
     {
         return dependencies;
     }

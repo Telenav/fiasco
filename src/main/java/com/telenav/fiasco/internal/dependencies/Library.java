@@ -25,6 +25,8 @@ import com.telenav.kivakit.kernel.data.validation.Validator;
 import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
 import com.telenav.kivakit.kernel.language.values.version.Version;
 
+import java.util.Objects;
+
 /**
  * A library is an artifact of a particular version, with a set of dependencies from the artifact. Dependencies can be
  * retrieved with {@link #dependencies()} and excluded with {@link #excluding(Matcher)} or {@link
@@ -60,6 +62,17 @@ public class Library extends BaseDependency
         return artifact;
     }
 
+    @Override
+    public boolean equals(final Object object)
+    {
+        if (object instanceof Library)
+        {
+            var that = (Library) object;
+            return this.artifact().equals(that.artifact());
+        }
+        return false;
+    }
+
     /**
      * @return This library without the matching dependencies
      */
@@ -67,6 +80,12 @@ public class Library extends BaseDependency
     {
         this.artifact = (Artifact) artifact.excluding(matcher);
         return this;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(artifact());
     }
 
     @Override

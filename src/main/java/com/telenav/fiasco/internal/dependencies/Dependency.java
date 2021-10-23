@@ -10,7 +10,7 @@ import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
  * FiascoBuild}.
  *
  * @author shibo
- * @see DependencyList
+ * @see DependencySet
  * @see FiascoBuild
  * @see Library
  * @see Artifact
@@ -20,7 +20,7 @@ public interface Dependency extends Validatable
     /**
      * @return The immediate dependencies of this dependency
      */
-    DependencyList dependencies();
+    DependencySet dependencies();
 
     /**
      * @return This dependency without the matching dependencies

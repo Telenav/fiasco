@@ -105,7 +105,7 @@ public abstract class BaseFiascoBuild extends BaseDependency implements
     {
         if (object instanceof BaseFiascoBuild)
         {
-            BaseFiascoBuild that = (BaseFiascoBuild) object;
+            var that = (BaseFiascoBuild) object;
             return this.projectRootFolder().equals(that.projectRootFolder());
         }
         return false;
@@ -122,9 +122,6 @@ public abstract class BaseFiascoBuild extends BaseDependency implements
      */
     public BuildResult executeBuild()
     {
-        step(INITIALIZE);
-        initialize();
-
         var result = new BuildResult(getClass().getSimpleName());
         try
         {
@@ -132,7 +129,7 @@ public abstract class BaseFiascoBuild extends BaseDependency implements
             result.start();
 
             // Compile code,
-            ensure(isAt(INITIALIZE));
+            step(INITIALIZE);
             compileSources();
 
             // build the tests,
