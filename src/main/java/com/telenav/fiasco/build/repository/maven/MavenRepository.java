@@ -140,13 +140,11 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
 
     private ObjectList<Resource> resourcesToCopy(final FilePath path, final Artifact artifact)
     {
-        return ObjectList.objectList(
-                path.withChild(artifact.identifier() + ".jar"),
-                path.withChild(artifact.identifier() + ".jar.md5"),
-                path.withChild(artifact.identifier() + ".jar.sha1"),
-                path.withChild(artifact.identifier() + ".pom"),
-                path.withChild(artifact.identifier() + ".pom.md5"),
-                path.withChild(artifact.identifier() + ".pom.sha1")
-        ).mapped(resource -> Resource.resolve(this, resource));
+        var resources = new ObjectList<Resource>();
+        for (var at : new String[] { "jar", "jar.md5", "jar.sha1", "pom", "pom.md5", "pom.sha1" })
+        {
+            resources.add(Resource.resolve(this, path.withChild(artifact.identifier() + "-" + artifact.version() + "." + at)));
+        }
+        return resources;
     }
 }

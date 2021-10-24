@@ -3,10 +3,12 @@ open module com.telenav.fiasco
     // KivaKit
     requires kivakit.application;
     requires kivakit.network.http;
+    requires kivakit.data.formats.xml;
 
     // Java
     requires java.compiler;
     requires java.prefs;
+    requires java.xml;
 
     // Exports
     exports com.telenav.fiasco;
