@@ -1,9 +1,9 @@
 package com.telenav.fiasco.internal.building.phase.compilation;
 
-import com.telenav.fiasco.build.Build;
-import com.telenav.fiasco.build.Dependency;
-import com.telenav.fiasco.build.tools.compiler.JavaCompiler;
-import com.telenav.fiasco.build.tools.repository.Librarian;
+import com.telenav.fiasco.runtime.Build;
+import com.telenav.fiasco.runtime.Dependency;
+import com.telenav.fiasco.runtime.tools.compiler.JavaCompiler;
+import com.telenav.fiasco.runtime.tools.repository.Librarian;
 import com.telenav.fiasco.internal.building.Phase;
 import com.telenav.fiasco.internal.building.ProjectFoldersTrait;
 import com.telenav.kivakit.kernel.interfaces.lifecycle.Initializable;

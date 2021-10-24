@@ -1,11 +1,11 @@
 package fiasco;
 
-import com.telenav.fiasco.build.BaseBuild;
-import com.telenav.fiasco.build.BuildMetadata;
-import com.telenav.fiasco.build.metadata.Contributor;
-import com.telenav.fiasco.build.metadata.Copyright;
-import com.telenav.fiasco.build.metadata.License;
-import com.telenav.fiasco.build.metadata.Organization;
+import com.telenav.fiasco.runtime.BaseBuild;
+import com.telenav.fiasco.runtime.BuildMetadata;
+import com.telenav.fiasco.runtime.metadata.Contributor;
+import com.telenav.fiasco.runtime.metadata.Copyright;
+import com.telenav.fiasco.runtime.metadata.License;
+import com.telenav.fiasco.runtime.metadata.Organization;
 import com.telenav.kivakit.kernel.interfaces.string.StringSource;
 import com.telenav.kivakit.network.core.EmailAddress;
 

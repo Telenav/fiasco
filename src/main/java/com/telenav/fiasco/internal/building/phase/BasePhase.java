@@ -1,6 +1,6 @@
 package com.telenav.fiasco.internal.building.phase;
 
-import com.telenav.fiasco.build.Build;
+import com.telenav.fiasco.runtime.Build;
 import com.telenav.fiasco.internal.building.Phase;
 import com.telenav.kivakit.component.BaseComponent;
 

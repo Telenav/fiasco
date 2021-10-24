@@ -1,6 +1,6 @@
 package com.telenav.fiasco;
 
-import com.telenav.fiasco.build.Build;
+import com.telenav.fiasco.runtime.Build;
 import com.telenav.fiasco.internal.building.BuildListener;
 import com.telenav.fiasco.internal.building.BuildResult;
 import com.telenav.fiasco.internal.building.Buildable;

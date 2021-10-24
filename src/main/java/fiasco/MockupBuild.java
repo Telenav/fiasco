@@ -1,15 +1,15 @@
 package fiasco;
 
-import com.telenav.fiasco.build.metadata.SourceCode;
+import com.telenav.fiasco.runtime.metadata.SourceCode;
 import com.telenav.kivakit.filesystem.Folder;
 
-import static com.telenav.fiasco.build.metadata.Role.ARCHITECT;
-import static com.telenav.fiasco.build.metadata.Role.ARTIST;
-import static com.telenav.fiasco.build.metadata.Role.COMMITTER;
-import static com.telenav.fiasco.build.metadata.Role.DEVELOPER;
-import static com.telenav.fiasco.build.metadata.Role.LEAD;
-import static com.telenav.fiasco.build.metadata.Role.ORIGINATOR;
-import static com.telenav.fiasco.build.metadata.Role.WRITER;
+import static com.telenav.fiasco.runtime.metadata.Role.ARCHITECT;
+import static com.telenav.fiasco.runtime.metadata.Role.ARTIST;
+import static com.telenav.fiasco.runtime.metadata.Role.COMMITTER;
+import static com.telenav.fiasco.runtime.metadata.Role.DEVELOPER;
+import static com.telenav.fiasco.runtime.metadata.Role.LEAD;
+import static com.telenav.fiasco.runtime.metadata.Role.ORIGINATOR;
+import static com.telenav.fiasco.runtime.metadata.Role.WRITER;
 
 /**
  * @author jonathanl (shibo)

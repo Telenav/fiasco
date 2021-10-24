@@ -1,8 +1,8 @@
 package com.telenav.fiasco.internal.building;
 
-import com.telenav.fiasco.build.Build;
-import com.telenav.fiasco.build.Dependency;
-import com.telenav.fiasco.build.Library;
+import com.telenav.fiasco.runtime.Build;
+import com.telenav.fiasco.runtime.Dependency;
+import com.telenav.fiasco.runtime.Library;
 import com.telenav.kivakit.filesystem.Folder;
 
 /**

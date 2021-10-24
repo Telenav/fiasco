@@ -1,7 +1,7 @@
 package com.telenav.fiasco.internal.building.dependencies;
 
-import com.telenav.fiasco.build.Build;
-import com.telenav.fiasco.build.Dependency;
+import com.telenav.fiasco.runtime.Build;
+import com.telenav.fiasco.runtime.Dependency;
 import com.telenav.fiasco.internal.building.Buildable;
 import com.telenav.fiasco.internal.building.planning.BuildableGroup;
 import com.telenav.kivakit.kernel.data.validation.ensure.Ensure;

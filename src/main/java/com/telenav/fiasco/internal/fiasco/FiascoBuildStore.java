@@ -1,6 +1,6 @@
 package com.telenav.fiasco.internal.fiasco;
 
-import com.telenav.fiasco.build.Build;
+import com.telenav.fiasco.runtime.Build;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.filesystem.File;
 import com.telenav.kivakit.filesystem.Folder;

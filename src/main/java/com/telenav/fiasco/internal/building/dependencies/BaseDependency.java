@@ -1,9 +1,9 @@
 package com.telenav.fiasco.internal.building.dependencies;
 
-import com.telenav.fiasco.build.Dependency;
-import com.telenav.fiasco.build.dependencies.DependencySet;
-import com.telenav.fiasco.build.Library;
-import com.telenav.fiasco.build.dependencies.repository.maven.MavenArtifact;
+import com.telenav.fiasco.runtime.Dependency;
+import com.telenav.fiasco.runtime.dependencies.DependencySet;
+import com.telenav.fiasco.runtime.Library;
+import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenArtifact;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
 import com.telenav.kivakit.kernel.interfaces.comparison.MatcherSet;

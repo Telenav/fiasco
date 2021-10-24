@@ -1,6 +1,6 @@
 package com.telenav.fiasco.internal.building.phase.testing;
 
-import com.telenav.fiasco.build.Build;
+import com.telenav.fiasco.runtime.Build;
 import com.telenav.fiasco.internal.building.Phase;
 import com.telenav.kivakit.kernel.language.mixin.Mixin;
 

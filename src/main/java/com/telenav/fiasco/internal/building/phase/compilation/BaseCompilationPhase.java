@@ -1,9 +1,9 @@
 package com.telenav.fiasco.internal.building.phase.compilation;
 
-import com.telenav.fiasco.build.Build;
-import com.telenav.fiasco.build.dependencies.repository.maven.MavenRepository;
-import com.telenav.fiasco.build.tools.compiler.JavaCompiler;
-import com.telenav.fiasco.build.tools.repository.Librarian;
+import com.telenav.fiasco.runtime.Build;
+import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenRepository;
+import com.telenav.fiasco.runtime.tools.compiler.JavaCompiler;
+import com.telenav.fiasco.runtime.tools.repository.Librarian;
 import com.telenav.fiasco.internal.building.BuildStep;
 import com.telenav.fiasco.internal.building.Phase;
 import com.telenav.fiasco.internal.fiasco.FiascoFolders;
@@ -11,7 +11,7 @@ import com.telenav.fiasco.internal.building.phase.BasePhase;
 
 import java.io.StringWriter;
 
-import static com.telenav.fiasco.build.tools.compiler.JavaCompiler.JavaVersion.JAVA_11;
+import static com.telenav.fiasco.runtime.tools.compiler.JavaCompiler.JavaVersion.JAVA_11;
 
 /**
  * <b>Not public API</b>
