@@ -8,10 +8,10 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNot
 
 /**
  * A group of artifacts with an {@link #identifier()}. A group is created with {@link #create(String)}, passing in the
- * Maven group identifier. The {@link #defaultVersion(String)} method can be called with a version. This version is used
- * as the default version when artifacts in the group are created with {@link #artifact(String)}. This averts needing to
- * specify the version of each artifact and allows the version of all artifacts in the group to be changed in one place.
- * For example:
+ * Maven group identifier. The {@link #withDefaultVersion(String)} method can be called to specify a default version
+ * used when artifacts in the group are created with {@link #artifact(String)}. This averts needing to specify the
+ * version of each artifact and allows the version of all artifacts in the group to be changed in one place. For
+ * example:
  * <pre>
  * var group = MavenArtifactGroup.create("com.telenav.kivakit").version("1.1.0");
  * var application = group.artifact("kivakit-application");
@@ -36,17 +36,20 @@ public class MavenArtifactGroup implements ArtifactGroup
     private final String identifier;
 
     /** Default version for artifacts in this group */
-    private Version version;
+    private Version defaultVersion;
 
     protected MavenArtifactGroup(final String identifier)
     {
         this.identifier = identifier;
     }
 
+    /**
+     * Copy constructor
+     */
     protected MavenArtifactGroup(MavenArtifactGroup that)
     {
         this.identifier = that.identifier;
-        this.version = that.version;
+        this.defaultVersion = that.defaultVersion;
     }
 
     /**
@@ -55,17 +58,13 @@ public class MavenArtifactGroup implements ArtifactGroup
      */
     public MavenArtifact artifact(String identifier)
     {
-        ensureNotNull(version, "Artifact group has no default version");
-        return new MavenArtifact(this, identifier).withVersion(version);
+        ensureNotNull(defaultVersion, "Artifact group has no default version");
+        return new MavenArtifact(new MavenArtifactDescriptor(this, identifier, defaultVersion));
     }
 
-    /**
-     * @return This group with the given default version. The {@link #artifact(String)} method will use this default.
-     */
-    public MavenArtifactGroup defaultVersion(final String defaultVersion)
+    public MavenArtifactGroup copy()
     {
-        version = Version.parse(defaultVersion);
-        return this;
+        return new MavenArtifactGroup(this);
     }
 
     /**
@@ -92,10 +91,20 @@ public class MavenArtifactGroup implements ArtifactGroup
     /**
      * @return This group with the given default version. The {@link #artifact(String)} method will use this default.
      */
+    public MavenArtifactGroup withDefaultVersion(final String defaultVersion)
+    {
+        var copy = copy();
+        copy.defaultVersion = Version.parse(defaultVersion);
+        return copy;
+    }
+
+    /**
+     * @return This group with the given default version. The {@link #artifact(String)} method will use this default.
+     */
     public MavenArtifactGroup withVersion(final Version defaultVersion)
     {
         var copy = new MavenArtifactGroup(this);
-        copy.version = defaultVersion;
+        copy.defaultVersion = defaultVersion;
         return copy;
     }
 }

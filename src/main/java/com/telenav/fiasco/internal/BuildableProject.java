@@ -1,13 +1,13 @@
 package com.telenav.fiasco.internal;
 
-import com.telenav.fiasco.build.FiascoBuild;
-import com.telenav.fiasco.internal.dependencies.Dependency;
-import com.telenav.fiasco.internal.dependencies.Library;
+import com.telenav.fiasco.build.Build;
+import com.telenav.fiasco.build.dependencies.Dependency;
+import com.telenav.fiasco.build.dependencies.Library;
 import com.telenav.kivakit.filesystem.Folder;
 
 /**
- * A {@link FiascoBuild} project dependency that must be built (as opposed to an {@link Library} dependency which is
- * already built.
+ * A {@link Build} project dependency that must be built (as opposed to an {@link Library} dependency which is already
+ * built.
  *
  * @author jonathanl (shibo)
  */

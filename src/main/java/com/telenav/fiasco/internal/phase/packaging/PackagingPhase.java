@@ -3,7 +3,7 @@ package com.telenav.fiasco.internal.phase.packaging;
 import com.telenav.fiasco.internal.BuildStep;
 import com.telenav.fiasco.internal.phase.BasePhase;
 import com.telenav.fiasco.internal.phase.Phase;
-import com.telenav.fiasco.build.FiascoBuild;
+import com.telenav.fiasco.build.Build;
 
 /**
  * Executes the steps in the packaging phase of a build:
@@ -22,7 +22,7 @@ import com.telenav.fiasco.build.FiascoBuild;
  */
 public class PackagingPhase extends BasePhase
 {
-    public PackagingPhase(final FiascoBuild build)
+    public PackagingPhase(final Build build)
     {
         super(build);
     }

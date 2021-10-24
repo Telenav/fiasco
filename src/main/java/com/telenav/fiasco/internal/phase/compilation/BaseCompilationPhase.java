@@ -1,13 +1,13 @@
 package com.telenav.fiasco.internal.phase.compilation;
 
-import com.telenav.fiasco.build.FiascoBuild;
+import com.telenav.fiasco.build.Build;
 import com.telenav.fiasco.build.repository.maven.MavenRepository;
 import com.telenav.fiasco.build.tools.compiler.JavaCompiler;
 import com.telenav.fiasco.build.tools.repository.Librarian;
 import com.telenav.fiasco.internal.BuildStep;
 import com.telenav.fiasco.internal.phase.BasePhase;
 import com.telenav.fiasco.internal.phase.Phase;
-import com.telenav.fiasco.internal.utility.FiascoResources;
+import com.telenav.fiasco.internal.utility.FiascoFolders;
 
 import java.io.StringWriter;
 
@@ -34,7 +34,7 @@ public class BaseCompilationPhase extends BasePhase
 {
     private final StringWriter output = new StringWriter();
 
-    public BaseCompilationPhase(final FiascoBuild build)
+    public BaseCompilationPhase(final Build build)
     {
         super(build);
     }
@@ -46,7 +46,7 @@ public class BaseCompilationPhase extends BasePhase
 
     protected JavaCompiler javaCompiler()
     {
-        var resources = require(FiascoResources.class);
+        var resources = require(FiascoFolders.class);
 
         return JavaCompiler.create(this)
                 .withOutput(output)
@@ -61,7 +61,6 @@ public class BaseCompilationPhase extends BasePhase
     protected Librarian librarian()
     {
         return new Librarian(build())
-                .addRepository(MavenRepository.local(this))
-                .addRepository(MavenRepository.mavenCentral(this));
+                .addRemoteRepository(MavenRepository.mavenCentral(this));
     }
 }

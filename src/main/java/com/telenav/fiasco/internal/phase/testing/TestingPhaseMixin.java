@@ -1,13 +1,13 @@
 package com.telenav.fiasco.internal.phase.testing;
 
-import com.telenav.fiasco.build.FiascoBuild;
+import com.telenav.fiasco.build.Build;
 import com.telenav.fiasco.internal.phase.Phase;
 import com.telenav.kivakit.kernel.language.mixin.Mixin;
 
 @SuppressWarnings("DuplicatedCode")
 public interface TestingPhaseMixin extends Phase, Mixin
 {
-    default FiascoBuild build()
+    default Build build()
     {
         return testingPhase().build();
     }

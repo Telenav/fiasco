@@ -1,4 +1,4 @@
-package com.telenav.fiasco.internal.pom;
+package com.telenav.fiasco.internal.utility.pom;
 
 import com.telenav.fiasco.build.repository.maven.MavenArtifact;
 import com.telenav.fiasco.build.repository.maven.MavenArtifactGroup;
@@ -27,6 +27,8 @@ public class PomReader extends BaseComponent
      */
     public static class Pom
     {
+        private MavenArtifact parent;
+
         private ObjectList<MavenArtifact> dependencies = ObjectList.create();
 
         private ObjectList<MavenArtifact> dependencyManagementDependencies = ObjectList.create();
@@ -43,6 +45,11 @@ public class PomReader extends BaseComponent
             return dependencyManagementDependencies;
         }
 
+        public MavenArtifact parent()
+        {
+            return parent;
+        }
+
         public PropertyMap properties()
         {
             return properties;
@@ -50,6 +57,8 @@ public class PomReader extends BaseComponent
     }
 
     private final StaxReader reader;
+
+    private final StaxPath PARENT = parseXmlPath("project/parent");
 
     private final StaxPath PROPERTIES = parseXmlPath("project/properties");
 
@@ -77,6 +86,10 @@ public class PomReader extends BaseComponent
 
         for (; reader.hasNext(); reader.next())
         {
+            if (reader.isInside(PARENT))
+            {
+                pom.parent = readDependency(PARENT);
+            }
             if (reader.isInside(PROPERTIES))
             {
                 pom.properties = readProperties();
@@ -139,7 +152,7 @@ public class PomReader extends BaseComponent
             }
         }
 
-        return MavenArtifact.artifact(artifactGroup, artifactIdentifier).withVersion(version);
+        return artifactGroup.artifact(artifactIdentifier).withVersion(version);
     }
 
     /**

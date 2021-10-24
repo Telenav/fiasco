@@ -2,15 +2,17 @@ package com.telenav.fiasco.build.repository.maven;
 
 import com.telenav.fiasco.build.repository.Artifact;
 import com.telenav.fiasco.build.repository.ArtifactRepository;
+import com.telenav.fiasco.internal.utility.pom.PomReader;
 import com.telenav.kivakit.component.BaseComponent;
+import com.telenav.kivakit.data.formats.xml.stax.StaxReader;
 import com.telenav.kivakit.filesystem.Folder;
-import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.messaging.Listener;
 import com.telenav.kivakit.resource.Resource;
 import com.telenav.kivakit.resource.path.FilePath;
 
 import static com.telenav.kivakit.kernel.language.progress.ProgressReporter.NULL;
 import static com.telenav.kivakit.resource.CopyMode.OVERWRITE;
+import static com.telenav.kivakit.resource.path.Extension.POM;
 
 /**
  * A maven repository containing {@link MavenArtifact}s, organized in {@link MavenArtifactGroup}s. A {@link
@@ -89,13 +91,23 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
     public void install(ArtifactRepository source, final Artifact artifact)
     {
         // Get the artifact path in this repository,
-        var remoteArtifactPath = source.path(artifact);
+        var artifactFolder = source.path(artifact);
 
         // and then for each resource in the set of resources to be copied,
-        for (var resource : resourcesToCopy(remoteArtifactPath, artifact))
+        for (var resource : artifact.resources(artifactFolder))
         {
             // copy the artifact into this repository,
             resource.safeCopyTo(Folder.of(path(artifact)).mkdirs(), OVERWRITE, NULL);
+        }
+
+        // then get the POM resource for the artifact,
+        var pomResource = artifact.resource(artifactFolder, POM);
+
+        // open it with a STAX reader,
+        try (var reader = StaxReader.open(pomResource))
+        {
+            // and return the parsed POM information.
+            new PomReader(reader).read().dependencies().forEach(at -> install(source, at));
         }
     }
 
@@ -136,15 +148,5 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
         var copy = new MavenRepository(this);
         copy.root = root;
         return copy;
-    }
-
-    private ObjectList<Resource> resourcesToCopy(final FilePath path, final Artifact artifact)
-    {
-        var resources = new ObjectList<Resource>();
-        for (var at : new String[] { "jar", "jar.md5", "jar.sha1", "pom", "pom.md5", "pom.sha1" })
-        {
-            resources.add(Resource.resolve(this, path.withChild(artifact.identifier() + "-" + artifact.version() + "." + at)));
-        }
-        return resources;
     }
 }

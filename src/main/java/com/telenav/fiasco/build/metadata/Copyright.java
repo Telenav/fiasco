@@ -1,12 +1,12 @@
 package com.telenav.fiasco.build.metadata;
 
-import com.telenav.fiasco.build.FiascoBuild;
+import com.telenav.fiasco.build.Build;
 import com.telenav.kivakit.filesystem.File;
 import com.telenav.kivakit.kernel.interfaces.string.StringSource;
 import com.telenav.kivakit.resource.Resource;
 
 /**
- * Copyright notice for a {@link FiascoBuild}
+ * Copyright notice for a {@link Build}
  *
  * @author jonathanl (shibo)
  */

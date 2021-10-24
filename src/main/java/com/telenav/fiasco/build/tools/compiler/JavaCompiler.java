@@ -1,7 +1,7 @@
 package com.telenav.fiasco.build.tools.compiler;
 
-import com.telenav.fiasco.build.FiascoBuild;
-import com.telenav.fiasco.internal.utility.FiascoResources;
+import com.telenav.fiasco.build.Build;
+import com.telenav.fiasco.internal.utility.FiascoFolders;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.configuration.lookup.Registry;
 import com.telenav.kivakit.filesystem.FileList;
@@ -33,7 +33,7 @@ public class JavaCompiler extends BaseComponent
      */
     public static JavaCompiler compiler(Listener listener, Writer output)
     {
-        final var resources = Registry.global().require(FiascoResources.class);
+        final var resources = Registry.global().require(FiascoFolders.class);
 
         return JavaCompiler.create(listener)
                 .withOutput(output)
@@ -112,7 +112,7 @@ public class JavaCompiler extends BaseComponent
      *
      * @return True if the build succeeded, false if it failed
      */
-    public boolean compile(FiascoBuild build)
+    public boolean compile(Build build)
     {
         return compile(build.sourceFolder());
     }
@@ -153,7 +153,7 @@ public class JavaCompiler extends BaseComponent
                 // and store the digests for next time
                 node.putByteArray("sourceDigest", sourceDigest);
                 node.putByteArray("targetDigest", targetDigest);
-                
+
                 tryCatch(node::flush, "Failed to flush preferences");
                 return true;
             }

@@ -1,6 +1,6 @@
 package com.telenav.fiasco.build.tools;
 
-import com.telenav.fiasco.build.FiascoBuild;
+import com.telenav.fiasco.build.Build;
 import com.telenav.kivakit.component.BaseComponent;
 
 /**
@@ -11,12 +11,12 @@ import com.telenav.kivakit.component.BaseComponent;
 public abstract class BaseTool extends BaseComponent implements Tool
 {
     /** The project that this tool is helping to build */
-    private FiascoBuild build;
+    private Build build;
 
     /**
      * {@inheritDoc}
      */
-    public void build(final FiascoBuild build)
+    public void build(final Build build)
     {
         this.build = build;
     }
@@ -24,7 +24,7 @@ public abstract class BaseTool extends BaseComponent implements Tool
     /**
      * {@inheritDoc}
      */
-    public FiascoBuild build()
+    public Build build()
     {
         return build;
     }

@@ -18,7 +18,7 @@
 
 package com.telenav.fiasco.build.tools;
 
-import com.telenav.fiasco.build.FiascoBuild;
+import com.telenav.fiasco.build.Build;
 import com.telenav.kivakit.component.Component;
 
 /**
@@ -33,10 +33,10 @@ public interface Tool extends Component
      *
      * @param build The build
      */
-    void build(final FiascoBuild build);
+    void build(final Build build);
 
     /**
      * @return The project that this tool is running in
      */
-    FiascoBuild build();
+    Build build();
 }

@@ -1,6 +1,6 @@
 package com.telenav.fiasco.internal;
 
-import com.telenav.fiasco.build.FiascoBuild;
+import com.telenav.fiasco.build.Build;
 import com.telenav.kivakit.filesystem.Folder;
 
 /**
@@ -34,7 +34,7 @@ public interface ProjectFoldersTrait
     /**
      * @param root The project root folder
      */
-    FiascoBuild projectRootFolder(final Folder root);
+    Build projectRootFolder(final Folder root);
 
     /**
      * @return The source folder

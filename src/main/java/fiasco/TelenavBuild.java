@@ -1,6 +1,6 @@
 package fiasco;
 
-import com.telenav.fiasco.build.BaseFiascoBuild;
+import com.telenav.fiasco.build.BaseBuild;
 import com.telenav.fiasco.build.BuildMetadata;
 import com.telenav.fiasco.build.metadata.Contributor;
 import com.telenav.fiasco.build.metadata.Copyright;
@@ -14,7 +14,7 @@ import com.telenav.kivakit.network.core.EmailAddress;
  *
  * @author jonathanl (shibo)
  */
-public abstract class TelenavBuild extends BaseFiascoBuild implements TelenavArtifacts
+public abstract class TelenavBuild extends BaseBuild implements TelenavArtifacts
 {
     protected Copyright copyright(int firstYear)
     {

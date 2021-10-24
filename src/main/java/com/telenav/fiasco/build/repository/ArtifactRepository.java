@@ -18,10 +18,11 @@ public interface ArtifactRepository extends Named, Component
     boolean contains(Artifact artifact);
 
     /**
-     * Installs the given artifact from the given repository into this one
+     * Installs the given artifact and all its dependencies from the given repository into this one
      *
      * @param source The source repository to copy from
      * @param artifact The artifact to install
+     * @return Any dependencies of the installed artifact
      */
     void install(ArtifactRepository source, Artifact artifact);
 

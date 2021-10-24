@@ -1,9 +1,11 @@
 package com.telenav.fiasco.build.repository;
 
-import com.telenav.fiasco.internal.dependencies.Dependency;
-import com.telenav.fiasco.internal.dependencies.Library;
+import com.telenav.fiasco.build.dependencies.Dependency;
 import com.telenav.fiasco.build.repository.maven.MavenArtifact;
+import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.values.version.Version;
+import com.telenav.kivakit.resource.Resource;
+import com.telenav.kivakit.resource.path.Extension;
 import com.telenav.kivakit.resource.path.FilePath;
 
 /**
@@ -15,14 +17,6 @@ import com.telenav.kivakit.resource.path.FilePath;
  */
 public interface Artifact extends Dependency
 {
-    /**
-     * @return This artifact as a library
-     */
-    default Library asLibrary()
-    {
-        return Library.create(this);
-    }
-
     /**
      * @return The artifact descriptor [group-name]:[artifact-name]:[version]
      */
@@ -42,9 +36,24 @@ public interface Artifact extends Dependency
     String identifier();
 
     /**
+     * @return The fully-qualified name of the artifact
+     */
+    String name();
+
+    /**
      * @return This artifact's path relative to repository root
      */
     FilePath path();
+
+    /**
+     * @return This artifact's resource with the given extensions at the given repository path
+     */
+    Resource resource(FilePath path, Extension extension);
+
+    /**
+     * @return The expected artifact resources at the given path
+     */
+    ObjectList<Resource> resources(final FilePath path);
 
     /**
      * @return The version of this artifact

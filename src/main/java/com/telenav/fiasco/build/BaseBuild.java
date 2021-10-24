@@ -1,5 +1,6 @@
 package com.telenav.fiasco.build;
 
+import com.telenav.fiasco.build.dependencies.Dependency;
 import com.telenav.fiasco.build.repository.Artifact;
 import com.telenav.fiasco.build.repository.ArtifactRepository;
 import com.telenav.fiasco.build.tools.compiler.JavaCompiler;
@@ -11,7 +12,6 @@ import com.telenav.fiasco.internal.Buildable;
 import com.telenav.fiasco.internal.BuildableProject;
 import com.telenav.fiasco.internal.ProjectFoldersTrait;
 import com.telenav.fiasco.internal.dependencies.BaseDependency;
-import com.telenav.fiasco.internal.dependencies.Dependency;
 import com.telenav.fiasco.internal.phase.Phase;
 import com.telenav.fiasco.internal.phase.compilation.CompilationPhaseMixin;
 import com.telenav.fiasco.internal.phase.installation.InstallationPhase;
@@ -25,6 +25,8 @@ import com.telenav.kivakit.kernel.data.validation.Validator;
 import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
 import com.telenav.kivakit.kernel.interfaces.lifecycle.Initializable;
 import com.telenav.kivakit.kernel.interfaces.naming.Named;
+import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
+import com.telenav.kivakit.kernel.language.reflection.Type;
 import com.telenav.kivakit.kernel.language.strings.AsciiArt;
 
 import java.io.StringWriter;
@@ -63,19 +65,19 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.unsupport
  * @see Buildable
  * @see BuildListener
  * @see BuildResult
- * @see BaseFiascoBuild
+ * @see BaseBuild
  *
  * <p>
  * When a phase completes a step, it calls {@link #nextStep(), which advances the build to the next step, and calls the
  * {@link BuildListener#onBuildStep(BuildStep)} method with the new build step.
  * </p>
  */
-public abstract class BaseFiascoBuild extends BaseDependency implements
+public abstract class BaseBuild extends BaseDependency implements
         Named,
         Buildable,
         BuildableProject,
         Initializable,
-        FiascoBuild,
+        Build,
         ProjectFoldersTrait
 {
     /** Metadata for this project */
@@ -101,11 +103,17 @@ public abstract class BaseFiascoBuild extends BaseDependency implements
     }
 
     @Override
+    public BaseBuild copy()
+    {
+        return Type.forClass(getClass()).newInstance();
+    }
+
+    @Override
     public boolean equals(final Object object)
     {
-        if (object instanceof BaseFiascoBuild)
+        if (object instanceof BaseBuild)
         {
-            var that = (BaseFiascoBuild) object;
+            var that = (BaseBuild) object;
             return this.projectRootFolder().equals(that.projectRootFolder());
         }
         return false;
@@ -193,8 +201,8 @@ public abstract class BaseFiascoBuild extends BaseDependency implements
 
     /**
      * Builds the classes in the <i>fiasco</i> folder under the given root, then loads classes ending in "Project". Each
-     * class is instantiated and the resulting object tested to see if it implements the {@link FiascoBuild} interface.
-     * If it does, the project object is added to the set of {@link #dependencies()}.
+     * class is instantiated and the resulting object tested to see if it implements the {@link Build} interface. If it
+     * does, the project object is added to the set of {@link #dependencies()}.
      *
      * @param projectRoot The project root folder
      */
@@ -217,7 +225,7 @@ public abstract class BaseFiascoBuild extends BaseDependency implements
             var bootstrap = listenTo(new FiascoCompiler());
             for (var classFile : classes.files(file -> file.fileName().endsWith("Build.class")))
             {
-                dependencies().addIfNotNull(bootstrap.instantiate(classFile, FiascoBuild.class));
+                dependencies().addIfNotNull(bootstrap.instantiate(classFile, Build.class));
             }
 
             ensure(dependencies().size() > 0, "Could not find any '*Project.java' files implementing FiascoProject in: $", fiasco);
@@ -239,21 +247,28 @@ public abstract class BaseFiascoBuild extends BaseDependency implements
     /**
      * @param root The project root folder
      */
-    public FiascoBuild projectRootFolder(final Folder root)
+    public Build projectRootFolder(final Folder root)
     {
         this.root = root;
         return this;
     }
 
     /**
-     * Resolves the given artifact into the local repository
-     *
-     * @return The repository where the artifact was found
+     * {@inheritDoc}
      */
     @Override
     public ArtifactRepository resolve(final Artifact artifact)
     {
         return librarian.resolve(artifact);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ObjectList<Artifact> resolveAll(final Dependency dependency)
+    {
+        return librarian.resolveAll(dependency);
     }
 
     /**

@@ -1,19 +1,19 @@
 package com.telenav.fiasco.internal.phase;
 
 import com.telenav.fiasco.internal.BuildStep;
-import com.telenav.fiasco.build.FiascoBuild;
+import com.telenav.fiasco.build.Build;
 import com.telenav.kivakit.component.Component;
 
 /**
- * A phase is a set of {@link BuildStep}s associated with a {@link FiascoBuild} build. Calling {@link #nextStep()}
- * advances the build to the next step.
+ * A phase is a set of {@link BuildStep}s associated with a {@link Build} build. Calling {@link #nextStep()} advances
+ * the build to the next step.
  */
 public interface Phase extends Component
 {
     /**
      * @return The project to which this phase belongs
      */
-    FiascoBuild build();
+    Build build();
 
     /**
      * Move the project build forward a step

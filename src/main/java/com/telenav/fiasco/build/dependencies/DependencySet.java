@@ -1,4 +1,4 @@
-package com.telenav.fiasco.internal.dependencies;
+package com.telenav.fiasco.build.dependencies;
 
 import com.telenav.kivakit.collections.set.ConcurrentHashSet;
 import com.telenav.kivakit.kernel.interfaces.code.Callback;
@@ -152,9 +152,7 @@ public class DependencySet extends ObjectSet<Dependency>
      */
     public DependencySet without(final Collection<? extends Dependency> exclusions)
     {
-        final var copy = new DependencySet(this);
-        copy.removeAll(exclusions);
-        return copy;
+        return without(exclusions::contains);
     }
 
     /**
@@ -162,8 +160,14 @@ public class DependencySet extends ObjectSet<Dependency>
      */
     public DependencySet without(final Matcher<Dependency> matcher)
     {
-        final var copy = new DependencySet(this);
-        copy.removeIf(matcher::matches);
-        return copy;
+        var set = copy();
+        for (var dependency : this)
+        {
+            if (matcher.matches(dependency))
+            {
+                set.add(dependency);
+            }
+        }
+        return set;
     }
 }

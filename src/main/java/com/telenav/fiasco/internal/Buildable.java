@@ -1,6 +1,6 @@
 package com.telenav.fiasco.internal;
 
-import com.telenav.fiasco.internal.dependencies.Dependency;
+import com.telenav.fiasco.build.dependencies.Dependency;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;

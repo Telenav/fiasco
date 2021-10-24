@@ -1,9 +1,9 @@
-package com.telenav.fiasco.internal.planning;
+package com.telenav.fiasco.internal.dependencies;
 
+import com.telenav.fiasco.build.Build;
+import com.telenav.fiasco.build.dependencies.Dependency;
 import com.telenav.fiasco.internal.Buildable;
 import com.telenav.fiasco.internal.BuildableGroup;
-import com.telenav.fiasco.build.FiascoBuild;
-import com.telenav.fiasco.internal.dependencies.Dependency;
 import com.telenav.kivakit.kernel.data.validation.ensure.Ensure;
 
 import java.util.HashSet;
@@ -13,18 +13,18 @@ import java.util.function.Consumer;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
 
 /**
- * Processes the graph of projects from the root {@link FiascoBuild}.
+ * Processes the graph of projects from the root {@link Build}.
  *
  * @author shibo
  */
-public class ProjectDependencyGraph
+public class DependencyGraph
 {
     /**
      * @return The dependency graph formed by traversing dependencies starting at the given root
      */
-    public static ProjectDependencyGraph of(final FiascoBuild build)
+    public static DependencyGraph of(final Build build)
     {
-        return new ProjectDependencyGraph(build);
+        return new DependencyGraph(build);
     }
 
     /**
@@ -36,9 +36,9 @@ public class ProjectDependencyGraph
     }
 
     /** The root of this project graph */
-    private final FiascoBuild build;
+    private final Build build;
 
-    private ProjectDependencyGraph(final FiascoBuild build)
+    private DependencyGraph(final Build build)
     {
         this.build = build;
     }
@@ -100,10 +100,10 @@ public class ProjectDependencyGraph
         for (final var child : at.dependencies())
         {
             // and if it's a project,
-            if (child instanceof FiascoBuild)
+            if (child instanceof Build)
             {
                 // explore it (in a depth-first traversal)
-                depthFirst((FiascoBuild) child, visited, visitor);
+                depthFirst((Build) child, visited, visitor);
             }
         }
 

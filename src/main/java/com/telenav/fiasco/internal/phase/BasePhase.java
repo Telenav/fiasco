@@ -1,6 +1,6 @@
 package com.telenav.fiasco.internal.phase;
 
-import com.telenav.fiasco.build.FiascoBuild;
+import com.telenav.fiasco.build.Build;
 import com.telenav.kivakit.component.BaseComponent;
 
 /**
@@ -10,14 +10,14 @@ import com.telenav.kivakit.component.BaseComponent;
  */
 public class BasePhase extends BaseComponent implements Phase
 {
-    private final FiascoBuild build;
+    private final Build build;
 
-    public BasePhase(FiascoBuild build)
+    public BasePhase(Build build)
     {
         this.build = build;
     }
 
-    public FiascoBuild build()
+    public Build build()
     {
         return build;
     }

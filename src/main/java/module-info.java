@@ -13,6 +13,7 @@ open module com.telenav.fiasco
     // Exports
     exports com.telenav.fiasco;
     exports com.telenav.fiasco.build;
+    exports com.telenav.fiasco.build.dependencies;
     exports com.telenav.fiasco.build.repository;
     exports com.telenav.fiasco.build.repository.maven;
     exports com.telenav.fiasco.build.repository.maven.artifact.popular;

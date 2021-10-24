@@ -1,6 +1,6 @@
 package com.telenav.fiasco;
 
-import com.telenav.fiasco.build.FiascoBuild;
+import com.telenav.fiasco.build.Build;
 import com.telenav.fiasco.internal.BuildListener;
 import com.telenav.fiasco.internal.BuildResult;
 import com.telenav.fiasco.internal.Buildable;
@@ -8,9 +8,9 @@ import com.telenav.fiasco.internal.Builder;
 import com.telenav.fiasco.internal.builders.ParallelBuilder;
 import com.telenav.fiasco.internal.planning.BuildPlan;
 import com.telenav.fiasco.internal.planning.BuildPlanner;
+import com.telenav.fiasco.internal.utility.FiascoBuildStore;
 import com.telenav.fiasco.internal.utility.FiascoCompiler;
-import com.telenav.fiasco.internal.utility.FiascoPreferences;
-import com.telenav.fiasco.internal.utility.FiascoResources;
+import com.telenav.fiasco.internal.utility.FiascoFolders;
 import com.telenav.kivakit.application.Application;
 import com.telenav.kivakit.commandline.ArgumentParser;
 import com.telenav.kivakit.commandline.SwitchParser;
@@ -31,9 +31,9 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
  *
  * <p>
  * Fiasco maintains a list of project folders in the Java preferences store. Each project folder must have a "fiasco"
- * folder that contains one or more Java source files that end with "Build.java" and implement the {@link FiascoBuild}
+ * folder that contains one or more Java source files that end with "Build.java" and implement the {@link Build}
  * interface. Each such source file defines a build. Fiasco compiles these source files, loads them and executes them by
- * calling {@link FiascoBuild#executeBuild()}.
+ * calling {@link Build#executeBuild()}.
  * </p>
  *
  * <p><b>Command Line Switches</b></p>
@@ -100,10 +100,10 @@ public class Fiasco extends Application
             .build();
 
     /** Java preferences settings for Fiasco */
-    private final FiascoPreferences settings = listenTo(register(new FiascoPreferences()));
+    private final FiascoBuildStore settings = listenTo(register(new FiascoBuildStore()));
 
     /** Locations of fiasco resources */
-    private final FiascoResources resources = listenTo(register(new FiascoResources()));
+    private final FiascoFolders resources = listenTo(register(new FiascoFolders()));
 
     /** Project-related utilities */
     private final FiascoCompiler project = listenTo(new FiascoCompiler());
@@ -134,14 +134,14 @@ public class Fiasco extends Application
         if (has(REMEMBER))
         {
             // store it in Java preferences.
-            settings.remember(get(REMEMBER));
+            settings.rememberProject(get(REMEMBER));
         }
 
         // If we are asked to forget a project root,
         if (has(FORGET))
         {
             // remove it from Java preferences.
-            settings.forget(FolderGlobPattern.parse(get(FORGET)));
+            settings.forgetProject(FolderGlobPattern.parse(get(FORGET)));
         }
 
         // If there are no arguments,
@@ -178,8 +178,8 @@ public class Fiasco extends Application
         for (var buildName : buildNames)
         {
             // get the .java build file with the given name,
-            var source = settings.sourceFile(buildName);
-            var build = project.compileAndInstantiate(source, FiascoBuild.class);
+            var source = settings.buildSourceFile(buildName);
+            var build = project.compileAndInstantiate(source, Build.class);
             if (build != null)
             {
                 listenTo(build);
@@ -201,14 +201,13 @@ public class Fiasco extends Application
     }
 
     /**
-     * Creates a {@link BuildPlan} for the buildables that were added to the given {@link FiascoBuild} with {@link
-     * FiascoBuild#project(String)}, then executes the plan using the {@link Builder} returned by {@link #builder()}. As
-     * the build proceeds the {@link BuildListener} is called when {@link Buildable}s finish building. If no build
-     * listener is specified, the default listener broadcasts {@link Announcement} messages for each build that
-     * completes.
+     * Creates a {@link BuildPlan} for the buildables that were added to the given {@link Build} with {@link
+     * Build#project(String)}, then executes the plan using the {@link Builder} returned by {@link #builder()}. As the
+     * build proceeds the {@link BuildListener} is called when {@link Buildable}s finish building. If no build listener
+     * is specified, the default listener broadcasts {@link Announcement} messages for each build that completes.
      * </p>
      */
-    private void build(final BuildListener listener, final FiascoBuild build)
+    private void build(final BuildListener listener, final Build build)
     {
         var result = new BuildResult(name());
         result.start();

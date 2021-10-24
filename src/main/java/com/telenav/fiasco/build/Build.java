@@ -11,7 +11,7 @@ import com.telenav.fiasco.internal.phase.packaging.PackagingPhaseMixin;
 import com.telenav.fiasco.internal.phase.testing.TestingPhaseMixin;
 import com.telenav.kivakit.kernel.interfaces.lifecycle.Initializable;
 
-public interface FiascoBuild extends
+public interface Build extends
         Buildable,
         MavenPopularArtifacts,
         Initializable,
@@ -24,7 +24,7 @@ public interface FiascoBuild extends
         ArtifactResolver
 {
     @Override
-    default FiascoBuild build()
+    default Build build()
     {
         return this;
     }

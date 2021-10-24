@@ -16,9 +16,10 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-package com.telenav.fiasco.internal.dependencies;
+package com.telenav.fiasco.build.dependencies;
 
 import com.telenav.fiasco.build.repository.Artifact;
+import com.telenav.fiasco.internal.dependencies.BaseDependency;
 import com.telenav.kivakit.kernel.data.validation.BaseValidator;
 import com.telenav.kivakit.kernel.data.validation.ValidationType;
 import com.telenav.kivakit.kernel.data.validation.Validator;
@@ -44,14 +45,15 @@ public class Library extends BaseDependency
     /** The library artifact */
     private Artifact artifact;
 
-    protected Library(final Artifact artifact)
-    {
-        this.artifact = artifact;
-    }
-
     protected Library(final Library that)
     {
+        super(that);
         artifact = that.artifact;
+    }
+
+    private Library(final Artifact artifact)
+    {
+        this.artifact = artifact;
     }
 
     /**
@@ -60,6 +62,12 @@ public class Library extends BaseDependency
     public Artifact artifact()
     {
         return artifact;
+    }
+
+    @Override
+    public Dependency copy()
+    {
+        return new Library(artifact);
     }
 
     @Override

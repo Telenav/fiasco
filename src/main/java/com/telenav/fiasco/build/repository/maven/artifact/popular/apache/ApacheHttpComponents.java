@@ -10,12 +10,6 @@ public class ApacheHttpComponents extends MavenArtifactGroup
         super("org.apache.httpcomponents");
     }
 
-    public ApacheHttpComponents defaultVersion(final String defaultVersion)
-    {
-        super.defaultVersion(defaultVersion);
-        return this;
-    }
-
     public Artifact httpClient()
     {
         return artifact("httpclient");
@@ -24,5 +18,10 @@ public class ApacheHttpComponents extends MavenArtifactGroup
     public Artifact httpCore()
     {
         return artifact("httpcore");
+    }
+
+    public ApacheHttpComponents withDefaultVersion(final String defaultVersion)
+    {
+        return (ApacheHttpComponents) super.withDefaultVersion(defaultVersion);
     }
 }

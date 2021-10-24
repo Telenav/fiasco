@@ -1,6 +1,6 @@
 package com.telenav.fiasco.internal.utility;
 
-import com.telenav.fiasco.build.FiascoBuild;
+import com.telenav.fiasco.build.Build;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.filesystem.File;
 import com.telenav.kivakit.filesystem.Folder;
@@ -21,12 +21,12 @@ import static com.telenav.kivakit.resource.path.Extension.JAVA;
  * <b>Not public API</b>
  *
  * <p>
- * Stores Fiasco build settings in Java preferences
+ * Stores information about Fiasco builds in Java preferences
  * </p>
  *
  * @author jonathanl (shibo)
  */
-public class FiascoPreferences extends BaseComponent
+public class FiascoBuildStore extends BaseComponent
 {
     /**
      * @return The build name for the given Fiasco source file. The  file has "Build" and the file extension stripped
@@ -44,7 +44,7 @@ public class FiascoPreferences extends BaseComponent
     public StringList buildNames()
     {
         var names = new StringList();
-        for (var file : sourceFiles())
+        for (var file : buildSourceFiles())
         {
             names.add(buildName(file));
         }
@@ -56,9 +56,53 @@ public class FiascoPreferences extends BaseComponent
     }
 
     /**
+     * @return The source file for the given build name
+     */
+    public File buildSourceFile(String buildName)
+    {
+        for (var file : buildSourceFiles())
+        {
+            if (buildName(file).equals(buildName))
+            {
+                return file;
+            }
+        }
+        throw problem("No build file named: $", buildName).asException();
+    }
+
+    /**
+     * @return The list of build files (ending in Build.java) in all the projects that Fiasco knows about
+     */
+    public ObjectList<File> buildSourceFiles()
+    {
+        var files = new ObjectList<File>();
+
+        // Go through each project,
+        for (var project : projects())
+        {
+            // build the 'fiasco' folder,
+            final var compiler = listenTo(new FiascoCompiler());
+            final var fiasco = project.folder("src/main/java/fiasco");
+            compiler.compile(fiasco);
+
+            // then go through the target files,
+            files.addAll(require(FiascoFolders.class).targetFolder()
+                    .folder("fiasco")
+                    .files(file ->
+                    {
+                        // and add the file to the list if it is a build class file and it can be instantiated,
+                        return file.fileName().endsWith("Build.class") && compiler.instantiate(file, Build.class) != null;
+                    })
+                    .mapped(file -> fiasco.file(file.fileName().withoutExtension().withExtension(JAVA))));
+        }
+
+        return files;
+    }
+
+    /**
      * Removes all project folders matching the given matcher
      */
-    public void forget(Matcher<Folder> matcher)
+    public void forgetProject(Matcher<Folder> matcher)
     {
         for (var folder : projects())
         {
@@ -73,7 +117,7 @@ public class FiascoPreferences extends BaseComponent
     /**
      * @return True if the give folder is a Fiasco project.
      */
-    public boolean isFiascoProject(Folder project)
+    public boolean isProject(Folder project)
     {
         var fiasco = project.folder("src/main/java/fiasco");
         return fiasco.exists() && !fiasco.files(Pattern.compile(".*Build.java")).isEmpty();
@@ -102,9 +146,9 @@ public class FiascoPreferences extends BaseComponent
     /**
      * Adds the given project folder to Fiasco
      */
-    public void remember(Folder project)
+    public void rememberProject(Folder project)
     {
-        if (isFiascoProject(project))
+        if (isProject(project))
         {
             var path = project.path().asString();
             var node = projectFoldersNode();
@@ -123,50 +167,6 @@ public class FiascoPreferences extends BaseComponent
         {
             fail("Folder is not a fiasco project: $", project);
         }
-    }
-
-    /**
-     * @return The source file for the given build name
-     */
-    public File sourceFile(String buildName)
-    {
-        for (var file : sourceFiles())
-        {
-            if (buildName(file).equals(buildName))
-            {
-                return file;
-            }
-        }
-        throw problem("No build file named: $", buildName).asException();
-    }
-
-    /**
-     * @return The list of build files (ending in Build.java) in all the projects that Fiasco knows about
-     */
-    public ObjectList<File> sourceFiles()
-    {
-        var files = new ObjectList<File>();
-
-        // Go through each project,
-        for (var project : projects())
-        {
-            // build the 'fiasco' folder,
-            final var compiler = listenTo(new FiascoCompiler());
-            final var fiasco = project.folder("src/main/java/fiasco");
-            compiler.compile(fiasco);
-
-            // then go through the target files,
-            files.addAll(require(FiascoResources.class).targetFolder()
-                    .folder("fiasco")
-                    .files(file ->
-                    {
-                        // and add the file to the list if it is a build class file and it can be instantiated,
-                        return file.fileName().endsWith("Build.class") && compiler.instantiate(file, FiascoBuild.class) != null;
-                    })
-                    .mapped(file -> fiasco.file(file.fileName().withoutExtension().withExtension(JAVA))));
-        }
-
-        return files;
     }
 
     private Preferences projectFoldersNode()

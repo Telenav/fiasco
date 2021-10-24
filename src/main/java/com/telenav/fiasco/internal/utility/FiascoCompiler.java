@@ -17,7 +17,7 @@ import static java.lang.reflect.Modifier.isAbstract;
  * <b>Not public API</b>
  *
  * <p>
- * Class utilities used internally to build and instantiate user Java sources
+ * Class utilities used internally to compile and instantiate build sources
  * </p>
  *
  * @author jonathanl (shibo)

@@ -1,21 +1,26 @@
 package com.telenav.fiasco.build.repository.maven;
 
+import com.telenav.fiasco.build.dependencies.Dependency;
 import com.telenav.fiasco.build.repository.Artifact;
+import com.telenav.fiasco.build.repository.ArtifactGroup;
 import com.telenav.fiasco.internal.dependencies.BaseDependency;
-import com.telenav.fiasco.internal.dependencies.Dependency;
-import com.telenav.fiasco.internal.dependencies.DependencySet;
 import com.telenav.kivakit.kernel.data.validation.BaseValidator;
 import com.telenav.kivakit.kernel.data.validation.ValidationType;
 import com.telenav.kivakit.kernel.data.validation.Validator;
 import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
+import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.values.version.Version;
 import com.telenav.kivakit.kernel.messaging.Listener;
+import com.telenav.kivakit.resource.Resource;
+import com.telenav.kivakit.resource.path.Extension;
 import com.telenav.kivakit.resource.path.FilePath;
 
 import java.util.Objects;
-import java.util.regex.Pattern;
 
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
+import static com.telenav.kivakit.resource.path.Extension.JAR;
+import static com.telenav.kivakit.resource.path.Extension.MD5;
+import static com.telenav.kivakit.resource.path.Extension.POM;
+import static com.telenav.kivakit.resource.path.Extension.SHA1;
 
 /**
  * A Maven artifact stored in a {@link MavenRepository} and belonging to a {@link MavenArtifactGroup} and having other
@@ -26,99 +31,43 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
  * <ul>
  *     <li>{@link #group()} - The group to which this artifact belongs</li>
  *     <li>{@link #identifier()} - The artifact identifier</li>
- *     <li>{@link #fullyQualifiedName()} - The fully qualified name of the artifact: [group-name]:[artifact-name]:[version]</li>
- *     <li>{@link #path()} - The complete path to the artifact from the root of a repository</li>
  *     <li>{@link #version()} - The artifact version</li>
+ *     <li>{@link #name()} - The fully qualified name of the artifact: [group-name]:[artifact-name]:[version]</li>
+ *     <li>{@link #path()} - The complete path to the artifact from the root of a repository</li>
  * </ul>
  *
  * @author jonathanl (shibo)
  */
 public class MavenArtifact extends BaseDependency implements Artifact, Dependency
 {
-    private static final Pattern pattern = Pattern.compile("(?<group>[A-Za-z.]+)"
-            + ":"
-            + "(?<identifier>[A-Za-z-.]+)"
-            + "(:"
-            + "(?<version>[\\d.]+(-(snapshot|alpha|beta|rc|final)))"
-            + ")?");
-
     /**
-     * @return An artifact in the given group with the given identifier
-     */
-    public static MavenArtifact artifact(MavenArtifactGroup group, String identifier)
-    {
-        return new MavenArtifact(group, identifier);
-    }
-
-    /**
-     * Parses a descriptor of the form [group-identifier]:[artifact-identifier]:[version]
+     * Parses a descriptor of the form [group-identifier]:[artifact-identifier](:[version])?
      *
      * @return A {@link MavenArtifact} for the given descriptor
      */
-    public static MavenArtifact parse(Listener listener, final String descriptor)
+    public static MavenArtifact parse(Listener listener, final String text)
     {
-        final var matcher = pattern.matcher(descriptor);
-        if (matcher.matches())
-        {
-            final var group = new MavenArtifactGroup(matcher.group("group"));
-            final var identifier = matcher.group("identifier");
-            final var version = Version.parse(matcher.group("version"));
-
-            var artifact = artifact(group, identifier).withVersion(version);
-            if (artifact.isValid(listener))
-            {
-                return artifact;
-            }
-            else
-            {
-                fail("Artifact descriptor is invalid: $", descriptor);
-            }
-        }
-        return fail("Unable to parse Maven artifact descriptor: $", descriptor);
+        return new MavenArtifact(MavenArtifactDescriptor.parse(listener, text));
     }
 
-    /** The group of this artifact */
-    private final MavenArtifactGroup group;
-
-    /** The artifact identifier */
-    private final String identifier;
-
-    /** The artifact version */
-    private Version version;
-
-    /** The dependencies that this artifact depends on */
-    private DependencySet dependencies = new DependencySet();
+    /** The descriptor for this artifact */
+    private MavenArtifactDescriptor descriptor;
 
     public MavenArtifact(final MavenArtifact that)
     {
-        group = that.group;
-        identifier = that.identifier;
-        version = that.version;
-        dependencies = dependencies().copy();
+        super(that);
+        descriptor = that.descriptor.copy();
     }
 
-    protected MavenArtifact(final MavenArtifactGroup group, final String identifier)
+    protected MavenArtifact(final MavenArtifactDescriptor descriptor)
     {
-        this.group = group;
-        this.identifier = identifier;
-        version = null;
+        this.descriptor = descriptor;
     }
 
-    /**
-     * Adds the given artifact as a dependency of this artifact
-     */
-    public void add(MavenArtifact artifact)
-    {
-        dependencies.add(artifact);
-    }
-
-    /**
-     * @return The artifacts that this artifact depends on
-     */
     @Override
-    public DependencySet dependencies()
+    public MavenArtifact copy()
     {
-        return dependencies;
+        return new MavenArtifact(this);
     }
 
     @Override
@@ -127,7 +76,7 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
         if (object instanceof MavenArtifact)
         {
             var that = (MavenArtifact) object;
-            return this.fullyQualifiedName().equals(that.fullyQualifiedName());
+            return this.descriptor.equals(that.descriptor);
         }
         return false;
     }
@@ -136,59 +85,75 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
      * @return This artifact without the matching dependencies
      */
     @Override
-    public BaseDependency excluding(final Matcher<Dependency> matcher)
+    public MavenArtifact excluding(final Matcher<Dependency> matcher)
     {
-        final var copy = new MavenArtifact(this);
-        copy.dependencies.without(matcher);
-        return copy;
+        return (MavenArtifact) super.excluding(matcher);
     }
 
     /**
-     * @return The fully qualified name of this artifact in the format: [group-identifier]:[artifact-identifier]:[version]
+     * {@inheritDoc}
      */
-    public String fullyQualifiedName()
+    @Override
+    public ArtifactGroup group()
     {
-        return group() + ":" + identifier() + (version == null ? "" : ":" + version());
-    }
-
-    /**
-     * @return The group of artifacts to which this artifact belongs
-     */
-    public MavenArtifactGroup group()
-    {
-        return group;
+        return descriptor.group();
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(fullyQualifiedName());
+        return Objects.hash(descriptor);
     }
 
     /**
-     * @return The Maven artifact identifier
+     * {@inheritDoc}
      */
+    @Override
     public String identifier()
     {
-        return identifier;
+        return descriptor.identifier();
+    }
+
+    @Override
+    public String name()
+    {
+        return descriptor.name();
     }
 
     /**
-     * @return The full path to this artifact relative to a repository root
+     * {@inheritDoc}
      */
     @Override
     public FilePath path()
     {
-        return group()
-                .path()
-                .withChild(identifier())
-                .withChild(version.toString());
+        return descriptor.path();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Resource resource(FilePath path, Extension extension)
+    {
+        return Resource.resolve(this, path.withChild(identifier() + "-" + version() + extension));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public ObjectList<Resource> resources(final FilePath path)
+    {
+        var resources = new ObjectList<Resource>();
+        for (var extension : extensions())
+        {
+            resources.add(resource(path, extension));
+        }
+        return resources;
     }
 
     @Override
     public String toString()
     {
-        return fullyQualifiedName();
+        return descriptor.toString();
     }
 
     @Override
@@ -199,9 +164,7 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
             @Override
             protected void onValidate()
             {
-                problemIf(group == null, "No artifact group");
-                problemIf(identifier == null, "No artifact identifier");
-                problemIf(version == null, "No artifact version");
+                problemIf(!descriptor.isValid(), "Invalid artifact descriptor");
             }
         };
     }
@@ -212,16 +175,26 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
     @Override
     public Version version()
     {
-        return version;
+        return descriptor.version();
     }
 
-    /**
-     * @return The given version of this artifact
-     */
+    @Override
     public MavenArtifact withVersion(final Version version)
     {
-        final var copy = new MavenArtifact(this);
-        copy.version = version;
+        var copy = copy();
+        copy.descriptor = descriptor.withVersion(version);
         return copy;
+    }
+
+    private Extension[] extensions()
+    {
+        return new Extension[] {
+                JAR,
+                JAR.withExtension(MD5),
+                JAR.withExtension(SHA1),
+                POM,
+                POM.withExtension(MD5),
+                POM.withExtension(SHA1)
+        };
     }
 }

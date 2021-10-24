@@ -18,28 +18,27 @@
 
 package com.telenav.fiasco.build.tools.repository;
 
+import com.telenav.fiasco.build.dependencies.Dependency;
 import com.telenav.fiasco.build.repository.Artifact;
 import com.telenav.fiasco.build.repository.ArtifactRepository;
 import com.telenav.fiasco.build.repository.ArtifactResolver;
-import com.telenav.fiasco.build.repository.maven.MavenRepository;
-import com.telenav.fiasco.internal.dependencies.Dependency;
+import com.telenav.fiasco.build.repository.maven.MavenArtifactResolver;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.messaging.Listener;
 
 /**
- * Locates and installs dependencies from a list of repositories to {@link #addRepository(ArtifactRepository)}. When
- * {@link #resolve(Artifact)} is called, if the artifact is in the local repository, the librarian returns the local
- * repository. If the artifact is not in the local repository yet, the librarian looks in each repository until it finds
- * it, returning the repository that contains the artifact as the result. If the librarian cannot find the artifact in
- * any repository, an exception is thrown.
+ * Locates and installs dependencies from a list of repositories created from calls to {@link
+ * #addRemoteRepository(ArtifactRepository)}. When {@link #resolve(Artifact)} is called, if the artifact is in the local
+ * repository, the librarian returns the local repository. If the artifact is not in the local repository yet, the
+ * librarian looks in each repository until it finds it, returning the repository that contains the artifact as the
+ * result. If the librarian cannot find the artifact in any repository, an exception is thrown.
  *
  * @author shibo
  */
 public class Librarian extends BaseComponent implements ArtifactResolver
 {
-    /** List of repositories to search for this project, with the local repository first */
-    private final ObjectList<ArtifactRepository> repositories = ObjectList.create();
+    private final MavenArtifactResolver resolver = listenTo(new MavenArtifactResolver());
 
     public Librarian(Listener listener)
     {
@@ -49,72 +48,20 @@ public class Librarian extends BaseComponent implements ArtifactResolver
     /**
      * Adds the given repository to the list of repositories that this librarian searches
      */
-    public Librarian addRepository(ArtifactRepository repository)
+    public Librarian addRemoteRepository(ArtifactRepository repository)
     {
-        repositories.add(repository);
-        information("Repository => $", repository);
+        resolver.addRemoteRepository(repository);
         return this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public ArtifactRepository resolve(final Artifact artifact)
     {
-        // If the local repository does not contain the artifact,
-        final var local = MavenRepository.local(this);
-        if (!local.contains(artifact))
-        {
-            // For each repository starting with the local repository,
-            for (var at : repositories)
-            {
-                // if the repository contains the artifact,
-                if (at.isRemote() && at.contains(artifact))
-                {
-                    // then copy it into the local repository,
-                    local.install(at, artifact);
-
-                    // and return the repository where we found it.
-                    information("Resolved $ => $", artifact, at);
-                    return at;
-                }
-            }
-
-            throw problem("Cannot resolve: $", artifact).asException();
-        }
-        else
-        {
-            information("Resolved $ => $", artifact, local);
-            return local;
-        }
+        return resolver.resolve(artifact);
     }
 
-    /**
-     * Resolves all transitive dependencies of the given dependency
-     *
-     * @param dependency The dependency to resolve
-     */
-    public ObjectList<Artifact> resolveAll(Dependency dependency)
+    public ObjectList<Artifact> resolveAll(final Dependency dependency)
     {
-        var artifacts = new ObjectList<Artifact>();
-        resolveAll(dependency, artifacts);
-        return artifacts;
-    }
-
-    /**
-     * Resolves all transitive dependencies of the given dependency
-     *
-     * @param dependency The dependency to resolve
-     */
-    public void resolveAll(Dependency dependency, ObjectList<Artifact> artifacts)
-    {
-        for (var at : dependency.dependencies())
-        {
-            if (at instanceof Artifact)
-            {
-                resolve((Artifact) at);
-            }
-        }
+        return resolver.resolveAll(dependency);
     }
 }

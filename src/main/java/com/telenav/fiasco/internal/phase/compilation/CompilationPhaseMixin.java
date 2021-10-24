@@ -1,10 +1,10 @@
 package com.telenav.fiasco.internal.phase.compilation;
 
-import com.telenav.fiasco.build.FiascoBuild;
+import com.telenav.fiasco.build.Build;
+import com.telenav.fiasco.build.dependencies.Dependency;
 import com.telenav.fiasco.build.tools.compiler.JavaCompiler;
 import com.telenav.fiasco.build.tools.repository.Librarian;
 import com.telenav.fiasco.internal.ProjectFoldersTrait;
-import com.telenav.fiasco.internal.dependencies.Dependency;
 import com.telenav.fiasco.internal.phase.Phase;
 import com.telenav.kivakit.kernel.interfaces.lifecycle.Initializable;
 import com.telenav.kivakit.kernel.language.mixin.Mixin;
@@ -75,7 +75,7 @@ public interface CompilationPhaseMixin extends
 
     default void onCompile()
     {
-        javaCompiler().compile((FiascoBuild) this);
+        javaCompiler().compile((Build) this);
     }
 
     default void onCompileDocumentation()
