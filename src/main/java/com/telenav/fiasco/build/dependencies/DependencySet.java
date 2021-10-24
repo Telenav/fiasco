@@ -1,5 +1,6 @@
 package com.telenav.fiasco.build.dependencies;
 
+import com.telenav.fiasco.build.Dependency;
 import com.telenav.kivakit.collections.set.ConcurrentHashSet;
 import com.telenav.kivakit.kernel.interfaces.code.Callback;
 import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;

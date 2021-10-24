@@ -1,16 +1,16 @@
 package com.telenav.fiasco;
 
 import com.telenav.fiasco.build.Build;
-import com.telenav.fiasco.internal.BuildListener;
-import com.telenav.fiasco.internal.BuildResult;
-import com.telenav.fiasco.internal.Buildable;
-import com.telenav.fiasco.internal.Builder;
-import com.telenav.fiasco.internal.builders.ParallelBuilder;
-import com.telenav.fiasco.internal.planning.BuildPlan;
-import com.telenav.fiasco.internal.planning.BuildPlanner;
-import com.telenav.fiasco.internal.utility.FiascoBuildStore;
-import com.telenav.fiasco.internal.utility.FiascoCompiler;
-import com.telenav.fiasco.internal.utility.FiascoFolders;
+import com.telenav.fiasco.internal.building.BuildListener;
+import com.telenav.fiasco.internal.building.BuildResult;
+import com.telenav.fiasco.internal.building.Buildable;
+import com.telenav.fiasco.internal.building.Builder;
+import com.telenav.fiasco.internal.building.builders.ParallelBuilder;
+import com.telenav.fiasco.internal.fiasco.FiascoBuildStore;
+import com.telenav.fiasco.internal.fiasco.FiascoCompiler;
+import com.telenav.fiasco.internal.fiasco.FiascoFolders;
+import com.telenav.fiasco.internal.building.planning.BuildPlan;
+import com.telenav.fiasco.internal.building.planning.BuildPlanner;
 import com.telenav.kivakit.application.Application;
 import com.telenav.kivakit.commandline.ArgumentParser;
 import com.telenav.kivakit.commandline.SwitchParser;

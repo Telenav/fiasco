@@ -1,28 +1,26 @@
 package com.telenav.fiasco.build;
 
-import com.telenav.fiasco.build.dependencies.Dependency;
-import com.telenav.fiasco.build.repository.Artifact;
-import com.telenav.fiasco.build.repository.ArtifactRepository;
+import com.telenav.fiasco.build.dependencies.repository.Artifact;
+import com.telenav.fiasco.build.dependencies.repository.ArtifactRepository;
 import com.telenav.fiasco.build.tools.compiler.JavaCompiler;
 import com.telenav.fiasco.build.tools.repository.Librarian;
-import com.telenav.fiasco.internal.BuildListener;
-import com.telenav.fiasco.internal.BuildResult;
-import com.telenav.fiasco.internal.BuildStep;
-import com.telenav.fiasco.internal.Buildable;
-import com.telenav.fiasco.internal.BuildableProject;
-import com.telenav.fiasco.internal.ProjectFoldersTrait;
-import com.telenav.fiasco.internal.dependencies.BaseDependency;
-import com.telenav.fiasco.internal.phase.Phase;
-import com.telenav.fiasco.internal.phase.compilation.CompilationPhaseMixin;
-import com.telenav.fiasco.internal.phase.installation.InstallationPhase;
-import com.telenav.fiasco.internal.phase.packaging.PackagingPhase;
-import com.telenav.fiasco.internal.phase.testing.TestingPhase;
-import com.telenav.fiasco.internal.utility.FiascoCompiler;
+import com.telenav.fiasco.internal.building.BuildListener;
+import com.telenav.fiasco.internal.building.BuildResult;
+import com.telenav.fiasco.internal.building.BuildStep;
+import com.telenav.fiasco.internal.building.Buildable;
+import com.telenav.fiasco.internal.building.DependentProject;
+import com.telenav.fiasco.internal.building.Phase;
+import com.telenav.fiasco.internal.building.ProjectFoldersTrait;
+import com.telenav.fiasco.internal.building.dependencies.BaseDependency;
+import com.telenav.fiasco.internal.building.phase.compilation.CompilationPhaseMixin;
+import com.telenav.fiasco.internal.building.phase.installation.InstallationPhase;
+import com.telenav.fiasco.internal.building.phase.packaging.PackagingPhase;
+import com.telenav.fiasco.internal.building.phase.testing.TestingPhase;
+import com.telenav.fiasco.internal.fiasco.FiascoCompiler;
 import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.kernel.data.validation.BaseValidator;
 import com.telenav.kivakit.kernel.data.validation.ValidationType;
 import com.telenav.kivakit.kernel.data.validation.Validator;
-import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
 import com.telenav.kivakit.kernel.interfaces.lifecycle.Initializable;
 import com.telenav.kivakit.kernel.interfaces.naming.Named;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
@@ -32,16 +30,15 @@ import com.telenav.kivakit.kernel.language.strings.AsciiArt;
 import java.io.StringWriter;
 import java.util.Objects;
 
-import static com.telenav.fiasco.internal.BuildStep.FIASCO_STARTUP;
-import static com.telenav.fiasco.internal.BuildStep.INITIALIZE;
-import static com.telenav.fiasco.internal.BuildStep.PACKAGE_INITIALIZE;
-import static com.telenav.fiasco.internal.BuildStep.PACKAGE_INSTALL;
-import static com.telenav.fiasco.internal.BuildStep.TEST_INITIALIZE;
-import static com.telenav.fiasco.internal.BuildStep.TEST_RUN_TESTS;
+import static com.telenav.fiasco.internal.building.BuildStep.FIASCO_STARTUP;
+import static com.telenav.fiasco.internal.building.BuildStep.INITIALIZE;
+import static com.telenav.fiasco.internal.building.BuildStep.PACKAGE_INITIALIZE;
+import static com.telenav.fiasco.internal.building.BuildStep.PACKAGE_INSTALL;
+import static com.telenav.fiasco.internal.building.BuildStep.TEST_INITIALIZE;
+import static com.telenav.fiasco.internal.building.BuildStep.TEST_RUN_TESTS;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.unsupported;
 
 /**
  * Base class for Fiasco build definitions
@@ -75,7 +72,7 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.unsupport
 public abstract class BaseBuild extends BaseDependency implements
         Named,
         Buildable,
-        BuildableProject,
+        DependentProject,
         Initializable,
         Build,
         ProjectFoldersTrait
@@ -117,12 +114,6 @@ public abstract class BaseBuild extends BaseDependency implements
             return this.projectRootFolder().equals(that.projectRootFolder());
         }
         return false;
-    }
-
-    @Override
-    public Dependency excluding(final Matcher<Dependency> matcher)
-    {
-        return unsupported();
     }
 
     /**
@@ -170,6 +161,13 @@ public abstract class BaseBuild extends BaseDependency implements
         return Objects.hash(projectRootFolder());
     }
 
+    /**
+     * <b>Not public API</b>
+     *
+     * <p>
+     * True if the build is at the given build step
+     * </p>
+     */
     public boolean isAt(final BuildStep at)
     {
         return step == at;
@@ -192,7 +190,11 @@ public abstract class BaseBuild extends BaseDependency implements
     }
 
     /**
+     * <b>Not public API</b>
+     *
+     * <p>
      * Updates the build step to the given step and calls the build listener with this information
+     * </p>
      */
     public void nextStep()
     {
@@ -272,7 +274,11 @@ public abstract class BaseBuild extends BaseDependency implements
     }
 
     /**
-     * True if the build is at the given step
+     * <b>Not public API</b>
+     *
+     * <p>
+     * Sets the build step to the given step
+     * </p>
      */
     public void step(BuildStep step)
     {

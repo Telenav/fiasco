@@ -5,6 +5,11 @@ import com.telenav.kivakit.kernel.language.objects.Lazy;
 import com.telenav.kivakit.kernel.project.Project;
 import com.telenav.kivakit.resource.ResourceProject;
 
+/**
+ * KivaKit {@link Project} for Fiasco
+ *
+ * @author jonathanl (shibo)
+ */
 public class FiascoProject extends Project
 {
     private static final Lazy<FiascoProject> project = Lazy.of(FiascoProject::new);

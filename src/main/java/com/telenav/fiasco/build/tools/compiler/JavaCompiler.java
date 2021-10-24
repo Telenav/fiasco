@@ -1,7 +1,7 @@
 package com.telenav.fiasco.build.tools.compiler;
 
 import com.telenav.fiasco.build.Build;
-import com.telenav.fiasco.internal.utility.FiascoFolders;
+import com.telenav.fiasco.internal.fiasco.FiascoFolders;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.configuration.lookup.Registry;
 import com.telenav.kivakit.filesystem.FileList;

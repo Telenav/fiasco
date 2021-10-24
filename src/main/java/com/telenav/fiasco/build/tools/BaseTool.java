@@ -1,6 +1,7 @@
 package com.telenav.fiasco.build.tools;
 
 import com.telenav.fiasco.build.Build;
+import com.telenav.fiasco.build.Tool;
 import com.telenav.kivakit.component.BaseComponent;
 
 /**

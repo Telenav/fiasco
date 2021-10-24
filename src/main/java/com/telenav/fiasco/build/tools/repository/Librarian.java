@@ -18,11 +18,11 @@
 
 package com.telenav.fiasco.build.tools.repository;
 
-import com.telenav.fiasco.build.dependencies.Dependency;
-import com.telenav.fiasco.build.repository.Artifact;
-import com.telenav.fiasco.build.repository.ArtifactRepository;
-import com.telenav.fiasco.build.repository.ArtifactResolver;
-import com.telenav.fiasco.build.repository.maven.MavenArtifactResolver;
+import com.telenav.fiasco.build.Dependency;
+import com.telenav.fiasco.build.dependencies.repository.Artifact;
+import com.telenav.fiasco.build.dependencies.repository.ArtifactRepository;
+import com.telenav.fiasco.build.dependencies.repository.ArtifactResolver;
+import com.telenav.fiasco.build.dependencies.repository.maven.MavenArtifactResolver;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.messaging.Listener;
