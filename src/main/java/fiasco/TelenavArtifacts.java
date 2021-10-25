@@ -9,16 +9,16 @@ public interface TelenavArtifacts extends MavenPopularArtifacts
 {
     default ApacheCommons apacheCommons()
     {
-        return apache().commons().withDefaultVersion("3.7");
+        return apache().commons().defaultVersion("3.7");
     }
 
     default ApacheWicket apacheWicket()
     {
-        return apache().wicket().withDefaultVersion("9.5.0");
+        return apache().wicket().defaultVersion("9.5.0");
     }
 
     default KivaKit kivakit()
     {
-        return telenav().kivakit().withDefaultVersion("1.1.0");
+        return telenav().kivakit().defaultVersion("1.1.0-SNAPSHOT");
     }
 }

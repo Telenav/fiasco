@@ -19,9 +19,4 @@ public class ApacheHttpComponents extends MavenArtifactGroup
     {
         return artifact("httpcore");
     }
-
-    public ApacheHttpComponents withDefaultVersion(final String defaultVersion)
-    {
-        return (ApacheHttpComponents) super.withDefaultVersion(defaultVersion);
-    }
 }

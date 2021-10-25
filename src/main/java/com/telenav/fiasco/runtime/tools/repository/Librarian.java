@@ -19,22 +19,25 @@
 package com.telenav.fiasco.runtime.tools.repository;
 
 import com.telenav.fiasco.runtime.Dependency;
-import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactRepository;
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactResolver;
+import com.telenav.fiasco.runtime.dependencies.repository.ResolvedArtifact;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenArtifactResolver;
+import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenRepository;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.messaging.Listener;
 
 /**
- * Locates and installs dependencies from a list of repositories created from calls to {@link
- * #addRemoteRepository(ArtifactRepository)}. When {@link #resolve(Artifact)} is called, if the artifact is in the local
- * repository, the librarian returns the local repository. If the artifact is not in the local repository yet, the
- * librarian looks in each repository until it finds it, returning the repository that contains the artifact as the
- * result. If the librarian cannot find the artifact in any repository, an exception is thrown.
+ * Locates and installs dependencies from a list of repositories designated by calls to {@link
+ * #addRemoteRepository(MavenRepository)}. When {@link #resolve(Dependency)} is called, the transitive dependencies of
+ * the given dependency are resolved using an {@link ArtifactResolver}. Dependent artifacts are realized into the local
+ * repository if they are not already installed there. If the librarian cannot find any of the dependent artifacts in
+ * any repository, an exception is thrown.
  *
  * @author shibo
+ * @see ArtifactRepository
+ * @see ArtifactResolver
  */
 public class Librarian extends BaseComponent implements ArtifactResolver
 {
@@ -48,20 +51,15 @@ public class Librarian extends BaseComponent implements ArtifactResolver
     /**
      * Adds the given repository to the list of repositories that this librarian searches
      */
-    public Librarian addRemoteRepository(ArtifactRepository repository)
+    public Librarian addRemoteRepository(MavenRepository repository)
     {
         resolver.addRemoteRepository(repository);
         return this;
     }
 
     @Override
-    public ArtifactRepository resolve(final Artifact artifact)
+    public ObjectList<ResolvedArtifact> resolve(final Dependency dependency)
     {
-        return resolver.resolve(artifact);
-    }
-
-    public ObjectList<Artifact> resolveAll(final Dependency dependency)
-    {
-        return resolver.resolveAll(dependency);
+        return resolver.resolve(dependency);
     }
 }

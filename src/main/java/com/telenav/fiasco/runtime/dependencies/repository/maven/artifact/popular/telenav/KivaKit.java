@@ -35,6 +35,12 @@ public class KivaKit extends MavenArtifactGroup
         return artifact("kivakit-configuration");
     }
 
+    @Override
+    public KivaKit defaultVersion(final String defaultVersion)
+    {
+        return (KivaKit) super.defaultVersion(defaultVersion);
+    }
+
     public Artifact kernel()
     {
         return artifact("kivakit-kernel");
@@ -73,10 +79,5 @@ public class KivaKit extends MavenArtifactGroup
     public Artifact resource()
     {
         return artifact("kivakit-resource");
-    }
-
-    public KivaKit withDefaultVersion(final String defaultVersion)
-    {
-        return (KivaKit) super.withDefaultVersion(defaultVersion);
     }
 }

@@ -15,6 +15,12 @@ public class ApacheCommons extends MavenArtifactGroup
         return artifact("commons-compress");
     }
 
+    @Override
+    public ApacheCommons defaultVersion(final String defaultVersion)
+    {
+        return (ApacheCommons) super.defaultVersion(defaultVersion);
+    }
+
     public Artifact lang3()
     {
         return artifact("commons-lang3");
@@ -23,10 +29,5 @@ public class ApacheCommons extends MavenArtifactGroup
     public Artifact math()
     {
         return artifact("commons-math");
-    }
-
-    public ApacheCommons withDefaultVersion(final String defaultVersion)
-    {
-        return (ApacheCommons) super.withDefaultVersion(defaultVersion);
     }
 }

@@ -15,6 +15,12 @@ public class ApacheWicket extends MavenArtifactGroup
         return artifact("wicket-core");
     }
 
+    @Override
+    public ApacheWicket defaultVersion(final String defaultVersion)
+    {
+        return (ApacheWicket) super.defaultVersion(defaultVersion);
+    }
+
     public Artifact extensions()
     {
         return artifact("wicket-extensions");
@@ -28,10 +34,5 @@ public class ApacheWicket extends MavenArtifactGroup
     public Artifact util()
     {
         return artifact("wicket-util");
-    }
-
-    public ApacheWicket withDefaultVersion(final String defaultVersion)
-    {
-        return (ApacheWicket) super.withDefaultVersion(defaultVersion);
     }
 }

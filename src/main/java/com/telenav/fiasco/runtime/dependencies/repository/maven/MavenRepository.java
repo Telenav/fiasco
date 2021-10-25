@@ -1,16 +1,21 @@
 package com.telenav.fiasco.runtime.dependencies.repository.maven;
 
+import com.telenav.fiasco.internal.building.dependencies.download.ParallelCopier;
+import com.telenav.fiasco.internal.building.dependencies.download.ParallelCopier.CopyJob;
+import com.telenav.fiasco.internal.building.dependencies.pom.PomReader;
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactRepository;
-import com.telenav.fiasco.internal.building.dependencies.pom.PomReader;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.data.formats.xml.stax.StaxReader;
 import com.telenav.kivakit.filesystem.Folder;
+import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.messaging.Listener;
 import com.telenav.kivakit.resource.Resource;
 import com.telenav.kivakit.resource.path.FilePath;
 
-import static com.telenav.kivakit.kernel.language.progress.ProgressReporter.NULL;
+import java.util.concurrent.Future;
+
+import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
 import static com.telenav.kivakit.resource.CopyMode.OVERWRITE;
 import static com.telenav.kivakit.resource.path.Extension.POM;
 
@@ -22,7 +27,7 @@ import static com.telenav.kivakit.resource.path.Extension.POM;
  *
  * <p>
  * The {@link #contains(Artifact)} method returns true if this repository contains the given artifact. The {@link
- * #path(Artifact)} method returns the full path to the given artifact within this repository. The {@link
+ * #folderPath(Artifact)} method returns the full path to the given artifact within this repository. The {@link
  * #install(ArtifactRepository, Artifact)} method copies the given artifact from the given repository into this
  * repository if it is not already there.
  * </p>
@@ -31,6 +36,9 @@ import static com.telenav.kivakit.resource.path.Extension.POM;
  */
 public class MavenRepository extends BaseComponent implements ArtifactRepository
 {
+    /** Parallel copier to speed up downloads */
+    private static final ParallelCopier copier = new ParallelCopier();
+
     /**
      * @return A {@link MavenRepository} instance with the given name (but no root path)
      */
@@ -44,7 +52,7 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
      */
     public static MavenRepository local(Listener listener)
     {
-        return create(listener, "Local Repository")
+        return create(listener, "Local")
                 .withRoot(FilePath.parseFilePath("${user.home}/.m2/repository"));
     }
 
@@ -67,6 +75,9 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
     {
         this.name = that.name;
         this.root = that.root;
+
+        listenTo(copier);
+        copyListeners(that);
     }
 
     protected MavenRepository(String name)
@@ -80,8 +91,17 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
     @Override
     public boolean contains(final Artifact artifact)
     {
-        return Resource.resolve(this, path(artifact)
-                .withChild(artifact.identifier() + ".jar")).exists();
+        return Resource.resolve(this, folderPath(artifact)
+                .withChild(artifact.identifier() + "-" + artifact.version() + ".jar")).exists();
+    }
+
+    /**
+     * @return The full path to the given artifact in this repository
+     */
+    @Override
+    public FilePath folderPath(final Artifact artifact)
+    {
+        return root.withoutTrailingSlash().withChild(artifact.path());
     }
 
     /**
@@ -92,33 +112,45 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
     {
         try
         {
-            // Get the artifact path in this repository,
-            var artifactFolder = source.path(artifact);
+            // Get the artifact path in the source repository,
+            var artifactFolder = source.folderPath(artifact);
 
             // and then for each resource in the set of resources to be copied,
+            var pending = new ObjectList<Future<CopyJob>>();
             for (var resource : artifact.resources(artifactFolder))
             {
-                // copy the artifact into this repository,
-                resource.safeCopyTo(Folder.of(path(artifact)).mkdirs(), OVERWRITE, NULL);
+                // copy the artifact into this repository in the background.
+                pending.addIfNotNull(copier.add(resource, Folder.of(folderPath(artifact)).mkdirs(), OVERWRITE));
             }
 
-            // then get the POM resource for the artifact,
-            var pomResource = artifact.resource(artifactFolder, POM);
-
-            // open it with a STAX reader,
-            try (var reader = StaxReader.open(pomResource))
+            // Wait for each copy job to complete and show the results
+            for (int i = 0; i < pending.size(); i++)
             {
-                // and return the parsed POM information.
-                new PomReader(reader).read().dependencies().forEach(at -> install(source, at));
+                var job = copier.waitForNextCompleted();
+
+                switch (job.status())
+                {
+                    case COPIED:
+                        // information(job.toString());
+                        break;
+
+                    case FAILED:
+                        problem(job.toString());
+                        return false;
+
+                    case WAITING:
+                    default:
+                        fail("Internal error: copy waiting");
+                }
             }
+
+            return true;
         }
         catch (Exception e)
         {
             problem(e, "Unable to install $ $ => $", artifact, source, this);
             return false;
         }
-
-        return true;
     }
 
     @Override
@@ -137,17 +169,24 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
     }
 
     /**
-     * @return The full path to the given artifact in this repository
+     * @param artifact The artifact for which to read the POM information from this repository
+     * @return The POM information
      */
-    @Override
-    public FilePath path(final Artifact artifact)
+    public PomReader.Pom pom(final Artifact artifact)
     {
-        return root.withoutTrailingSlash().withChild(artifact.path());
+        var pomResource = listenTo(artifact.resource(folderPath(artifact), POM));
+
+        // open it with a STAX reader,
+        try (var reader = StaxReader.open(pomResource))
+        {
+            // and return the parsed POM information.
+            return listenTo(new PomReader(reader)).read();
+        }
     }
 
     public String toString()
     {
-        return name() + " (" + root + ")";
+        return name();
     }
 
     /**

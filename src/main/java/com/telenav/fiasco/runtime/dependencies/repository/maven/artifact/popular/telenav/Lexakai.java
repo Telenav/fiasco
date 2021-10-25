@@ -15,8 +15,8 @@ public class Lexakai extends MavenArtifactGroup
         return artifact("lexakai-annotations");
     }
 
-    public Lexakai withDefaultVersion(final String defaultVersion)
+    public Lexakai defaultVersion(final String defaultVersion)
     {
-        return (Lexakai) super.withDefaultVersion(defaultVersion);
+        return (Lexakai) super.defaultVersion(defaultVersion);
     }
 }

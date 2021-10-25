@@ -1,9 +1,5 @@
 package com.telenav.fiasco.runtime;
 
-import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
-import com.telenav.fiasco.runtime.dependencies.repository.ArtifactRepository;
-import com.telenav.fiasco.runtime.tools.compiler.JavaCompiler;
-import com.telenav.fiasco.runtime.tools.repository.Librarian;
 import com.telenav.fiasco.internal.building.BuildListener;
 import com.telenav.fiasco.internal.building.BuildResult;
 import com.telenav.fiasco.internal.building.BuildStep;
@@ -17,6 +13,9 @@ import com.telenav.fiasco.internal.building.phase.installation.InstallationPhase
 import com.telenav.fiasco.internal.building.phase.packaging.PackagingPhase;
 import com.telenav.fiasco.internal.building.phase.testing.TestingPhase;
 import com.telenav.fiasco.internal.fiasco.FiascoCompiler;
+import com.telenav.fiasco.runtime.dependencies.repository.ResolvedArtifact;
+import com.telenav.fiasco.runtime.tools.compiler.JavaCompiler;
+import com.telenav.fiasco.runtime.tools.repository.Librarian;
 import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.kernel.data.validation.BaseValidator;
 import com.telenav.kivakit.kernel.data.validation.ValidationType;
@@ -259,18 +258,9 @@ public abstract class BaseBuild extends BaseDependency implements
      * {@inheritDoc}
      */
     @Override
-    public ArtifactRepository resolve(final Artifact artifact)
+    public ObjectList<ResolvedArtifact> resolve(final Dependency dependency)
     {
-        return librarian.resolve(artifact);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ObjectList<Artifact> resolveAll(final Dependency dependency)
-    {
-        return librarian.resolveAll(dependency);
+        return librarian.resolve(dependency);
     }
 
     /**

@@ -7,18 +7,27 @@ import com.telenav.kivakit.resource.path.FilePath;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
 
 /**
- * A group of artifacts with an {@link #identifier()} (a.k.a. "groupId"). A group is created with {@link
- * #create(String)}, passing in the Maven group identifier. The {@link #withDefaultVersion(String)} method can be called
- * to specify a default version used when artifacts in the group are created with {@link #artifact(String)}. This averts
- * needing to specify the version of each artifact and allows the version of all artifacts in the group to be changed in
- * one place. For example:
+ * A group of artifacts with an {@link #identifier()} (a.k.a. "groupId").
+ *
+ * <p><b>Creating a Group</b></p>
+ *
+ * <p>
+ * A group is created with {@link #create(String)}, passing in the Maven group identifier. The {@link
+ * #defaultVersion(String)} or {@link #defaultVersion(Version)} method can be called to specify a default version used
+ * when artifacts in the group are created with {@link #artifact(String)}. This averts needing to specify the version of
+ * each artifact and allows the version of all artifacts in the group to be changed in one place. For example:
  * <pre>
  * var group = MavenArtifactGroup.create("com.telenav.kivakit").version("1.1.0");
  * var application = group.artifact("kivakit-application");
- * var kernel = group.artifact("kivakit-kernel");
- * </pre>
+ * var kernel = group.artifact("kivakit-kernel");</pre>
+ * </p>
+ *
+ * <p><b>Repository Path</b></p>
+ *
+ * <p>
  * The path relative to the root of a repository to this artifact group can be retrieved with {@link #path()}. If the
  * group identifier is "com.telenav.kivakit", the path will be "com/telenav/kivakit".
+ * </p>
  *
  * @author jonathanl (shibo)
  */
@@ -68,6 +77,24 @@ public class MavenArtifactGroup implements ArtifactGroup
     }
 
     /**
+     * Sets the default version of this group
+     */
+    public MavenArtifactGroup defaultVersion(final String defaultVersion)
+    {
+        this.defaultVersion = Version.parse(defaultVersion);
+        return this;
+    }
+
+    /**
+     * Sets the default version of this group
+     */
+    public MavenArtifactGroup defaultVersion(final Version defaultVersion)
+    {
+        this.defaultVersion = defaultVersion;
+        return this;
+    }
+
+    /**
      * @return The Maven group identifier for this group
      */
     public String identifier()
@@ -86,25 +113,5 @@ public class MavenArtifactGroup implements ArtifactGroup
     public String toString()
     {
         return identifier();
-    }
-
-    /**
-     * @return This group with the given default version. The {@link #artifact(String)} method will use this default.
-     */
-    public MavenArtifactGroup withDefaultVersion(final String defaultVersion)
-    {
-        var copy = copy();
-        copy.defaultVersion = Version.parse(defaultVersion);
-        return copy;
-    }
-
-    /**
-     * @return This group with the given default version. The {@link #artifact(String)} method will use this default.
-     */
-    public MavenArtifactGroup withVersion(final Version defaultVersion)
-    {
-        var copy = new MavenArtifactGroup(this);
-        copy.defaultVersion = defaultVersion;
-        return copy;
     }
 }

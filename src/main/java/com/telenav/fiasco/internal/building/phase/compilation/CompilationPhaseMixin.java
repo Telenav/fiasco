@@ -1,11 +1,11 @@
 package com.telenav.fiasco.internal.building.phase.compilation;
 
+import com.telenav.fiasco.internal.building.Phase;
+import com.telenav.fiasco.internal.building.ProjectFoldersTrait;
 import com.telenav.fiasco.runtime.Build;
 import com.telenav.fiasco.runtime.Dependency;
 import com.telenav.fiasco.runtime.tools.compiler.JavaCompiler;
 import com.telenav.fiasco.runtime.tools.repository.Librarian;
-import com.telenav.fiasco.internal.building.Phase;
-import com.telenav.fiasco.internal.building.ProjectFoldersTrait;
 import com.telenav.kivakit.kernel.interfaces.lifecycle.Initializable;
 import com.telenav.kivakit.kernel.language.mixin.Mixin;
 
@@ -102,7 +102,7 @@ public interface CompilationPhaseMixin extends
 
     default void onResolveArtifacts()
     {
-        listenTo(librarian()).resolveAll(this);
+        listenTo(librarian()).resolve(this);
     }
 
     default void onVerify()
