@@ -11,6 +11,7 @@ import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.messaging.Listener;
 import com.telenav.kivakit.resource.Resource;
+import com.telenav.kivakit.resource.path.Extension;
 import com.telenav.kivakit.resource.path.FilePath;
 
 import java.util.concurrent.Future;
@@ -174,7 +175,7 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
      */
     public PomReader.Pom pom(final Artifact artifact)
     {
-        var pomResource = listenTo(artifact.resource(folderPath(artifact), POM));
+        var pomResource = listenTo(resource(artifact, POM));
 
         // open it with a STAX reader,
         try (var reader = StaxReader.open(pomResource))
@@ -182,6 +183,14 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
             // and return the parsed POM information.
             return listenTo(new PomReader(reader)).read();
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Resource resource(final Artifact artifact, Extension extension)
+    {
+        return artifact.resource(folderPath(artifact), extension);
     }
 
     public String toString()

@@ -18,7 +18,7 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
  * Resolves Maven artifacts. Artifacts that are in the local repository are already resolved. Artifacts that are not yet
  * in the local repository are located by scanning a list of {@link MavenRepository}s. If the artifact is found in a
  * Maven repository, it is copied from that repository into the local repository. Resolution of artifacts with {@link
- * #resolve(Dependency)} implies the resolution of all transitive artifact dependencies.
+ * #resolveAll(Dependency)} implies the resolution of all transitive artifact dependencies.
  *
  * @author jonathanl (shibo)
  */
@@ -44,9 +44,21 @@ public class MavenArtifactResolver extends BaseComponent implements ArtifactReso
     /**
      * Resolves all artifacts that are transitive dependencies of the given dependency
      *
+     * @param artifact The artifact to resolve
+     */
+    @Override
+    public ResolvedArtifact resolve(Artifact artifact)
+    {
+        return resolve(artifact, 0);
+    }
+
+    /**
+     * Resolves all artifacts that are transitive dependencies of the given dependency
+     *
      * @param dependency The dependency to resolve
      */
-    public ObjectList<ResolvedArtifact> resolve(Dependency dependency)
+    @Override
+    public ObjectList<ResolvedArtifact> resolveAll(Dependency dependency)
     {
         var artifacts = new ObjectList<ResolvedArtifact>();
         resolveAll(dependency, artifacts, 0);

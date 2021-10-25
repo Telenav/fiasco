@@ -1,6 +1,8 @@
 package com.telenav.fiasco.runtime.dependencies.repository;
 
 import com.telenav.fiasco.internal.building.dependencies.pom.PomReader;
+import com.telenav.kivakit.resource.Resource;
+import com.telenav.kivakit.resource.path.Extension;
 
 /**
  * A resolved artifact
@@ -25,6 +27,11 @@ public class ResolvedArtifact
         this.pom = pom;
     }
 
+    public Artifact artifact()
+    {
+        return artifact;
+    }
+
     public PomReader.Pom pom()
     {
         return pom;
@@ -33,5 +40,16 @@ public class ResolvedArtifact
     public ArtifactRepository repository()
     {
         return repository;
+    }
+
+    /**
+     * The resource with the given extension for this artifact
+     *
+     * @param extension The extension
+     * @return The resource
+     */
+    public Resource resource(Extension extension)
+    {
+        return repository().resource(artifact, extension);
     }
 }

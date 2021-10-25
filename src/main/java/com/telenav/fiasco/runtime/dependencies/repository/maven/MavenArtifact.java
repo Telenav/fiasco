@@ -1,10 +1,10 @@
 package com.telenav.fiasco.runtime.dependencies.repository.maven;
 
+import com.telenav.fiasco.internal.building.dependencies.BaseDependency;
 import com.telenav.fiasco.runtime.Dependency;
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactDescriptor;
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactGroup;
-import com.telenav.fiasco.internal.building.dependencies.BaseDependency;
 import com.telenav.kivakit.kernel.data.validation.BaseValidator;
 import com.telenav.kivakit.kernel.data.validation.ValidationType;
 import com.telenav.kivakit.kernel.data.validation.Validator;
@@ -124,6 +124,14 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
     public String identifier()
     {
         return descriptor.identifier();
+    }
+
+    /**
+     * @return True if this artifact's descriptor is complete
+     */
+    public boolean isResolved()
+    {
+        return descriptor.isResolved();
     }
 
     /**

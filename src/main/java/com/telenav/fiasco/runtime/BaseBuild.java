@@ -258,9 +258,9 @@ public abstract class BaseBuild extends BaseDependency implements
      * {@inheritDoc}
      */
     @Override
-    public ObjectList<ResolvedArtifact> resolve(final Dependency dependency)
+    public ObjectList<ResolvedArtifact> resolveAll(final Dependency dependency)
     {
-        return librarian.resolve(dependency);
+        return librarian.resolveAll(dependency);
     }
 
     /**

@@ -7,6 +7,8 @@ import com.telenav.kivakit.data.formats.xml.stax.StaxPath;
 import com.telenav.kivakit.data.formats.xml.stax.StaxReader;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.values.version.Version;
+import com.telenav.kivakit.kernel.messaging.Listener;
+import com.telenav.kivakit.resource.Resource;
 import com.telenav.kivakit.resource.resources.other.PropertyMap;
 
 import javax.xml.stream.events.XMLEvent;
@@ -24,6 +26,16 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
  */
 public class PomReader extends BaseComponent
 {
+    public static Pom read(Listener listener, Resource resource)
+    {
+        // Open it with a STAX reader,
+        try (var reader = StaxReader.open(resource))
+        {
+            // and return the parsed POM information.
+            return listener.listenTo(new PomReader(reader)).read();
+        }
+    }
+
     /**
      * Simple model of properties and dependencies a Maven pom.xml file
      */
@@ -47,6 +59,42 @@ public class PomReader extends BaseComponent
             return dependencyManagementDependencies;
         }
 
+        /**
+         * Modifies this {@link Pom}'s unresolved dependencies so they inherit any version information from the
+         * dependencyManagement section of the given parent {@link Pom}.
+         */
+        public void inheritFrom(final Pom parentPom)
+        {
+            var inherited = new ObjectList<MavenArtifact>();
+
+            for (var at : dependencies)
+            {
+                if (!at.isResolved())
+                {
+                    var dependencyManagementDependency = parentPom.dependencyManagementDependency(at);
+                    if (dependencyManagementDependency != null)
+                    {
+                        at = at.withVersion(dependencyManagementDependency.version());
+                    }
+                }
+                inherited.add(at);
+            }
+
+            this.dependencies = inherited;
+        }
+
+        public boolean isResolved()
+        {
+            for (var at : dependencies)
+            {
+                if (!at.isResolved())
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         public MavenArtifact parent()
         {
             return parent;
@@ -55,6 +103,22 @@ public class PomReader extends BaseComponent
         public PropertyMap properties()
         {
             return properties;
+        }
+
+        /**
+         * @return Any dependency in the dependencyManagement section of this {@link Pom} that matches the given
+         * artifact (which is unresolved and lacks a version)
+         */
+        private MavenArtifact dependencyManagementDependency(MavenArtifact artifact)
+        {
+            for (var at : dependencyManagementDependencies())
+            {
+                if (at.matches(artifact))
+                {
+                    return at;
+                }
+            }
+            return null;
         }
     }
 

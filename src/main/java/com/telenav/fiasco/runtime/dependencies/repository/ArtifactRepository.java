@@ -2,6 +2,8 @@ package com.telenav.fiasco.runtime.dependencies.repository;
 
 import com.telenav.kivakit.component.Component;
 import com.telenav.kivakit.kernel.interfaces.naming.Named;
+import com.telenav.kivakit.resource.Resource;
+import com.telenav.kivakit.resource.path.Extension;
 import com.telenav.kivakit.resource.path.FilePath;
 
 /**
@@ -35,4 +37,9 @@ public interface ArtifactRepository extends Named, Component
      * @return True if this repository is remote
      */
     boolean isRemote();
+
+    /**
+     * @return The resource for the given artifact and extension in this repository
+     */
+    Resource resource(final Artifact artifact, Extension extension);
 }

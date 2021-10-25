@@ -13,6 +13,7 @@ import com.telenav.kivakit.resource.path.FilePath;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
 
 /**
@@ -91,8 +92,8 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
 
     public MavenArtifactDescriptor(final MavenArtifactGroup group, final String identifier, Version version)
     {
-        this.group = group;
-        this.identifier = identifier;
+        this.group = ensureNotNull(group);
+        this.identifier = ensureNotNull(identifier);
         this.version = version;
     }
 
@@ -151,6 +152,14 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
     public String identifier()
     {
         return identifier;
+    }
+
+    /**
+     * @return True if this descriptor is complete (has a version)
+     */
+    public boolean isResolved()
+    {
+        return version != null;
     }
 
     /**

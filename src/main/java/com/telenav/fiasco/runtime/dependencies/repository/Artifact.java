@@ -36,6 +36,17 @@ public interface Artifact extends Dependency
     String identifier();
 
     /**
+     * @return True if this artifact is matched by the given artifact. The two artifacts can be equal, or the given
+     * artifact can be missing a version and match only the group and identifier.
+     */
+    default boolean matches(final MavenArtifact artifact)
+    {
+        return equals(artifact) || (identifier().equals(artifact.identifier())
+                && group().equals(artifact.group())
+                && artifact.version() == null);
+    }
+
+    /**
      * @return The fully-qualified name of the artifact
      */
     String name();

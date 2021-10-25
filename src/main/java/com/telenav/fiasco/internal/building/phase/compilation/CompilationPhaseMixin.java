@@ -102,7 +102,7 @@ public interface CompilationPhaseMixin extends
 
     default void onResolveArtifacts()
     {
-        listenTo(librarian()).resolve(this);
+        listenTo(librarian()).resolveAll(this);
     }
 
     default void onVerify()
