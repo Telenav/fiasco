@@ -18,8 +18,8 @@
 
 package com.telenav.fiasco.runtime;
 
-import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.internal.building.dependencies.BaseDependency;
+import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.kivakit.kernel.data.validation.BaseValidator;
 import com.telenav.kivakit.kernel.data.validation.ValidationType;
 import com.telenav.kivakit.kernel.data.validation.Validator;
@@ -124,7 +124,7 @@ public class Library extends BaseDependency
      */
     public Library withVersion(final String version)
     {
-        return withVersion(Version.parse(version));
+        return withVersion(Version.parse(this, version));
     }
 }
 

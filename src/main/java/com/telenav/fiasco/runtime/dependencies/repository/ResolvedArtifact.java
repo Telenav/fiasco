@@ -1,6 +1,6 @@
 package com.telenav.fiasco.runtime.dependencies.repository;
 
-import com.telenav.fiasco.internal.building.dependencies.pom.PomReader;
+import com.telenav.fiasco.internal.building.dependencies.pom.Pom;
 import com.telenav.kivakit.resource.Resource;
 import com.telenav.kivakit.resource.path.Extension;
 
@@ -16,11 +16,11 @@ public class ResolvedArtifact
     private final Artifact artifact;
 
     /** The POM information for the artifact */
-    private final PomReader.Pom pom;
+    private final Pom pom;
 
     public ResolvedArtifact(ArtifactRepository repository,
                             Artifact artifact,
-                            PomReader.Pom pom)
+                            Pom pom)
     {
         this.repository = repository;
         this.artifact = artifact;
@@ -32,7 +32,7 @@ public class ResolvedArtifact
         return artifact;
     }
 
-    public PomReader.Pom pom()
+    public Pom pom()
     {
         return pom;
     }

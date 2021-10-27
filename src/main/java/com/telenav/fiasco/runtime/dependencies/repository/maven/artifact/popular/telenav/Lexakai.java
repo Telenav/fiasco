@@ -2,6 +2,7 @@ package com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.popula
 
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenArtifactGroup;
+import com.telenav.kivakit.kernel.language.values.version.Version;
 
 public class Lexakai extends MavenArtifactGroup
 {
@@ -15,7 +16,7 @@ public class Lexakai extends MavenArtifactGroup
         return artifact("lexakai-annotations");
     }
 
-    public Lexakai defaultVersion(final String defaultVersion)
+    public Lexakai defaultVersion(final Version defaultVersion)
     {
         return (Lexakai) super.defaultVersion(defaultVersion);
     }

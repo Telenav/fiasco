@@ -31,6 +31,11 @@ public interface ArtifactDescriptor
     String identifier();
 
     /**
+     * @return True if this descriptor logically matches that descriptor
+     */
+    boolean matches(ArtifactDescriptor that);
+
+    /**
      * @return The fully qualified artifact descriptor, like "com.telenav.kivakit:kivakit-kernel:9.5.0"
      */
     String name();

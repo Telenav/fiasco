@@ -39,11 +39,9 @@ public interface Artifact extends Dependency
      * @return True if this artifact is matched by the given artifact. The two artifacts can be equal, or the given
      * artifact can be missing a version and match only the group and identifier.
      */
-    default boolean matches(final MavenArtifact artifact)
+    default boolean matches(final Artifact that)
     {
-        return equals(artifact) || (identifier().equals(artifact.identifier())
-                && group().equals(artifact.group())
-                && artifact.version() == null);
+        return descriptor().matches(that.descriptor());
     }
 
     /**
@@ -81,6 +79,6 @@ public interface Artifact extends Dependency
      */
     default Artifact withVersion(String version)
     {
-        return withVersion(Version.parse(version));
+        return withVersion(Version.parse(this, version));
     }
 }

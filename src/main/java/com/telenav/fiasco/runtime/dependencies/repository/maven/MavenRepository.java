@@ -1,12 +1,12 @@
 package com.telenav.fiasco.runtime.dependencies.repository.maven;
 
-import com.telenav.fiasco.internal.building.dependencies.download.ParallelCopier;
-import com.telenav.fiasco.internal.building.dependencies.download.ParallelCopier.CopyJob;
+import com.telenav.fiasco.internal.building.dependencies.download.Downloader;
+import com.telenav.fiasco.internal.building.dependencies.download.Downloader.Download;
+import com.telenav.fiasco.internal.building.dependencies.pom.Pom;
 import com.telenav.fiasco.internal.building.dependencies.pom.PomReader;
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactRepository;
 import com.telenav.kivakit.component.BaseComponent;
-import com.telenav.kivakit.data.formats.xml.stax.StaxReader;
 import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.messaging.Listener;
@@ -38,7 +38,7 @@ import static com.telenav.kivakit.resource.path.Extension.POM;
 public class MavenRepository extends BaseComponent implements ArtifactRepository
 {
     /** Parallel copier to speed up downloads */
-    private static final ParallelCopier copier = new ParallelCopier();
+    private static final Downloader downloader = new Downloader();
 
     /**
      * @return A {@link MavenRepository} instance with the given name (but no root path)
@@ -77,7 +77,7 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
         this.name = that.name;
         this.root = that.root;
 
-        listenTo(copier);
+        listenTo(downloader);
         copyListeners(that);
     }
 
@@ -116,32 +116,37 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
             // Get the artifact path in the source repository,
             var artifactFolder = source.folderPath(artifact);
 
-            // and then for each resource in the set of resources to be copied,
-            var pending = new ObjectList<Future<CopyJob>>();
+            // and then for each resource in the set of artifact resources to be downloaded,
+            var futureDownloads = new ObjectList<Future<Download>>();
             for (var resource : artifact.resources(artifactFolder))
             {
-                // copy the artifact into this repository in the background.
-                pending.addIfNotNull(copier.add(resource, Folder.of(folderPath(artifact)).mkdirs(), OVERWRITE));
+                // submit a job to copy the resource into this repository in the background.
+                var download = new Download(resource, Folder.of(folderPath(artifact)).mkdirs(), OVERWRITE);
+                futureDownloads.addIfNotNull(downloader.download(download));
             }
 
-            // Wait for each copy job to complete and show the results
-            for (int i = 0; i < pending.size(); i++)
+            // Then, for each submitted resource that is downloading in the background,
+            for (var futureDownload : futureDownloads)
             {
-                var job = copier.waitForNextCompleted();
+                // wait for the download to complete,
+                var download = futureDownload.get();
 
-                switch (job.status())
+                // and check the status.
+                switch (download.status())
                 {
-                    case COPIED:
+                    case DOWNLOADED:
                         // information(job.toString());
                         break;
 
                     case FAILED:
-                        problem(job.toString());
+                        problem(download.toString());
                         return false;
 
                     case WAITING:
+                    case DOWNLOADING:
                     default:
-                        fail("Internal error: copy waiting");
+                        fail("Internal error: download completed in state: $", download.status());
+                        break;
                 }
             }
 
@@ -173,16 +178,9 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
      * @param artifact The artifact for which to read the POM information from this repository
      * @return The POM information
      */
-    public PomReader.Pom pom(final Artifact artifact)
+    public Pom pom(final Artifact artifact)
     {
-        var pomResource = listenTo(resource(artifact, POM));
-
-        // open it with a STAX reader,
-        try (var reader = StaxReader.open(pomResource))
-        {
-            // and return the parsed POM information.
-            return listenTo(new PomReader(reader)).read();
-        }
+        return PomReader.read(this, listenTo(resource(artifact, POM)));
     }
 
     /**

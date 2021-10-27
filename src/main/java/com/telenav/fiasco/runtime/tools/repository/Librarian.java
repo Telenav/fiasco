@@ -19,6 +19,7 @@
 package com.telenav.fiasco.runtime.tools.repository;
 
 import com.telenav.fiasco.runtime.Dependency;
+import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactRepository;
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactResolver;
 import com.telenav.fiasco.runtime.dependencies.repository.ResolvedArtifact;
@@ -55,6 +56,12 @@ public class Librarian extends BaseComponent implements ArtifactResolver
     {
         resolver.addRemoteRepository(repository);
         return this;
+    }
+
+    @Override
+    public ResolvedArtifact resolve(final Artifact artifact)
+    {
+        return resolver.resolve(artifact);
     }
 
     @Override

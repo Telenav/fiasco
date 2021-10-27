@@ -9,6 +9,7 @@ open module com.telenav.fiasco
     requires java.compiler;
     requires java.prefs;
     requires java.xml;
+    requires kivakit.test;
 
     // Exports
     exports com.telenav.fiasco;

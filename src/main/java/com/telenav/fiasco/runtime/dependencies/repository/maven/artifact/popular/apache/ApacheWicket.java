@@ -2,6 +2,7 @@ package com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.popula
 
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenArtifactGroup;
+import com.telenav.kivakit.kernel.language.values.version.Version;
 
 public class ApacheWicket extends MavenArtifactGroup
 {
@@ -16,7 +17,7 @@ public class ApacheWicket extends MavenArtifactGroup
     }
 
     @Override
-    public ApacheWicket defaultVersion(final String defaultVersion)
+    public ApacheWicket defaultVersion(final Version defaultVersion)
     {
         return (ApacheWicket) super.defaultVersion(defaultVersion);
     }

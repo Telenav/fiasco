@@ -66,7 +66,8 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
         {
             final var group = new MavenArtifactGroup(matcher.group("group"));
             final var identifier = matcher.group("identifier");
-            final var version = Version.parse(matcher.group("version"));
+            final var versionText = matcher.group("version");
+            final var version = versionText == null ? null : Version.parse(listener, versionText);
 
             var descriptor = new MavenArtifactDescriptor(group, identifier, version);
             if (descriptor.isValid(listener))
@@ -160,6 +161,14 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
     public boolean isResolved()
     {
         return version != null;
+    }
+
+    @Override
+    public boolean matches(final ArtifactDescriptor that)
+    {
+        return group.equals(that.group())
+                && identifier.equals(that.identifier())
+                && (version == null || that.version() == null || version.equals(that.version()));
     }
 
     /**

@@ -2,6 +2,7 @@ package com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.popula
 
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenArtifactGroup;
+import com.telenav.kivakit.kernel.language.values.version.Version;
 
 public class KivaKit extends MavenArtifactGroup
 {
@@ -36,7 +37,7 @@ public class KivaKit extends MavenArtifactGroup
     }
 
     @Override
-    public KivaKit defaultVersion(final String defaultVersion)
+    public KivaKit defaultVersion(final Version defaultVersion)
     {
         return (KivaKit) super.defaultVersion(defaultVersion);
     }

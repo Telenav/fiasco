@@ -13,6 +13,7 @@ import com.telenav.fiasco.internal.building.phase.installation.InstallationPhase
 import com.telenav.fiasco.internal.building.phase.packaging.PackagingPhase;
 import com.telenav.fiasco.internal.building.phase.testing.TestingPhase;
 import com.telenav.fiasco.internal.fiasco.FiascoCompiler;
+import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.ResolvedArtifact;
 import com.telenav.fiasco.runtime.tools.compiler.JavaCompiler;
 import com.telenav.fiasco.runtime.tools.repository.Librarian;
@@ -252,6 +253,15 @@ public abstract class BaseBuild extends BaseDependency implements
     {
         this.root = root;
         return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ResolvedArtifact resolve(final Artifact artifact)
+    {
+        return librarian.resolve(artifact);
     }
 
     /**

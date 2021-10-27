@@ -88,7 +88,7 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
         if (object instanceof MavenArtifact)
         {
             var that = (MavenArtifact) object;
-            return this.descriptor.equals(that.descriptor);
+            return this.descriptor.matches(that.descriptor);
         }
         return false;
     }

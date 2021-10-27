@@ -9,8 +9,8 @@ import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.strings.AsciiArt;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
 
@@ -28,7 +28,7 @@ public class MavenArtifactResolver extends BaseComponent implements ArtifactReso
     private final ObjectList<MavenRepository> remoteRepositories = ObjectList.create();
 
     /** The repositories for artifacts that are already resolved */
-    private final Map<Artifact, ResolvedArtifact> resolved = new HashMap<>();
+    private final Map<Artifact, ResolvedArtifact> resolved = new ConcurrentHashMap<>();
 
     /**
      * Adds the given repository to the list of repositories that this librarian searches
@@ -85,7 +85,7 @@ public class MavenArtifactResolver extends BaseComponent implements ArtifactReso
             if (local.contains(artifact))
             {
                 // record it as locally resolved,
-                resolved = resolved(local, artifact);
+                resolved = resolve(local, artifact);
                 information(indentation + "$ [$]", artifact, local);
             }
             else
@@ -97,7 +97,7 @@ public class MavenArtifactResolver extends BaseComponent implements ArtifactReso
                     if (local.install(repository, artifact))
                     {
                         // we record it as installed and resolved.
-                        resolved = resolved(repository, artifact);
+                        resolved = resolve(repository, artifact);
                         information(indentation + "$ [$]", artifact, repository);
                         break;
                     }
@@ -113,6 +113,18 @@ public class MavenArtifactResolver extends BaseComponent implements ArtifactReso
             }
         }
 
+        return resolved;
+    }
+
+    /**
+     * Resolves artifact in the given repository and adds the {@link ResolvedArtifact} to the resolved map
+     *
+     * @return The resolved artifact
+     */
+    private ResolvedArtifact resolve(MavenRepository repository, Artifact artifact)
+    {
+        var resolved = new ResolvedArtifact(repository, artifact, repository.pom(artifact));
+        this.resolved.put(artifact, resolved);
         return resolved;
     }
 
@@ -139,17 +151,5 @@ public class MavenArtifactResolver extends BaseComponent implements ArtifactReso
 
         // then, resolve all the child dependencies.
         dependency.dependencies().forEach(at -> resolveAll(at, artifacts, indent + 4));
-    }
-
-    /**
-     * Records the given artifact as resolved in the given repository
-     *
-     * @return The resolved artifact
-     */
-    private ResolvedArtifact resolved(MavenRepository repository, Artifact artifact)
-    {
-        var resolved = new ResolvedArtifact(repository, artifact, repository.pom(artifact));
-        this.resolved.put(artifact, resolved);
-        return resolved;
     }
 }

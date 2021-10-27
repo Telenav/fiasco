@@ -2,6 +2,7 @@ package com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.popula
 
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenArtifactGroup;
+import com.telenav.kivakit.kernel.language.values.version.Version;
 
 public class ApacheCommons extends MavenArtifactGroup
 {
@@ -16,7 +17,7 @@ public class ApacheCommons extends MavenArtifactGroup
     }
 
     @Override
-    public ApacheCommons defaultVersion(final String defaultVersion)
+    public ApacheCommons defaultVersion(final Version defaultVersion)
     {
         return (ApacheCommons) super.defaultVersion(defaultVersion);
     }

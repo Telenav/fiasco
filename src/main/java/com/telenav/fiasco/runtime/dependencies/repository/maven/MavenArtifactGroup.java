@@ -4,7 +4,7 @@ import com.telenav.fiasco.runtime.dependencies.repository.ArtifactGroup;
 import com.telenav.kivakit.kernel.language.values.version.Version;
 import com.telenav.kivakit.resource.path.FilePath;
 
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
+import java.util.Objects;
 
 /**
  * A group of artifacts with an {@link #identifier()} (a.k.a. "groupId").
@@ -13,9 +13,9 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNot
  *
  * <p>
  * A group is created with {@link #create(String)}, passing in the Maven group identifier. The {@link
- * #defaultVersion(String)} or {@link #defaultVersion(Version)} method can be called to specify a default version used
- * when artifacts in the group are created with {@link #artifact(String)}. This averts needing to specify the version of
- * each artifact and allows the version of all artifacts in the group to be changed in one place. For example:
+ * #defaultVersion(Version)} method can be called to specify a default version used when artifacts in the group are
+ * created with {@link #artifact(String)}. This averts needing to specify the version of each artifact and allows the
+ * version of all artifacts in the group to be changed in one place. For example:
  * <pre>
  * var group = MavenArtifactGroup.create("com.telenav.kivakit").version("1.1.0");
  * var application = group.artifact("kivakit-application");
@@ -67,7 +67,6 @@ public class MavenArtifactGroup implements ArtifactGroup
      */
     public MavenArtifact artifact(String identifier)
     {
-        ensureNotNull(defaultVersion, "Artifact group has no default version");
         return new MavenArtifact(new MavenArtifactDescriptor(this, identifier, defaultVersion));
     }
 
@@ -79,19 +78,27 @@ public class MavenArtifactGroup implements ArtifactGroup
     /**
      * Sets the default version of this group
      */
-    public MavenArtifactGroup defaultVersion(final String defaultVersion)
-    {
-        this.defaultVersion = Version.parse(defaultVersion);
-        return this;
-    }
-
-    /**
-     * Sets the default version of this group
-     */
     public MavenArtifactGroup defaultVersion(final Version defaultVersion)
     {
         this.defaultVersion = defaultVersion;
         return this;
+    }
+
+    @Override
+    public boolean equals(final Object object)
+    {
+        if (object instanceof MavenArtifactGroup)
+        {
+            MavenArtifactGroup that = (MavenArtifactGroup) object;
+            return this.identifier().equals(that.identifier());
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(identifier());
     }
 
     /**

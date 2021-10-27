@@ -15,6 +15,7 @@ import javax.xml.stream.events.XMLEvent;
 
 import static com.telenav.kivakit.data.formats.xml.stax.StaxPath.parseXmlPath;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
+import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
 
 /**
  * <b>Not public API</b>
@@ -36,92 +37,6 @@ public class PomReader extends BaseComponent
         }
     }
 
-    /**
-     * Simple model of properties and dependencies a Maven pom.xml file
-     */
-    public static class Pom
-    {
-        private MavenArtifact parent;
-
-        private ObjectList<MavenArtifact> dependencies = ObjectList.create();
-
-        private ObjectList<MavenArtifact> dependencyManagementDependencies = ObjectList.create();
-
-        private PropertyMap properties = PropertyMap.create();
-
-        public ObjectList<MavenArtifact> dependencies()
-        {
-            return dependencies;
-        }
-
-        public ObjectList<MavenArtifact> dependencyManagementDependencies()
-        {
-            return dependencyManagementDependencies;
-        }
-
-        /**
-         * Modifies this {@link Pom}'s unresolved dependencies so they inherit any version information from the
-         * dependencyManagement section of the given parent {@link Pom}.
-         */
-        public void inheritFrom(final Pom parentPom)
-        {
-            var inherited = new ObjectList<MavenArtifact>();
-
-            for (var at : dependencies)
-            {
-                if (!at.isResolved())
-                {
-                    var dependencyManagementDependency = parentPom.dependencyManagementDependency(at);
-                    if (dependencyManagementDependency != null)
-                    {
-                        at = at.withVersion(dependencyManagementDependency.version());
-                    }
-                }
-                inherited.add(at);
-            }
-
-            this.dependencies = inherited;
-        }
-
-        public boolean isResolved()
-        {
-            for (var at : dependencies)
-            {
-                if (!at.isResolved())
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        public MavenArtifact parent()
-        {
-            return parent;
-        }
-
-        public PropertyMap properties()
-        {
-            return properties;
-        }
-
-        /**
-         * @return Any dependency in the dependencyManagement section of this {@link Pom} that matches the given
-         * artifact (which is unresolved and lacks a version)
-         */
-        private MavenArtifact dependencyManagementDependency(MavenArtifact artifact)
-        {
-            for (var at : dependencyManagementDependencies())
-            {
-                if (at.matches(artifact))
-                {
-                    return at;
-                }
-            }
-            return null;
-        }
-    }
-
     private final StaxReader reader;
 
     private final StaxPath PARENT = parseXmlPath("project/parent");
@@ -136,7 +51,7 @@ public class PomReader extends BaseComponent
 
     private final StaxPath DEPENDENCY_MANAGEMENT_DEPENDENCY = parseXmlPath("project/dependencyManagement/dependency");
 
-    public PomReader(StaxReader reader)
+    protected PomReader(StaxReader reader)
     {
         this.reader = listenTo(reader);
     }
@@ -150,11 +65,11 @@ public class PomReader extends BaseComponent
     {
         var pom = new Pom();
 
-        for (; reader.hasNext(); reader.next())
+        for (reader.next(); reader.hasNext(); reader.next())
         {
             if (reader.isInside(PARENT))
             {
-                pom.parent = readDependency(PARENT);
+                pom.parent = readDependency(PARENT, pom.properties);
             }
             if (reader.isInside(PROPERTIES))
             {
@@ -162,12 +77,12 @@ public class PomReader extends BaseComponent
             }
             if (reader.isInside(DEPENDENCIES))
             {
-                pom.dependencies = readDependencies(DEPENDENCIES, DEPENDENCY);
+                pom.dependencies = readDependencies(DEPENDENCIES, DEPENDENCY, pom.properties);
             }
             if (reader.isInside(DEPENDENCY_MANAGEMENT))
             {
                 pom.dependencyManagementDependencies = readDependencies
-                        (DEPENDENCY_MANAGEMENT, DEPENDENCY_MANAGEMENT_DEPENDENCY);
+                        (DEPENDENCY_MANAGEMENT, DEPENDENCY_MANAGEMENT_DEPENDENCY, pom.properties);
             }
         }
 
@@ -178,7 +93,8 @@ public class PomReader extends BaseComponent
      * @return List of dependent {@link MavenArtifact}s
      */
     private ObjectList<MavenArtifact> readDependencies(StaxPath dependenciesPath,
-                                                       StaxPath dependencyPath)
+                                                       StaxPath dependencyPath,
+                                                       PropertyMap properties)
     {
         var dependencies = new ObjectList<MavenArtifact>();
 
@@ -186,7 +102,7 @@ public class PomReader extends BaseComponent
         {
             if (reader.isAtOpenTag("dependency"))
             {
-                dependencies.add(readDependency(dependencyPath));
+                dependencies.add(readDependency(dependencyPath, properties));
             }
         }
 
@@ -196,7 +112,8 @@ public class PomReader extends BaseComponent
     /**
      * @return The next dependency
      */
-    private MavenArtifact readDependency(final StaxPath dependencyPath)
+    @SuppressWarnings("ConstantConditions")
+    private MavenArtifact readDependency(StaxPath dependencyPath, PropertyMap properties)
     {
         MavenArtifactGroup artifactGroup = null;
         String artifactIdentifier = null;
@@ -214,9 +131,12 @@ public class PomReader extends BaseComponent
             }
             if (reader.isAtOpenTag("version"))
             {
-                version = Version.parse(reader.enclosedText());
+                version = Version.parse(this, properties.expand(reader.enclosedText()));
             }
         }
+
+        ensureNotNull(artifactGroup);
+        ensureNotNull(artifactIdentifier);
 
         return artifactGroup.artifact(artifactIdentifier).withVersion(version);
     }

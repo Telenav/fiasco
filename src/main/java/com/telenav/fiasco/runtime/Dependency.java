@@ -1,7 +1,8 @@
 package com.telenav.fiasco.runtime;
 
-import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.DependencySet;
+import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
+import com.telenav.kivakit.component.Component;
 import com.telenav.kivakit.kernel.data.validation.Validatable;
 import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
 
@@ -18,7 +19,7 @@ import java.util.Arrays;
  * @see Library
  * @see Artifact
  */
-public interface Dependency extends Validatable
+public interface Dependency extends Validatable, Component
 {
     /**
      * @return A deep copy of this dependency
