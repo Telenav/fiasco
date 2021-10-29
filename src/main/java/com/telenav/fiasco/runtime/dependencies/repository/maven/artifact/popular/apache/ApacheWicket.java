@@ -17,7 +17,7 @@ public class ApacheWicket extends MavenArtifactGroup
     }
 
     @Override
-    public ApacheWicket defaultVersion(final Version defaultVersion)
+    public ApacheWicket defaultVersion(Version defaultVersion)
     {
         return (ApacheWicket) super.defaultVersion(defaultVersion);
     }

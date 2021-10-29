@@ -70,7 +70,7 @@ public class Downloader extends BaseComponent
         /** The status of this download */
         private DownloadStatus status = WAITING;
 
-        public Download(final Resource source, final Folder destination, final CopyMode mode)
+        public Download(Resource source, Folder destination, CopyMode mode)
         {
             this.source = source;
             this.destination = destination;
@@ -80,6 +80,7 @@ public class Downloader extends BaseComponent
         /**
          * Perform the download
          */
+        @Override
         public Download call()
         {
             try
@@ -102,7 +103,7 @@ public class Downloader extends BaseComponent
         }
 
         @Override
-        public boolean equals(final Object object)
+        public boolean equals(Object object)
         {
             if (object instanceof Download)
             {
@@ -128,6 +129,7 @@ public class Downloader extends BaseComponent
             return status;
         }
 
+        @Override
         public String toString()
         {
             return Message.format("$: $ => $", status, source, destination);

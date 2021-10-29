@@ -38,7 +38,7 @@ public interface ProjectFoldersTrait
     /**
      * @param root The project root folder
      */
-    Build projectRootFolder(final Folder root);
+    Build projectRootFolder(Folder root);
 
     /**
      * @return The source folder

@@ -44,5 +44,5 @@ public interface ArtifactResolver
      * @return The transitively resolved artifacts
      * @throws RuntimeException A runtime exception is thrown if all artifacts cannot be resolved
      */
-    ObjectList<ResolvedArtifact> resolveAll(final Dependency dependency);
+    ObjectList<ResolvedArtifact> resolveAll(Dependency dependency);
 }

@@ -74,8 +74,8 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
 
     protected MavenRepository(MavenRepository that)
     {
-        this.name = that.name;
-        this.root = that.root;
+        name = that.name;
+        root = that.root;
 
         listenTo(downloader);
         copyListeners(that);
@@ -90,7 +90,7 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
      * {@inheritDoc}
      */
     @Override
-    public boolean contains(final Artifact artifact)
+    public boolean contains(Artifact artifact)
     {
         return Resource.resolve(this, folderPath(artifact)
                 .withChild(artifact.identifier() + "-" + artifact.version() + ".jar")).exists();
@@ -100,7 +100,7 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
      * @return The full path to the given artifact in this repository
      */
     @Override
-    public FilePath folderPath(final Artifact artifact)
+    public FilePath folderPath(Artifact artifact)
     {
         return root.withoutTrailingSlash().withChild(artifact.path());
     }
@@ -109,7 +109,7 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
      * {@inheritDoc}
      */
     @Override
-    public boolean install(ArtifactRepository source, final Artifact artifact)
+    public boolean install(ArtifactRepository source, Artifact artifact)
     {
         try
         {
@@ -178,7 +178,7 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
      * @param artifact The artifact for which to read the POM information from this repository
      * @return The POM information
      */
-    public Pom pom(final Artifact artifact)
+    public Pom pom(Artifact artifact)
     {
         return PomReader.read(this, listenTo(resource(artifact, POM)));
     }
@@ -186,11 +186,13 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
     /**
      * {@inheritDoc}
      */
-    public Resource resource(final Artifact artifact, Extension extension)
+    @Override
+    public Resource resource(Artifact artifact, Extension extension)
     {
         return artifact.resource(folderPath(artifact), extension);
     }
 
+    @Override
     public String toString()
     {
         return name();

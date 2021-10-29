@@ -48,7 +48,7 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
      *
      * @return A {@link MavenArtifact} for the given descriptor
      */
-    public static MavenArtifact parse(Listener listener, final String text)
+    public static MavenArtifact parse(Listener listener, String text)
     {
         return new MavenArtifact(MavenArtifactDescriptor.parse(listener, text));
     }
@@ -56,13 +56,13 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
     /** The descriptor for this artifact */
     private MavenArtifactDescriptor descriptor;
 
-    public MavenArtifact(final MavenArtifact that)
+    public MavenArtifact(MavenArtifact that)
     {
         super(that);
         descriptor = that.descriptor.copy();
     }
 
-    protected MavenArtifact(final MavenArtifactDescriptor descriptor)
+    protected MavenArtifact(MavenArtifactDescriptor descriptor)
     {
         this.descriptor = descriptor;
     }
@@ -83,12 +83,12 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
     }
 
     @Override
-    public boolean equals(final Object object)
+    public boolean equals(Object object)
     {
         if (object instanceof MavenArtifact)
         {
             var that = (MavenArtifact) object;
-            return this.descriptor.matches(that.descriptor);
+            return descriptor.matches(that.descriptor);
         }
         return false;
     }
@@ -97,7 +97,7 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
      * @return This artifact without the matching dependencies
      */
     @Override
-    public MavenArtifact excluding(final Matcher<Dependency> matcher)
+    public MavenArtifact excluding(Matcher<Dependency> matcher)
     {
         return (MavenArtifact) super.excluding(matcher);
     }
@@ -155,6 +155,7 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
     /**
      * {@inheritDoc}
      */
+    @Override
     public Resource resource(FilePath path, Extension extension)
     {
         return Resource.resolve(this, path.withChild(identifier() + "-" + version() + extension));
@@ -163,7 +164,8 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
     /**
      * {@inheritDoc}
      */
-    public ObjectList<Resource> resources(final FilePath path)
+    @Override
+    public ObjectList<Resource> resources(FilePath path)
     {
         var resources = new ObjectList<Resource>();
         for (var extension : extensions())
@@ -180,7 +182,7 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
     }
 
     @Override
-    public Validator validator(final ValidationType type)
+    public Validator validator(ValidationType type)
     {
         return new BaseValidator()
         {
@@ -202,7 +204,7 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
     }
 
     @Override
-    public MavenArtifact withVersion(final Version version)
+    public MavenArtifact withVersion(Version version)
     {
         var copy = copy();
         copy.descriptor = descriptor.withVersion(version);

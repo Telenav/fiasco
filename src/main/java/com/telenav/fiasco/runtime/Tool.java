@@ -32,7 +32,7 @@ public interface Tool extends Component
      *
      * @param build The build
      */
-    void build(final Build build);
+    void build(Build build);
 
     /**
      * @return The project that this tool is running in

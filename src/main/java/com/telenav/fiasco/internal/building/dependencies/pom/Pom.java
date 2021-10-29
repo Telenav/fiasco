@@ -35,7 +35,7 @@ public class Pom
      * Modifies this {@link Pom}'s unresolved dependencies so they inherit any version information from the
      * dependencyManagement section of the given parent {@link Pom}.
      */
-    public void inheritFrom(final Pom parentPom)
+    public void inheritFrom(Pom parentPom)
     {
         var inherited = new ObjectList<MavenArtifact>();
 
@@ -52,7 +52,7 @@ public class Pom
             inherited.add(at);
         }
 
-        this.dependencies = inherited;
+        dependencies = inherited;
     }
 
     @KivaKitIncludeProperty
@@ -80,6 +80,7 @@ public class Pom
         return properties;
     }
 
+    @Override
     public String toString()
     {
         var lines = new StringList();

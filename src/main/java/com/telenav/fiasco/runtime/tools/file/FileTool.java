@@ -10,5 +10,5 @@ public interface FileTool
     /**
      * @return A file globbing pattern for the given pattern string
      */
-    FileGlobPattern glob(final String pattern);
+    FileGlobPattern glob(String pattern);
 }

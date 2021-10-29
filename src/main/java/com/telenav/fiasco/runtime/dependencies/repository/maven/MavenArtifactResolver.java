@@ -72,16 +72,16 @@ public class MavenArtifactResolver extends BaseComponent implements ArtifactReso
      * @param indent The indentation of any output message, to allow the artifact hierarchy to be visualized
      * @return The repository in which the artifact was found
      */
-    private ResolvedArtifact resolve(final Artifact artifact, int indent)
+    private ResolvedArtifact resolve(Artifact artifact, int indent)
     {
-        final var indentation = AsciiArt.repeat(indent, ' ');
+        var indentation = AsciiArt.repeat(indent, ' ');
 
         // If the artifact has not already been resolved,
         var resolved = this.resolved.get(artifact);
         if (resolved == null)
         {
             // and it is in the local repository,
-            final var local = MavenRepository.local(this);
+            var local = MavenRepository.local(this);
             if (local.contains(artifact))
             {
                 // record it as locally resolved,

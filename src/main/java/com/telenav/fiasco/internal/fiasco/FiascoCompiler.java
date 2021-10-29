@@ -48,7 +48,7 @@ public class FiascoCompiler extends BaseComponent
      * @param expectedType The expected type of the compiled class
      * @return The build object or null if the source file was not valid or was not assignable to the expected type
      */
-    public <T> T compileAndInstantiate(final File source, Class<T> expectedType)
+    public <T> T compileAndInstantiate(File source, Class<T> expectedType)
     {
         // compile the source file into a build class,
         var classFile = compile(source);
@@ -71,15 +71,14 @@ public class FiascoCompiler extends BaseComponent
      * @param expectedType The expected type of the compiled class
      * @return The object, or null if the class could not be instantiated or is not assignable to the expected type
      */
-    @SuppressWarnings({ "resource", "unchecked" })
     public <T> T instantiate(File classFile, Class<T> expectedType)
     {
         try
         {
             // Attempt to load the class file,
-            final var classFolder = classFile.parent();
-            final URLClassLoader classLoader = new URLClassLoader(new URL[] { classFolder.asUrl() });
-            final Class<?> loaded = classLoader.loadClass("fiasco." + classFile.baseName().name());
+            var classFolder = classFile.parent();
+            URLClassLoader classLoader = new URLClassLoader(new URL[] { classFolder.asUrl() });
+            Class<?> loaded = classLoader.loadClass("fiasco." + classFile.baseName().name());
 
             // and if the class was loaded,
             if (loaded != null)
@@ -109,7 +108,7 @@ public class FiascoCompiler extends BaseComponent
                 problem("Could not load class: $", classFile);
             }
         }
-        catch (final Exception e)
+        catch (Exception e)
         {
             problem(e, "Could not load and instantiate class: $", classFile);
         }
@@ -121,7 +120,7 @@ public class FiascoCompiler extends BaseComponent
      * @param source The Java file to compile
      * @return The class file for the given source file or null if the compilation process failed
      */
-    private File compile(final File source)
+    private File compile(File source)
     {
         if (source.exists())
         {

@@ -41,5 +41,5 @@ public interface ArtifactRepository extends Named, Component
     /**
      * @return The resource for the given artifact and extension in this repository
      */
-    Resource resource(final Artifact artifact, Extension extension);
+    Resource resource(Artifact artifact, Extension extension);
 }

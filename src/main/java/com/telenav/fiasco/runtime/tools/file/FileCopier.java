@@ -40,13 +40,13 @@ public class FileCopier extends BaseFileTool
     {
         // For each source file that matches,
         var progress = progress("Copying", files);
-        for (final var source : files)
+        for (var source : files)
         {
             // find the path relative to the root,
-            final var relative = source.relativeTo(from);
+            var relative = source.relativeTo(from);
 
             // construct a file with the same path relative to the 'to' folder,
-            final var destination = to.file(relative);
+            var destination = to.file(relative);
 
             // create any parent folders that might be required
             destination.parent().mkdirs();
@@ -59,9 +59,9 @@ public class FileCopier extends BaseFileTool
         return this;
     }
 
-    public FileCopier copyMode(final CopyMode mode)
+    public FileCopier copyMode(CopyMode mode)
     {
-        this.copyMode = mode;
+        copyMode = mode;
         return this;
     }
 }

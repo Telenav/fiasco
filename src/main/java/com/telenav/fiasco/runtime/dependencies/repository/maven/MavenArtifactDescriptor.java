@@ -59,15 +59,15 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
      *
      * @return A {@link MavenArtifactDescriptor} for the given descriptor, or an exception is thrown
      */
-    public static MavenArtifactDescriptor parse(Listener listener, final String text)
+    public static MavenArtifactDescriptor parse(Listener listener, String text)
     {
-        final var matcher = DESCRIPTOR_PATTERN.matcher(text);
+        var matcher = DESCRIPTOR_PATTERN.matcher(text);
         if (matcher.matches())
         {
-            final var group = new MavenArtifactGroup(matcher.group("group"));
-            final var identifier = matcher.group("identifier");
-            final var versionText = matcher.group("version");
-            final var version = versionText == null ? null : Version.parse(listener, versionText);
+            var group = new MavenArtifactGroup(matcher.group("group"));
+            var identifier = matcher.group("identifier");
+            var versionText = matcher.group("version");
+            var version = versionText == null ? null : Version.parse(listener, versionText);
 
             var descriptor = new MavenArtifactDescriptor(group, identifier, version);
             if (descriptor.isValid(listener))
@@ -91,7 +91,7 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
     /** The artifact version */
     private Version version;
 
-    public MavenArtifactDescriptor(final MavenArtifactGroup group, final String identifier, Version version)
+    public MavenArtifactDescriptor(MavenArtifactGroup group, String identifier, Version version)
     {
         this.group = ensureNotNull(group);
         this.identifier = ensureNotNull(identifier);
@@ -123,12 +123,12 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
     }
 
     @Override
-    public boolean equals(final Object object)
+    public boolean equals(Object object)
     {
         if (object instanceof MavenArtifactDescriptor)
         {
             var that = (MavenArtifactDescriptor) object;
-            return this.toString().equals(that.toString());
+            return toString().equals(that.toString());
         }
         return false;
     }
@@ -136,6 +136,7 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
     /**
      * @return The group for this descriptor
      */
+    @Override
     public MavenArtifactGroup group()
     {
         return group;
@@ -150,6 +151,7 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
     /**
      * @return The identifier for this descriptor
      */
+    @Override
     public String identifier()
     {
         return identifier;
@@ -164,7 +166,7 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
     }
 
     @Override
-    public boolean matches(final ArtifactDescriptor that)
+    public boolean matches(ArtifactDescriptor that)
     {
         return group.equals(that.group())
                 && identifier.equals(that.identifier())
@@ -174,6 +176,7 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
     /**
      * @return The fully qualified name of this artifact in the format: [group-identifier]:[artifact-identifier]:[version]
      */
+    @Override
     public String name()
     {
         return group() + ":" + identifier() + (version() == null ? "" : ":" + version());
@@ -183,6 +186,7 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
      * @return The full path for this descriptor relative to an arbitrary repository root. For example,
      * "com/telenav/kivakit/kivakit-kernel/9.5.0"
      */
+    @Override
     public FilePath path()
     {
         return group()
@@ -201,7 +205,7 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
      * {@inheritDoc}
      */
     @Override
-    public Validator validator(final ValidationType type)
+    public Validator validator(ValidationType type)
     {
         return new BaseValidator()
         {
@@ -217,6 +221,7 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
     /**
      * @return The version of this descriptor
      */
+    @Override
     public Version version()
     {
         return version;
@@ -225,9 +230,9 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
     /**
      * @return The given version of this artifact
      */
-    public MavenArtifactDescriptor withVersion(final Version version)
+    public MavenArtifactDescriptor withVersion(Version version)
     {
-        final var copy = new MavenArtifactDescriptor(this);
+        var copy = new MavenArtifactDescriptor(this);
         copy.version = version;
         return copy;
     }

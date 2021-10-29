@@ -19,7 +19,7 @@ public class FiascoFolders extends BaseComponent
      */
     public Folder cacheFolder()
     {
-        final var version = require(Fiasco.class).version();
+        var version = require(Fiasco.class).version();
         if (version != null)
         {
             return Folder.parse("$/.fiasco/$", System.getProperty("user.home"), version);

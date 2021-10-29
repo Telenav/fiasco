@@ -33,7 +33,7 @@ public class FiascoBuildStore extends BaseComponent
      * from the end, and then it is turned into lowercase hyphenated form. For example, "MyBuild.java" becomes
      * "my-build".
      */
-    public String buildName(final File file)
+    public String buildName(File file)
     {
         return CaseFormat.camelCaseToHyphenated(Strip.ending(file.fileName().name(), "Build.java"));
     }
@@ -81,8 +81,8 @@ public class FiascoBuildStore extends BaseComponent
         for (var project : projects())
         {
             // build the 'fiasco' folder,
-            final var compiler = listenTo(new FiascoCompiler());
-            final var fiasco = project.folder("src/main/java/fiasco");
+            var compiler = listenTo(new FiascoCompiler());
+            var fiasco = project.folder("src/main/java/fiasco");
             compiler.compile(fiasco);
 
             // then go through the target files,

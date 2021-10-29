@@ -106,12 +106,12 @@ public abstract class BaseBuild extends BaseDependency implements
     }
 
     @Override
-    public boolean equals(final Object object)
+    public boolean equals(Object object)
     {
         if (object instanceof BaseBuild)
         {
             var that = (BaseBuild) object;
-            return this.projectRootFolder().equals(that.projectRootFolder());
+            return projectRootFolder().equals(that.projectRootFolder());
         }
         return false;
     }
@@ -119,6 +119,7 @@ public abstract class BaseBuild extends BaseDependency implements
     /**
      * Builds this project
      */
+    @Override
     public BuildResult executeBuild()
     {
         var result = new BuildResult(getClass().getSimpleName());
@@ -168,7 +169,7 @@ public abstract class BaseBuild extends BaseDependency implements
      * True if the build is at the given build step
      * </p>
      */
-    public boolean isAt(final BuildStep at)
+    public boolean isAt(BuildStep at)
     {
         return step == at;
     }
@@ -176,7 +177,7 @@ public abstract class BaseBuild extends BaseDependency implements
     /**
      * Sets the metadata for this project
      */
-    public void metadata(final BuildMetadata metadata)
+    public void metadata(BuildMetadata metadata)
     {
         this.metadata = metadata;
     }
@@ -196,6 +197,7 @@ public abstract class BaseBuild extends BaseDependency implements
      * Updates the build step to the given step and calls the build listener with this information
      * </p>
      */
+    @Override
     public void nextStep()
     {
         step(step.next());
@@ -208,7 +210,8 @@ public abstract class BaseBuild extends BaseDependency implements
      *
      * @param projectRoot The project root folder
      */
-    public void project(final Folder projectRoot)
+    @Override
+    public void project(Folder projectRoot)
     {
         // Get the fiasco sub-folder where the build files are,
         var fiasco = projectRoot.folder("src/main/java/fiasco");
@@ -241,6 +244,7 @@ public abstract class BaseBuild extends BaseDependency implements
     /**
      * @return The root folder of this project
      */
+    @Override
     public Folder projectRootFolder()
     {
         return ensureNotNull(root);
@@ -249,7 +253,8 @@ public abstract class BaseBuild extends BaseDependency implements
     /**
      * @param root The project root folder
      */
-    public Build projectRootFolder(final Folder root)
+    @Override
+    public Build projectRootFolder(Folder root)
     {
         this.root = root;
         return this;
@@ -259,7 +264,7 @@ public abstract class BaseBuild extends BaseDependency implements
      * {@inheritDoc}
      */
     @Override
-    public ResolvedArtifact resolve(final Artifact artifact)
+    public ResolvedArtifact resolve(Artifact artifact)
     {
         return librarian.resolve(artifact);
     }
@@ -268,7 +273,7 @@ public abstract class BaseBuild extends BaseDependency implements
      * {@inheritDoc}
      */
     @Override
-    public ObjectList<ResolvedArtifact> resolveAll(final Dependency dependency)
+    public ObjectList<ResolvedArtifact> resolveAll(Dependency dependency)
     {
         return librarian.resolveAll(dependency);
     }
@@ -287,7 +292,7 @@ public abstract class BaseBuild extends BaseDependency implements
     }
 
     @Override
-    public Validator validator(final ValidationType type)
+    public Validator validator(ValidationType type)
     {
         return new BaseValidator()
         {

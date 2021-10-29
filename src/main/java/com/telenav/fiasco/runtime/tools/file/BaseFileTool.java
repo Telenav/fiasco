@@ -18,7 +18,7 @@ public abstract class BaseFileTool extends BaseTool
     /**
      * @return A {@link FileGlobPattern} for the given glob pattern
      */
-    public FileGlobPattern glob(final String pattern)
+    public FileGlobPattern glob(String pattern)
     {
         return FileGlobPattern.parse(pattern);
     }
@@ -37,4 +37,3 @@ public abstract class BaseFileTool extends BaseTool
         return progress;
     }
 }
-

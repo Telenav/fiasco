@@ -40,7 +40,7 @@ public class DownloaderTest extends UnitTest
         {
             try
             {
-                final var download = future.get();
+                var download = future.get();
                 ensure(download.destination().file(download.source().fileName()).exists());
             }
             catch (Exception e)

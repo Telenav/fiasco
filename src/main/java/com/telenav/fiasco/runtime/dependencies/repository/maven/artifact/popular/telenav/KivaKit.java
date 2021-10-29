@@ -37,7 +37,7 @@ public class KivaKit extends MavenArtifactGroup
     }
 
     @Override
-    public KivaKit defaultVersion(final Version defaultVersion)
+    public KivaKit defaultVersion(Version defaultVersion)
     {
         return (KivaKit) super.defaultVersion(defaultVersion);
     }

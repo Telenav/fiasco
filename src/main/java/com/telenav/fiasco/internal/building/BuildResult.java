@@ -51,7 +51,7 @@ public class BuildResult implements Listener
 
     public void end()
     {
-        this.end = Time.now();
+        end = Time.now();
     }
 
     public MessageList messages()
@@ -60,7 +60,7 @@ public class BuildResult implements Listener
     }
 
     @Override
-    public void onMessage(final Message message)
+    public void onMessage(Message message)
     {
         messages.add(message);
     }

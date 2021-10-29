@@ -59,13 +59,13 @@ public class Librarian extends BaseComponent implements ArtifactResolver
     }
 
     @Override
-    public ResolvedArtifact resolve(final Artifact artifact)
+    public ResolvedArtifact resolve(Artifact artifact)
     {
         return resolver.resolve(artifact);
     }
 
     @Override
-    public ObjectList<ResolvedArtifact> resolveAll(final Dependency dependency)
+    public ObjectList<ResolvedArtifact> resolveAll(Dependency dependency)
     {
         return resolver.resolveAll(dependency);
     }

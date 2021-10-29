@@ -39,7 +39,7 @@ public interface Artifact extends Dependency
      * @return True if this artifact is matched by the given artifact. The two artifacts can be equal, or the given
      * artifact can be missing a version and match only the group and identifier.
      */
-    default boolean matches(final Artifact that)
+    default boolean matches(Artifact that)
     {
         return descriptor().matches(that.descriptor());
     }
@@ -62,7 +62,7 @@ public interface Artifact extends Dependency
     /**
      * @return The expected artifact resources at the given path
      */
-    ObjectList<Resource> resources(final FilePath path);
+    ObjectList<Resource> resources(FilePath path);
 
     /**
      * @return The version of this artifact

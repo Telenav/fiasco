@@ -25,17 +25,17 @@ public class SourceCode
 
     protected SourceCode(SourceCode that)
     {
-        this.repository = that.repository;
+        repository = that.repository;
     }
 
-    public SourceCode withRepository(final URL repository)
+    public SourceCode withRepository(URL repository)
     {
         var copy = new SourceCode(this);
         copy.repository = repository;
         return copy;
     }
 
-    public SourceCode withRepository(final String repository)
+    public SourceCode withRepository(String repository)
     {
         try
         {

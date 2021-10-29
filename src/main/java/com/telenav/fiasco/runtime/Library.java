@@ -45,13 +45,13 @@ public class Library extends BaseDependency
     /** The library artifact */
     private Artifact artifact;
 
-    protected Library(final Library that)
+    protected Library(Library that)
     {
         super(that);
         artifact = that.artifact;
     }
 
-    private Library(final Artifact artifact)
+    private Library(Artifact artifact)
     {
         this.artifact = artifact;
     }
@@ -71,12 +71,12 @@ public class Library extends BaseDependency
     }
 
     @Override
-    public boolean equals(final Object object)
+    public boolean equals(Object object)
     {
         if (object instanceof Library)
         {
             var that = (Library) object;
-            return this.artifact().equals(that.artifact());
+            return artifact().equals(that.artifact());
         }
         return false;
     }
@@ -84,9 +84,10 @@ public class Library extends BaseDependency
     /**
      * @return This library without the matching dependencies
      */
-    public Library excluding(final Matcher<Dependency> matcher)
+    @Override
+    public Library excluding(Matcher<Dependency> matcher)
     {
-        this.artifact = (Artifact) artifact.excluding(matcher);
+        artifact = (Artifact) artifact.excluding(matcher);
         return this;
     }
 
@@ -97,7 +98,7 @@ public class Library extends BaseDependency
     }
 
     @Override
-    public Validator validator(final ValidationType type)
+    public Validator validator(ValidationType type)
     {
         return new BaseValidator()
         {
@@ -112,7 +113,7 @@ public class Library extends BaseDependency
     /**
      * @return This library with the given artifact version
      */
-    public Library withVersion(final Version version)
+    public Library withVersion(Version version)
     {
         var copy = new Library(this);
         copy.artifact = artifact.withVersion(version);
@@ -122,9 +123,8 @@ public class Library extends BaseDependency
     /**
      * @return This library with the given artifact version
      */
-    public Library withVersion(final String version)
+    public Library withVersion(String version)
     {
         return withVersion(Version.parse(this, version));
     }
 }
-

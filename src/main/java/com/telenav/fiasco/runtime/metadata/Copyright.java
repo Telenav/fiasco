@@ -19,7 +19,7 @@ public class Copyright
      * Construct with the given copyright text. Note that {@link Resource} implements {@link StringSource}, so a
      * copyright can be constructed directly from a {@link File} object.
      */
-    public Copyright(final StringSource copyright)
+    public Copyright(StringSource copyright)
     {
         this.copyright = copyright.string();
     }

@@ -27,7 +27,7 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
  */
 public class DependencySet extends ObjectSet<Dependency>
 {
-    public static DependencySet of(final Dependency... dependencies)
+    public static DependencySet of(Dependency... dependencies)
     {
         return new DependencySet(List.of(dependencies));
     }
@@ -36,13 +36,13 @@ public class DependencySet extends ObjectSet<Dependency>
     {
     }
 
-    protected DependencySet(final Collection<Dependency> dependencies)
+    protected DependencySet(Collection<Dependency> dependencies)
     {
-        this.addAll(dependencies);
+        addAll(dependencies);
     }
 
     @Override
-    public boolean add(final Dependency dependency)
+    public boolean add(Dependency dependency)
     {
         var messages = new MessageList();
         if (dependency.isValid(messages))
@@ -57,7 +57,7 @@ public class DependencySet extends ObjectSet<Dependency>
     }
 
     @Override
-    public boolean addAll(final Collection<? extends Dependency> objects)
+    public boolean addAll(Collection<? extends Dependency> objects)
     {
         objects.forEach(this::add);
         return true;
@@ -80,7 +80,7 @@ public class DependencySet extends ObjectSet<Dependency>
      * @param threads The number of threads to use
      * @param callback The callback to process each dependency
      */
-    public void process(final Listener listener, final Count threads, final Callback<Dependency> callback)
+    public void process(Listener listener, Count threads, Callback<Dependency> callback)
     {
         // If there is only one thread requested,
         if (threads.equals(Count._1))
@@ -91,14 +91,14 @@ public class DependencySet extends ObjectSet<Dependency>
         else
         {
             // otherwise, create an executor with the requested number of threads
-            final var executor = Executors.newFixedThreadPool(threads.asInt());
+            var executor = Executors.newFixedThreadPool(threads.asInt());
 
             // and a queue with the dependencies in it
-            final var queue = queue();
+            var queue = queue();
 
             // and submit jobs for each thread
-            final var completed = new ConcurrentHashSet<Dependency>();
-            final var monitor = new Monitor();
+            var completed = new ConcurrentHashSet<Dependency>();
+            var monitor = new Monitor();
             threads.loop(() -> executor.submit(() ->
             {
                 // While the queue has dependencies to process,
@@ -123,10 +123,10 @@ public class DependencySet extends ObjectSet<Dependency>
                         // and waking any threads waiting on this dependency.
                         monitor.done();
                     }
-                    catch (final InterruptedException ignored)
+                    catch (InterruptedException ignored)
                     {
                     }
-                    catch (final Exception e)
+                    catch (Exception e)
                     {
                         listener.problem(e, "Error processing '$'", dependency);
                     }
@@ -143,7 +143,7 @@ public class DependencySet extends ObjectSet<Dependency>
      */
     public LinkedBlockingDeque<Dependency> queue()
     {
-        final var queue = new LinkedBlockingDeque<Dependency>(size());
+        var queue = new LinkedBlockingDeque<Dependency>(size());
         queue.addAll(this);
         return queue;
     }
@@ -151,7 +151,7 @@ public class DependencySet extends ObjectSet<Dependency>
     /**
      * @return This dependency list without the given exclusions
      */
-    public DependencySet without(final Collection<? extends Dependency> exclusions)
+    public DependencySet without(Collection<? extends Dependency> exclusions)
     {
         return without(exclusions::contains);
     }
@@ -159,7 +159,7 @@ public class DependencySet extends ObjectSet<Dependency>
     /**
      * @return This dependency list without the matching dependencies
      */
-    public DependencySet without(final Matcher<Dependency> matcher)
+    public DependencySet without(Matcher<Dependency> matcher)
     {
         var set = copy();
         for (var dependency : this)

@@ -47,7 +47,7 @@ public class MavenArtifactGroup implements ArtifactGroup
     /** Default version for artifacts in this group */
     private Version defaultVersion;
 
-    protected MavenArtifactGroup(final String identifier)
+    protected MavenArtifactGroup(String identifier)
     {
         this.identifier = identifier;
     }
@@ -57,8 +57,8 @@ public class MavenArtifactGroup implements ArtifactGroup
      */
     protected MavenArtifactGroup(MavenArtifactGroup that)
     {
-        this.identifier = that.identifier;
-        this.defaultVersion = that.defaultVersion;
+        identifier = that.identifier;
+        defaultVersion = that.defaultVersion;
     }
 
     /**
@@ -78,19 +78,19 @@ public class MavenArtifactGroup implements ArtifactGroup
     /**
      * Sets the default version of this group
      */
-    public MavenArtifactGroup defaultVersion(final Version defaultVersion)
+    public MavenArtifactGroup defaultVersion(Version defaultVersion)
     {
         this.defaultVersion = defaultVersion;
         return this;
     }
 
     @Override
-    public boolean equals(final Object object)
+    public boolean equals(Object object)
     {
         if (object instanceof MavenArtifactGroup)
         {
             MavenArtifactGroup that = (MavenArtifactGroup) object;
-            return this.identifier().equals(that.identifier());
+            return identifier().equals(that.identifier());
         }
         return false;
     }
@@ -104,6 +104,7 @@ public class MavenArtifactGroup implements ArtifactGroup
     /**
      * @return The Maven group identifier for this group
      */
+    @Override
     public String identifier()
     {
         return identifier;
@@ -112,11 +113,13 @@ public class MavenArtifactGroup implements ArtifactGroup
     /**
      * @return THh path to this group from a repository root
      */
+    @Override
     public FilePath path()
     {
         return FilePath.parseFilePath(identifier().replace(".", "/"));
     }
 
+    @Override
     public String toString()
     {
         return identifier();
