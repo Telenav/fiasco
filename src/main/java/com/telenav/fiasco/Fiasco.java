@@ -1,16 +1,16 @@
 package com.telenav.fiasco;
 
-import com.telenav.fiasco.runtime.Build;
 import com.telenav.fiasco.internal.building.BuildListener;
 import com.telenav.fiasco.internal.building.BuildResult;
 import com.telenav.fiasco.internal.building.Buildable;
 import com.telenav.fiasco.internal.building.Builder;
 import com.telenav.fiasco.internal.building.builders.ParallelBuilder;
+import com.telenav.fiasco.internal.building.planning.BuildPlan;
+import com.telenav.fiasco.internal.building.planning.BuildPlanner;
 import com.telenav.fiasco.internal.fiasco.FiascoBuildStore;
 import com.telenav.fiasco.internal.fiasco.FiascoCompiler;
 import com.telenav.fiasco.internal.fiasco.FiascoFolders;
-import com.telenav.fiasco.internal.building.planning.BuildPlan;
-import com.telenav.fiasco.internal.building.planning.BuildPlanner;
+import com.telenav.fiasco.runtime.Build;
 import com.telenav.kivakit.application.Application;
 import com.telenav.kivakit.commandline.ArgumentParser;
 import com.telenav.kivakit.commandline.SwitchParser;
@@ -75,7 +75,7 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
  */
 public class Fiasco extends Application
 {
-    public static void main(final String[] arguments)
+    public static void main(String[] arguments)
     {
         new Fiasco().run(arguments);
 
@@ -108,7 +108,7 @@ public class Fiasco extends Application
     /** Project-related utilities */
     private final FiascoCompiler project = listenTo(new FiascoCompiler());
 
-    public Fiasco(final Project... projects)
+    public Fiasco(Project... projects)
     {
         super(new FiascoProject());
     }
@@ -207,7 +207,7 @@ public class Fiasco extends Application
      * is specified, the default listener broadcasts {@link Announcement} messages for each build that completes.
      * </p>
      */
-    private void build(final BuildListener listener, final Build build)
+    private void build(BuildListener listener, Build build)
     {
         var result = new BuildResult(name());
         result.start();

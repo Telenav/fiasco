@@ -45,12 +45,13 @@ public class BuildMetadata
     {
     }
 
-    protected BuildMetadata(final BuildMetadata that)
+    protected BuildMetadata(BuildMetadata that)
     {
         copyright = that.copyright;
         contributors = that.contributors.copy();
         licenses = that.licenses.copy();
         owner = that.owner;
+        code = that.code;
     }
 
     public ObjectList<Contributor> contributors()
@@ -73,44 +74,44 @@ public class BuildMetadata
         return owner;
     }
 
-    public BuildMetadata withContributor(final Contributor contributor)
+    public BuildMetadata withContributor(Contributor contributor)
     {
-        final var copy = new BuildMetadata(this);
+        var copy = new BuildMetadata(this);
         copy.contributors.add(contributor);
         return copy;
     }
 
-    public BuildMetadata withCopyright(final Copyright copyright)
+    public BuildMetadata withCopyright(Copyright copyright)
     {
-        final var copy = new BuildMetadata(this);
+        var copy = new BuildMetadata(this);
         copy.copyright = copyright;
         return copy;
     }
 
-    public BuildMetadata withLicense(final License license)
+    public BuildMetadata withLicense(License license)
     {
-        final var copy = new BuildMetadata(this);
+        var copy = new BuildMetadata(this);
         copy.licenses.add(license);
         return copy;
     }
 
-    public BuildMetadata withOriginator(final Organization organization)
+    public BuildMetadata withOriginator(Organization organization)
     {
-        final var copy = new BuildMetadata(this);
+        var copy = new BuildMetadata(this);
         copy.owner = organization;
         return copy;
     }
 
-    public BuildMetadata withOwner(final Organization owner)
+    public BuildMetadata withOwner(Organization owner)
     {
-        final var copy = new BuildMetadata(this);
+        var copy = new BuildMetadata(this);
         copy.owner = owner;
         return copy;
     }
 
-    public BuildMetadata withSourceCode(final SourceCode code)
+    public BuildMetadata withSourceCode(SourceCode code)
     {
-        final var copy = new BuildMetadata(this);
+        var copy = new BuildMetadata(this);
         copy.code = code;
         return copy;
     }

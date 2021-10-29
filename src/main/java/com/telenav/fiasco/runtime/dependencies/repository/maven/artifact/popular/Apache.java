@@ -1,7 +1,7 @@
 package com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.popular;
 
-import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.popular.apache.ApacheHttpComponents;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.popular.apache.ApacheCommons;
+import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.popular.apache.ApacheHttpComponents;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.popular.apache.ApacheWicket;
 
 /**

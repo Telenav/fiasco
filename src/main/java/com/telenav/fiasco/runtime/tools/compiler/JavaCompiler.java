@@ -1,7 +1,7 @@
 package com.telenav.fiasco.runtime.tools.compiler;
 
-import com.telenav.fiasco.runtime.Build;
 import com.telenav.fiasco.internal.fiasco.FiascoFolders;
+import com.telenav.fiasco.runtime.Build;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.configuration.lookup.Registry;
 import com.telenav.kivakit.filesystem.FileList;
@@ -33,7 +33,7 @@ public class JavaCompiler extends BaseComponent
      */
     public static JavaCompiler compiler(Listener listener, Writer output)
     {
-        final var resources = Registry.global().require(FiascoFolders.class);
+        var resources = Registry.global().require(FiascoFolders.class);
 
         return JavaCompiler.create(listener)
                 .withOutput(output)
@@ -66,7 +66,7 @@ public class JavaCompiler extends BaseComponent
 
         private final String version;
 
-        JavaVersion(final String version)
+        JavaVersion(String version)
         {
             this.version = version;
         }
@@ -92,19 +92,19 @@ public class JavaCompiler extends BaseComponent
     /** Compiler options */
     private final StringList options = StringList.stringList();
 
-    protected JavaCompiler(final Listener listener)
+    protected JavaCompiler(Listener listener)
     {
         addListener(ensureNotNull(listener));
     }
 
     protected JavaCompiler(JavaCompiler that)
     {
-        this.sourceVersion = that.sourceVersion;
-        this.targetVersion = that.targetVersion;
-        this.output = that.output;
-        this.target = that.target;
-        this.options.addAll(that.options);
-        this.copyListeners(that);
+        sourceVersion = that.sourceVersion;
+        targetVersion = that.targetVersion;
+        output = that.output;
+        target = that.target;
+        options.addAll(that.options);
+        copyListeners(that);
     }
 
     /**
@@ -175,6 +175,7 @@ public class JavaCompiler extends BaseComponent
         return target;
     }
 
+    @Override
     public String toString()
     {
         return "javac " + options.join(" ");
@@ -213,7 +214,7 @@ public class JavaCompiler extends BaseComponent
     /**
      * @return This compiler with the given source code version
      */
-    public JavaCompiler withSourceVersion(final JavaVersion version)
+    public JavaCompiler withSourceVersion(JavaVersion version)
     {
         var copy = copy();
         copy.sourceVersion = version;
@@ -237,7 +238,7 @@ public class JavaCompiler extends BaseComponent
     /**
      * @return This compiler with the given target bytecode version
      */
-    public JavaCompiler withTargetVersion(final JavaVersion version)
+    public JavaCompiler withTargetVersion(JavaVersion version)
     {
         var copy = copy();
         copy.targetVersion = version;
@@ -260,11 +261,11 @@ public class JavaCompiler extends BaseComponent
      * @param options The options to use
      * @return A compilation task for the given source file and compiler options
      */
-    private CompilationTask task(final FileList sourceFiles, Writer out, StringList options)
+    private CompilationTask task(FileList sourceFiles, Writer out, StringList options)
     {
-        final var compiler = ToolProvider.getSystemJavaCompiler();
-        final var fileManager = compiler.getStandardFileManager(null, null, null);
-        final var sources = fileManager.getJavaFileObjectsFromFiles(sourceFiles.asJavaFiles());
+        var compiler = ToolProvider.getSystemJavaCompiler();
+        var fileManager = compiler.getStandardFileManager(null, null, null);
+        var sources = fileManager.getJavaFileObjectsFromFiles(sourceFiles.asJavaFiles());
 
         return compiler.getTask(out, fileManager, null, options, null, sources);
     }

@@ -36,7 +36,7 @@ public interface Dependency extends Validatable, Component
      */
     default Dependency excluding(Dependency... exclusions)
     {
-        var list = Arrays.asList();
+        var list = Arrays.asList(exclusions);
         return excluding(list::contains);
     }
 

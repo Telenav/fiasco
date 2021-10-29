@@ -1,13 +1,13 @@
 package com.telenav.fiasco.internal.building.phase.compilation;
 
+import com.telenav.fiasco.internal.building.BuildStep;
+import com.telenav.fiasco.internal.building.Phase;
+import com.telenav.fiasco.internal.building.phase.BasePhase;
+import com.telenav.fiasco.internal.fiasco.FiascoFolders;
 import com.telenav.fiasco.runtime.Build;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenRepository;
 import com.telenav.fiasco.runtime.tools.compiler.JavaCompiler;
 import com.telenav.fiasco.runtime.tools.repository.Librarian;
-import com.telenav.fiasco.internal.building.BuildStep;
-import com.telenav.fiasco.internal.building.Phase;
-import com.telenav.fiasco.internal.fiasco.FiascoFolders;
-import com.telenav.fiasco.internal.building.phase.BasePhase;
 
 import java.io.StringWriter;
 
@@ -31,12 +31,11 @@ import static com.telenav.fiasco.runtime.tools.compiler.JavaCompiler.JavaVersion
  * @see BuildStep
  * @see Phase
  */
-@SuppressWarnings("DuplicatedCode")
 public class BaseCompilationPhase extends BasePhase
 {
     private final StringWriter output = new StringWriter();
 
-    public BaseCompilationPhase(final Build build)
+    public BaseCompilationPhase(Build build)
     {
         super(build);
     }

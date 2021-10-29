@@ -1,9 +1,9 @@
 package com.telenav.fiasco.internal.building.phase.installation;
 
-import com.telenav.fiasco.runtime.Build;
 import com.telenav.fiasco.internal.building.BuildStep;
 import com.telenav.fiasco.internal.building.Phase;
 import com.telenav.fiasco.internal.building.phase.BasePhase;
+import com.telenav.fiasco.runtime.Build;
 
 /**
  * <b>Not public API</b>
@@ -19,7 +19,6 @@ import com.telenav.fiasco.internal.building.phase.BasePhase;
  * @see Phase
  * @see BuildStep
  */
-@SuppressWarnings("DuplicatedCode")
 public class InstallationPhase extends BasePhase
 {
     public InstallationPhase(Build build)

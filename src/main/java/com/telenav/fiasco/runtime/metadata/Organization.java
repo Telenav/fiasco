@@ -1,6 +1,7 @@
 package com.telenav.fiasco.runtime.metadata;
 
 import com.telenav.kivakit.kernel.language.values.name.Name;
+import com.telenav.kivakit.kernel.project.Project;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -17,7 +18,7 @@ public class Organization extends Name
     /** Organization website */
     private URL website;
 
-    public Organization(final String name)
+    public Organization(String name)
     {
         super(name);
     }
@@ -27,19 +28,19 @@ public class Organization extends Name
         return website;
     }
 
-    public Organization withWebsite(final URL url)
+    public Organization withWebsite(URL url)
     {
-        this.website = url;
+        website = url;
         return this;
     }
 
-    public Organization withWebsite(final String url)
+    public Organization withWebsite(String url)
     {
         try
         {
             return withWebsite(new URL(url));
         }
-        catch (final MalformedURLException e)
+        catch (MalformedURLException e)
         {
             return fail(e, "Invalid URL: $", url);
         }

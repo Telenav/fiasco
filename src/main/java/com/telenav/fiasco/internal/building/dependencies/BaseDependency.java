@@ -1,8 +1,8 @@
 package com.telenav.fiasco.internal.building.dependencies;
 
 import com.telenav.fiasco.runtime.Dependency;
-import com.telenav.fiasco.runtime.dependencies.DependencySet;
 import com.telenav.fiasco.runtime.Library;
+import com.telenav.fiasco.runtime.dependencies.DependencySet;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenArtifact;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
@@ -40,8 +40,8 @@ public abstract class BaseDependency extends BaseComponent implements Dependency
      */
     public BaseDependency(BaseDependency that)
     {
-        this.dependencies = that.dependencies.copy();
-        this.exclusions = that.exclusions.copy();
+        dependencies = that.dependencies.copy();
+        exclusions = that.exclusions.copy();
     }
 
     /**
@@ -49,8 +49,8 @@ public abstract class BaseDependency extends BaseComponent implements Dependency
      */
     public BaseDependency()
     {
-        this.dependencies = new DependencySet();
-        this.exclusions = new MatcherSet<>();
+        dependencies = new DependencySet();
+        exclusions = new MatcherSet<>();
     }
 
     /**
@@ -65,6 +65,7 @@ public abstract class BaseDependency extends BaseComponent implements Dependency
     /**
      * {@inheritDoc}
      */
+    @Override
     public Dependency excluding(Matcher<Dependency> exclusion)
     {
         var copy = copy();
@@ -80,7 +81,7 @@ public abstract class BaseDependency extends BaseComponent implements Dependency
      */
     public void require(String descriptor)
     {
-        final var artifact = MavenArtifact.parse(this, descriptor);
+        var artifact = MavenArtifact.parse(this, descriptor);
         require(Library.create(artifact));
     }
 

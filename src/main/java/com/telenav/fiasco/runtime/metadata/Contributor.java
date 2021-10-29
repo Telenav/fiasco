@@ -5,6 +5,8 @@ import com.telenav.kivakit.kernel.language.collections.set.ObjectSet;
 import com.telenav.kivakit.kernel.language.values.name.Name;
 import com.telenav.kivakit.network.core.EmailAddress;
 
+import java.util.Arrays;
+
 /**
  * An individual, human {@link Build} contributor with:
  *
@@ -28,7 +30,7 @@ public class Contributor extends Name
     /** The organizations to which the contributor belongs */
     private ObjectSet<Organization> organizations = ObjectSet.empty();
 
-    public Contributor(final String name)
+    public Contributor(String name)
     {
         super(name);
     }
@@ -36,9 +38,9 @@ public class Contributor extends Name
     public Contributor(Contributor that)
     {
         super(that.name());
-        this.emails = that.emails.copy();
-        this.roles = that.roles.copy();
-        this.organizations = that.organizations.copy();
+        emails = that.emails.copy();
+        roles = that.roles.copy();
+        organizations = that.organizations.copy();
     }
 
     public ObjectSet<EmailAddress> emails()
@@ -56,27 +58,24 @@ public class Contributor extends Name
         return roles;
     }
 
-    public Contributor withEmail(final EmailAddress email)
+    public Contributor withEmail(EmailAddress email)
     {
         var copy = new Contributor(this);
         copy.emails.add(email);
         return copy;
     }
 
-    public Contributor withOrganization(final Organization organization)
+    public Contributor withOrganization(Organization organization)
     {
         var copy = new Contributor(this);
         copy.organizations.add(organization);
         return copy;
     }
 
-    public Contributor withRoles(final Role... roles)
+    public Contributor withRoles(Role... roles)
     {
         var copy = new Contributor(this);
-        for (var role : roles)
-        {
-            this.roles.add(role);
-        }
+        this.roles.addAll(Arrays.asList(roles));
         return copy;
     }
 }

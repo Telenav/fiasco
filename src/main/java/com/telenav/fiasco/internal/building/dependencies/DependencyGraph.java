@@ -1,9 +1,9 @@
 package com.telenav.fiasco.internal.building.dependencies;
 
-import com.telenav.fiasco.runtime.Build;
-import com.telenav.fiasco.runtime.Dependency;
 import com.telenav.fiasco.internal.building.Buildable;
 import com.telenav.fiasco.internal.building.planning.BuildableGroup;
+import com.telenav.fiasco.runtime.Build;
+import com.telenav.fiasco.runtime.Dependency;
 import com.telenav.kivakit.kernel.data.validation.ensure.Ensure;
 
 import java.util.HashSet;
@@ -24,7 +24,7 @@ public class DependencyGraph
     /**
      * @return The dependency graph formed by traversing dependencies starting at the given root
      */
-    public static DependencyGraph of(final Build build)
+    public static DependencyGraph of(Build build)
     {
         return new DependencyGraph(build);
     }
@@ -40,7 +40,7 @@ public class DependencyGraph
     /** The root of this project graph */
     private final Build build;
 
-    private DependencyGraph(final Build build)
+    private DependencyGraph(Build build)
     {
         this.build = build;
     }
@@ -89,7 +89,7 @@ public class DependencyGraph
      * @param visited The set of nodes already visited
      * @param visitor THe visitor to call with nodes
      */
-    private void depthFirst(final Buildable at, Set<Buildable> visited, Consumer<Buildable> visitor)
+    private void depthFirst(Buildable at, Set<Buildable> visited, Consumer<Buildable> visitor)
     {
         // If we already visited this node,
         if (visited.contains(at))
@@ -99,7 +99,7 @@ public class DependencyGraph
         }
 
         // Go through each child dependency,
-        for (final var child : at.dependencies())
+        for (var child : at.dependencies())
         {
             // and if it's a project,
             if (child instanceof Build)

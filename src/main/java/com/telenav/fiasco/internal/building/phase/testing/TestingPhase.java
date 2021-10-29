@@ -1,9 +1,9 @@
 package com.telenav.fiasco.internal.building.phase.testing;
 
-import com.telenav.fiasco.runtime.Build;
 import com.telenav.fiasco.internal.building.BuildStep;
 import com.telenav.fiasco.internal.building.Phase;
 import com.telenav.fiasco.internal.building.phase.BasePhase;
+import com.telenav.fiasco.runtime.Build;
 
 /**
  * <b>Not public API</b>
@@ -26,7 +26,7 @@ import com.telenav.fiasco.internal.building.phase.BasePhase;
  */
 public class TestingPhase extends BasePhase
 {
-    public TestingPhase(final Build build)
+    public TestingPhase(Build build)
     {
         super(build);
     }

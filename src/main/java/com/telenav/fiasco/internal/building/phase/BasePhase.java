@@ -1,7 +1,7 @@
 package com.telenav.fiasco.internal.building.phase;
 
-import com.telenav.fiasco.runtime.Build;
 import com.telenav.fiasco.internal.building.Phase;
+import com.telenav.fiasco.runtime.Build;
 import com.telenav.kivakit.component.BaseComponent;
 
 /**
@@ -20,6 +20,7 @@ public class BasePhase extends BaseComponent implements Phase
         this.build = build;
     }
 
+    @Override
     public Build build()
     {
         return build;
