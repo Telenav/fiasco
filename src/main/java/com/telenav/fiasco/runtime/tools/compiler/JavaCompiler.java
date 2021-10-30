@@ -6,6 +6,7 @@ import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.configuration.lookup.Registry;
 import com.telenav.kivakit.filesystem.FileList;
 import com.telenav.kivakit.filesystem.Folder;
+import com.telenav.kivakit.kernel.interfaces.code.UncheckedVoid;
 import com.telenav.kivakit.kernel.language.collections.list.StringList;
 import com.telenav.kivakit.kernel.language.objects.Objects;
 import com.telenav.kivakit.kernel.messaging.Listener;
@@ -154,7 +155,7 @@ public class JavaCompiler extends BaseComponent
                 node.putByteArray("sourceDigest", sourceDigest);
                 node.putByteArray("targetDigest", targetDigest);
 
-                tryCatch(node::flush, "Failed to flush preferences");
+                tryCatch(UncheckedVoid.of(node::flush), "Failed to flush preferences");
                 return true;
             }
             else
