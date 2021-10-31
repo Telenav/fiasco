@@ -2,6 +2,9 @@ package com.telenav.fiasco.runtime.dependencies.repository.maven;
 
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactGroup;
 import com.telenav.kivakit.kernel.language.values.version.Version;
+import com.telenav.kivakit.kernel.logging.Logger;
+import com.telenav.kivakit.kernel.logging.LoggerFactory;
+import com.telenav.kivakit.kernel.messaging.Listener;
 import com.telenav.kivakit.resource.path.FilePath;
 
 import java.util.Objects;
@@ -12,7 +15,7 @@ import java.util.Objects;
  * <p><b>Creating a Group</b></p>
  *
  * <p>
- * A group is created with {@link #create(String)}, passing in the Maven group identifier. The {@link
+ * A group is created with {@link #parse(String)}, passing in the Maven group identifier. The {@link
  * #defaultVersion(Version)} method can be called to specify a default version used when artifacts in the group are
  * created with {@link #artifact(String)}. This averts needing to specify the version of each artifact and allows the
  * version of all artifacts in the group to be changed in one place. For example:
@@ -33,10 +36,12 @@ import java.util.Objects;
  */
 public class MavenArtifactGroup implements ArtifactGroup
 {
+    private static final Logger LOGGER = LoggerFactory.newLogger();
+
     /**
      * @return An artifact group with the given identifier
      */
-    public static MavenArtifactGroup create(String identifier)
+    public static MavenArtifactGroup parse(Listener listener, String identifier)
     {
         return new MavenArtifactGroup(identifier);
     }
@@ -116,7 +121,7 @@ public class MavenArtifactGroup implements ArtifactGroup
     @Override
     public FilePath path()
     {
-        return FilePath.parseFilePath(identifier().replace(".", "/"));
+        return FilePath.parseFilePath(LOGGER, identifier().replace(".", "/"));
     }
 
     @Override

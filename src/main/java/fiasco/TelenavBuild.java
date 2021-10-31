@@ -24,7 +24,7 @@ public abstract class TelenavBuild extends BaseBuild implements TelenavArtifacts
     protected Contributor jonathan()
     {
         return new Contributor("Jonathan Locke")
-                .withEmail(EmailAddress.parse("jonathanl@telenav.com"));
+                .withEmail(EmailAddress.parse(this, "jonathanl@telenav.com"));
     }
 
     protected License license()

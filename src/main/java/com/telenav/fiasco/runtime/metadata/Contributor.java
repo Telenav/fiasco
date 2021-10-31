@@ -22,13 +22,13 @@ import java.util.Arrays;
 public class Contributor extends Name
 {
     /** A set of email addresses where the contributor can be contacted */
-    private ObjectSet<EmailAddress> emails = ObjectSet.empty();
+    private ObjectSet<EmailAddress> emails = ObjectSet.emptyObjectSet();
 
     /** A set of roles that the contributor provides */
-    private ObjectSet<Role> roles = ObjectSet.empty();
+    private ObjectSet<Role> roles = ObjectSet.emptyObjectSet();
 
     /** The organizations to which the contributor belongs */
-    private ObjectSet<Organization> organizations = ObjectSet.empty();
+    private ObjectSet<Organization> organizations = ObjectSet.emptyObjectSet();
 
     public Contributor(String name)
     {

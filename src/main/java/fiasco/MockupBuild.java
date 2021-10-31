@@ -34,6 +34,6 @@ public class MockupBuild extends TelenavBuild
     @Override
     public Folder workspace()
     {
-        return Folder.parse("${KIVAKIT_WORKSPACE}");
+        return Folder.parse(this, "${KIVAKIT_WORKSPACE}");
     }
 }

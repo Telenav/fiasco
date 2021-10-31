@@ -20,7 +20,7 @@ public abstract class BaseFileTool extends BaseTool
      */
     public FileGlobPattern glob(String pattern)
     {
-        return FileGlobPattern.parse(pattern);
+        return FileGlobPattern.parse(this, pattern);
     }
 
     /**

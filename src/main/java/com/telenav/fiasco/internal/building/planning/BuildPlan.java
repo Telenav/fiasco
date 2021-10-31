@@ -17,7 +17,7 @@ import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 public class BuildPlan
 {
     /** The groups of {@link Buildable}s that must be built under this build plan */
-    private final ObjectList<BuildableGroup> groups = ObjectList.create();
+    private final ObjectList<BuildableGroup> groups = ObjectList.objectList();
 
     /**
      * Adds the group of Buildables to this plan

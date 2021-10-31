@@ -84,17 +84,17 @@ public class Fiasco extends Application
     }
 
     /** Switch to add a build folder to Fiasco */
-    private final SwitchParser<Folder> REMEMBER = Folder.folderSwitchParser("remember", "Adds a project root folder to Fiasco")
+    private final SwitchParser<Folder> REMEMBER = Folder.folderSwitchParser(this, "remember", "Adds a project root folder to Fiasco")
             .optional()
             .build();
 
     /** Switch to remove a build folder to Fiasco */
-    private final SwitchParser<String> FORGET = SwitchParser.stringSwitchParser("forget", "Removes one or more project root folders from Fiasco by glob pattern")
+    private final SwitchParser<String> FORGET = SwitchParser.stringSwitchParser(this, "forget", "Removes one or more project root folders from Fiasco by glob pattern")
             .optional()
             .build();
 
     /** List of build names to build */
-    private final ArgumentParser<String> BUILDS = ArgumentParser.stringArgumentParser("Names of builds to perform (for a list of available builds, run Fiasco with no arguments)")
+    private final ArgumentParser<String> BUILDS = ArgumentParser.stringArgumentParser(this, "Names of builds to perform (for a list of available builds, run Fiasco with no arguments)")
             .optional()
             .zeroOrMore()
             .build();
@@ -141,7 +141,7 @@ public class Fiasco extends Application
         if (has(FORGET))
         {
             // remove it from Java preferences.
-            settings.forgetProject(FolderGlobPattern.parse(get(FORGET)));
+            settings.forgetProject(FolderGlobPattern.parse(this, get(FORGET)));
         }
 
         // If there are no arguments,
@@ -166,7 +166,7 @@ public class Fiasco extends Application
     @Override
     protected ObjectSet<SwitchParser<?>> switchParsers()
     {
-        return ObjectSet.of(REMEMBER, FORGET);
+        return ObjectSet.objectSet(REMEMBER, FORGET);
     }
 
     /**

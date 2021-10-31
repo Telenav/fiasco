@@ -22,7 +22,7 @@ public class FiascoFolders extends BaseComponent
         var version = require(Fiasco.class).version();
         if (version != null)
         {
-            return Folder.parse("$/.fiasco/$", System.getProperty("user.home"), version);
+            return Folder.parse(this, "$/.fiasco/$", System.getProperty("user.home"), version);
         }
         return fail("Unable to get version for fiasco cache folder");
     }

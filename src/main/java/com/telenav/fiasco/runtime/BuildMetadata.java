@@ -27,7 +27,7 @@ public class BuildMetadata
     }
 
     /** The list of contributors to this project */
-    private ObjectList<Contributor> contributors = ObjectList.create();
+    private ObjectList<Contributor> contributors = new ObjectList<>();
 
     /** The project copyright notice */
     private Copyright copyright;
@@ -36,7 +36,7 @@ public class BuildMetadata
     private Organization owner;
 
     /** The set of licenses under which the project is available for use */
-    private ObjectList<License> licenses = ObjectList.create();
+    private ObjectList<License> licenses = new ObjectList<>();
 
     /** Project source code */
     private SourceCode code;

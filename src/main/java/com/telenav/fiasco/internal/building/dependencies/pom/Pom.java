@@ -13,9 +13,9 @@ public class Pom
 {
     MavenArtifact parent;
 
-    ObjectList<MavenArtifact> dependencies = ObjectList.create();
+    ObjectList<MavenArtifact> dependencies = new ObjectList<>();
 
-    ObjectList<MavenArtifact> dependencyManagementDependencies = ObjectList.create();
+    ObjectList<MavenArtifact> dependencyManagementDependencies = new ObjectList<>();
 
     PropertyMap properties = PropertyMap.create();
 

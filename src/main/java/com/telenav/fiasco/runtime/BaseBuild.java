@@ -311,6 +311,6 @@ public abstract class BaseBuild extends BaseDependency implements
     @Override
     public Folder workspace()
     {
-        return Folder.parse("${WORKSPACE}");
+        return Folder.parse(this, "${WORKSPACE}");
     }
 }

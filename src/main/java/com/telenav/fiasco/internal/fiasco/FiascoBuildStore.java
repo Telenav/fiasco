@@ -133,7 +133,7 @@ public class FiascoBuildStore extends BaseComponent
             var projects = new ObjectList<Folder>();
             for (var path : projectFoldersNode().keys())
             {
-                projects.add(Folder.parse(path));
+                projects.add(Folder.parse(this, path));
             }
             return projects;
         }

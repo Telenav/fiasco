@@ -123,7 +123,7 @@ public class PomReader extends BaseComponent
         {
             if (reader.isAtOpenTag("groupId"))
             {
-                artifactGroup = MavenArtifactGroup.create(reader.enclosedText());
+                artifactGroup = MavenArtifactGroup.parse(this, reader.enclosedText());
             }
             if (reader.isAtOpenTag("artifactId"))
             {

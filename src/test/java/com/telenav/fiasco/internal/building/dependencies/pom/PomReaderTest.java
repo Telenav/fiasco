@@ -10,7 +10,7 @@ public class PomReaderTest extends UnitTest
     @Test
     public void testNoParent()
     {
-        var resource = PackageResource.of(getClass(), "no-parent-pom.xml");
+        var resource = PackageResource.packageResource(this, getClass(), "no-parent-pom.xml");
         var pom = PomReader.read(this, resource);
         ensure(pom.parent() == null);
         ensure(pom.dependencies().size() == 4);
@@ -25,7 +25,7 @@ public class PomReaderTest extends UnitTest
     @Test
     public void testProperties()
     {
-        var resource = PackageResource.of(getClass(), "properties-pom.xml");
+        var resource = PackageResource.packageResource(this, getClass(), "properties-pom.xml");
         var pom = PomReader.read(this, resource);
         ensure(pom.parent() == null);
         ensure(pom.dependencies().size() == 4);

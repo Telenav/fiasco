@@ -25,7 +25,7 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
 public class MavenArtifactResolver extends BaseComponent implements ArtifactResolver
 {
     /** List of repositories to search for this project, with the local repository first */
-    private final ObjectList<MavenRepository> remoteRepositories = ObjectList.create();
+    private final ObjectList<MavenRepository> remoteRepositories = new ObjectList<>();
 
     /** The repositories for artifacts that are already resolved */
     private final Map<Artifact, ResolvedArtifact> resolved = new ConcurrentHashMap<>();

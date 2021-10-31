@@ -71,6 +71,7 @@ public class FiascoCompiler extends BaseComponent
      * @param expectedType The expected type of the compiled class
      * @return The object, or null if the class could not be instantiated or is not assignable to the expected type
      */
+    @SuppressWarnings("unchecked")
     public <T> T instantiate(File classFile, Class<T> expectedType)
     {
         try

@@ -54,7 +54,7 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
     public static MavenRepository local(Listener listener)
     {
         return create(listener, "Local")
-                .withRoot(FilePath.parseFilePath("${user.home}/.m2/repository"));
+                .withRoot(FilePath.parseFilePath(listener, "${user.home}/.m2/repository"));
     }
 
     /**
@@ -63,7 +63,7 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
     public static MavenRepository mavenCentral(Listener listener)
     {
         return create(listener, "Maven Central")
-                .withRoot(FilePath.parseFilePath("https://repo1.maven.org/maven2/"));
+                .withRoot(FilePath.parseFilePath(listener, "https://repo1.maven.org/maven2/"));
     }
 
     /** The repository name */
