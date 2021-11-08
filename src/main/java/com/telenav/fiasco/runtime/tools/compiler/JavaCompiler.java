@@ -1,12 +1,11 @@
 package com.telenav.fiasco.runtime.tools.compiler;
 
-import com.telenav.fiasco.internal.fiasco.FiascoFolders;
-import com.telenav.fiasco.runtime.Build;
 import com.telenav.kivakit.component.BaseComponent;
-import com.telenav.kivakit.configuration.lookup.Registry;
+import com.telenav.kivakit.filesystem.File;
 import com.telenav.kivakit.filesystem.FileList;
 import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.kernel.interfaces.code.UncheckedVoid;
+import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.collections.list.StringList;
 import com.telenav.kivakit.kernel.language.objects.Objects;
 import com.telenav.kivakit.kernel.messaging.Listener;
@@ -16,8 +15,9 @@ import javax.tools.ToolProvider;
 import java.io.Writer;
 import java.util.prefs.Preferences;
 
-import static com.telenav.fiasco.runtime.tools.compiler.JavaCompiler.JavaVersion.JAVA_11;
+import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
+import static com.telenav.kivakit.resource.path.Extension.JAR;
 import static com.telenav.kivakit.resource.path.Extension.JAVA;
 
 /**
@@ -27,25 +27,6 @@ import static com.telenav.kivakit.resource.path.Extension.JAVA;
  */
 public class JavaCompiler extends BaseComponent
 {
-    /**
-     * A compiler with a default configuration for building fiasco files
-     *
-     * @return The target files
-     */
-    public static JavaCompiler compiler(Listener listener, Writer output)
-    {
-        var resources = Registry.global().require(FiascoFolders.class);
-
-        return JavaCompiler.create(listener)
-                .withOutput(output)
-                .withSourceVersion(JAVA_11)
-                .withTargetVersion(JAVA_11)
-                .withTargetFolder(resources.targetFolder())
-                .withOption("-classpath")
-                .withOption(resources.fiascoRuntimeJar().toString())
-                .withOption("-implicit:class");
-    }
-
     public static JavaCompiler create(Listener listener)
     {
         return new JavaCompiler(listener);
@@ -91,7 +72,16 @@ public class JavaCompiler extends BaseComponent
     private Folder target;
 
     /** Compiler options */
-    private final StringList options = StringList.stringList();
+    private StringList options = new StringList();
+
+    /** JAR files on the class path */
+    private StringList classPath = new StringList();
+
+    /** Modules to include on the module path with --module-path */
+    private ObjectList<Folder> modulePath = new ObjectList<>();
+
+    /** The list of modules to add with --add-modules */
+    private StringList addModules = new StringList();
 
     protected JavaCompiler(Listener listener)
     {
@@ -104,18 +94,11 @@ public class JavaCompiler extends BaseComponent
         targetVersion = that.targetVersion;
         output = that.output;
         target = that.target;
-        options.addAll(that.options);
+        options = that.options.copy();
+        modulePath = that.modulePath.copy();
+        addModules = that.addModules.copy();
+        classPath = that.classPath.copy();
         copyListeners(that);
-    }
-
-    /**
-     * Builds all the Java source files in the given folder, writing classes to the {@link #targetFolder()}
-     *
-     * @return True if the build succeeded, false if it failed
-     */
-    public boolean compile(Build build)
-    {
-        return compile(build.sourceFolder());
     }
 
     /**
@@ -147,9 +130,9 @@ public class JavaCompiler extends BaseComponent
         else
         {
             // otherwise, build the source files.
-            announce("Compiling $ $", this, source);
             var files = source.nestedFiles(JAVA.fileMatcher());
-            if (task(files, output, options).call())
+            announce("Compiling: $\n  $", this, files.join("\n  "));
+            if (task(files, output, options()).call())
             {
                 // and store the digests for next time
                 node.putByteArray("sourceDigest", sourceDigest);
@@ -166,6 +149,11 @@ public class JavaCompiler extends BaseComponent
         }
     }
 
+    public StringList options()
+    {
+        return resolved().options;
+    }
+
     public Writer out()
     {
         return output;
@@ -179,7 +167,43 @@ public class JavaCompiler extends BaseComponent
     @Override
     public String toString()
     {
-        return "javac " + options.join(" ");
+        return "javac\n  " + options().join("\n  ");
+    }
+
+    /**
+     * Adds the module to the modules to resolve (with the --add-modules switch)
+     */
+    public JavaCompiler withAddedModule(String moduleName)
+    {
+        var copy = copy();
+        copy.addModules.add(moduleName);
+        return copy;
+    }
+
+    /**
+     * Adds the given jar file to the class path for this compiler
+     *
+     * @param folder The folder to add to the classpath
+     */
+    public JavaCompiler withClasspathFolder(Folder folder)
+    {
+        var copy = copy();
+        copy.classPath.add(folder.path().toString());
+        return copy;
+    }
+
+    /**
+     * Adds the given jar file to the class path for this compiler
+     *
+     * @param jar the JAR file to add to the classpath
+     */
+    public JavaCompiler withClasspathJar(File jar)
+    {
+        ensure(jar.hasExtension(JAR));
+
+        var copy = copy();
+        copy.classPath.add(jar.path().toString());
+        return copy;
     }
 
     /**
@@ -189,6 +213,18 @@ public class JavaCompiler extends BaseComponent
     {
         var copy = copy();
         copy.withOption("-deprecation");
+        return copy;
+    }
+
+    /**
+     * Adds the named module to the module path (the --module-path switch) for this compiler
+     *
+     * @param module The name of the module
+     */
+    public JavaCompiler withModulePathFolder(Folder module)
+    {
+        var copy = copy();
+        copy.modulePath.add(module);
         return copy;
     }
 
@@ -232,7 +268,7 @@ public class JavaCompiler extends BaseComponent
         var copy = copy();
         copy.target = folder;
         copy.options.add("-d");
-        copy.options.add(folder.toString());
+        copy.options.add("\"" + folder.toString() + "\"");
         return copy;
     }
 
@@ -254,6 +290,32 @@ public class JavaCompiler extends BaseComponent
     private JavaCompiler copy()
     {
         return new JavaCompiler(this);
+    }
+
+    /**
+     * @return A copy of this compiler with module and classpath options resolved
+     */
+    private JavaCompiler resolved()
+    {
+        // Add the module path to the compiler,
+        var compiler = withOption("--class-path")
+                .withOption(classPath.join(";"));
+
+        if (modulePath.isNonEmpty())
+        {
+            compiler = compiler
+                    .withOption("--module-path")
+                    .withOption(modulePath.join(";"));
+        }
+
+        // add any modules to include in the compile,
+        if (addModules.isNonEmpty())
+        {
+            compiler = compiler.withOption("--add-modules")
+                    .withOption(addModules.join(","));
+        }
+
+        return compiler;
     }
 
     /**

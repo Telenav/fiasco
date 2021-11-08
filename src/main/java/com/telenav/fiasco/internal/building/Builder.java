@@ -1,6 +1,7 @@
 package com.telenav.fiasco.internal.building;
 
 import com.telenav.fiasco.internal.building.planning.BuildableGroup;
+import com.telenav.fiasco.runtime.BuildResult;
 import com.telenav.kivakit.component.Component;
 
 /**

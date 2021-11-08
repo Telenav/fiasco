@@ -1,6 +1,5 @@
-package com.telenav.fiasco.internal.building;
+package com.telenav.fiasco.runtime;
 
-import com.telenav.fiasco.runtime.Build;
 import com.telenav.kivakit.component.Component;
 
 /**

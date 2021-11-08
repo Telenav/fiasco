@@ -1,10 +1,9 @@
 package com.telenav.fiasco.internal.building.phase.compilation;
 
-import com.telenav.fiasco.internal.building.BuildStep;
-import com.telenav.fiasco.internal.building.Phase;
 import com.telenav.fiasco.internal.building.phase.BasePhase;
-import com.telenav.fiasco.internal.fiasco.FiascoFolders;
 import com.telenav.fiasco.runtime.Build;
+import com.telenav.fiasco.runtime.BuildStep;
+import com.telenav.fiasco.runtime.Phase;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenRepository;
 import com.telenav.fiasco.runtime.tools.compiler.JavaCompiler;
 import com.telenav.fiasco.runtime.tools.repository.Librarian;
@@ -47,15 +46,11 @@ public class BaseCompilationPhase extends BasePhase
 
     protected JavaCompiler javaCompiler()
     {
-        var resources = require(FiascoFolders.class);
-
         return JavaCompiler.create(this)
                 .withOutput(output)
                 .withSourceVersion(JAVA_11)
                 .withTargetVersion(JAVA_11)
                 .withTargetFolder(build().projectRootFolder().folder("target").mkdirs())
-                .withOption("-classpath")
-                .withOption(resources.fiascoRuntimeJar().toString())
                 .withOption("-implicit:class");
     }
 

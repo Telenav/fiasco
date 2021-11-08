@@ -1,11 +1,8 @@
 package com.telenav.fiasco.runtime;
 
 import com.telenav.fiasco.internal.building.BuildListener;
-import com.telenav.fiasco.internal.building.BuildResult;
-import com.telenav.fiasco.internal.building.BuildStep;
 import com.telenav.fiasco.internal.building.Buildable;
 import com.telenav.fiasco.internal.building.DependentProject;
-import com.telenav.fiasco.internal.building.Phase;
 import com.telenav.fiasco.internal.building.ProjectFoldersTrait;
 import com.telenav.fiasco.internal.building.dependencies.BaseDependency;
 import com.telenav.fiasco.internal.building.phase.compilation.CompilationPhaseMixin;
@@ -15,7 +12,6 @@ import com.telenav.fiasco.internal.building.phase.testing.TestingPhase;
 import com.telenav.fiasco.internal.fiasco.FiascoCompiler;
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.ResolvedArtifact;
-import com.telenav.fiasco.runtime.tools.compiler.JavaCompiler;
 import com.telenav.fiasco.runtime.tools.repository.Librarian;
 import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.kernel.data.validation.BaseValidator;
@@ -30,12 +26,12 @@ import com.telenav.kivakit.kernel.language.strings.AsciiArt;
 import java.io.StringWriter;
 import java.util.Objects;
 
-import static com.telenav.fiasco.internal.building.BuildStep.FIASCO_STARTUP;
-import static com.telenav.fiasco.internal.building.BuildStep.INITIALIZE;
-import static com.telenav.fiasco.internal.building.BuildStep.PACKAGE_INITIALIZE;
-import static com.telenav.fiasco.internal.building.BuildStep.PACKAGE_INSTALL;
-import static com.telenav.fiasco.internal.building.BuildStep.TEST_INITIALIZE;
-import static com.telenav.fiasco.internal.building.BuildStep.TEST_RUN_TESTS;
+import static com.telenav.fiasco.runtime.BuildStep.FIASCO_STARTUP;
+import static com.telenav.fiasco.runtime.BuildStep.INITIALIZE;
+import static com.telenav.fiasco.runtime.BuildStep.PACKAGE_INITIALIZE;
+import static com.telenav.fiasco.runtime.BuildStep.PACKAGE_INSTALL;
+import static com.telenav.fiasco.runtime.BuildStep.TEST_INITIALIZE;
+import static com.telenav.fiasco.runtime.BuildStep.TEST_RUN_TESTS;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
@@ -218,7 +214,7 @@ public abstract class BaseBuild extends BaseDependency implements
 
         // create a compiler
         var output = new StringWriter();
-        var compiler = JavaCompiler.compiler(this, output);
+        var compiler = require(FiascoCompiler.class).compiler(output);
 
         // and if we can compile the source files,
         if (compiler.compile(fiasco))
@@ -228,7 +224,7 @@ public abstract class BaseBuild extends BaseDependency implements
 
             // and try loading each class file ending in Project,
             var bootstrap = listenTo(new FiascoCompiler());
-            for (var classFile : classes.files(file -> file.fileName().endsWith("Build.class")))
+            for (var classFile : classes.files(file -> file.fileName().endsWith("Project.class")))
             {
                 dependencies().addIfNotNull(bootstrap.instantiate(classFile, Build.class));
             }
@@ -287,7 +283,7 @@ public abstract class BaseBuild extends BaseDependency implements
      */
     public void step(BuildStep step)
     {
-        narrate(AsciiArt.line(step.name()));
+        narrate(AsciiArt.line(step.name().replaceAll("_", " ")));
         this.step = step;
     }
 

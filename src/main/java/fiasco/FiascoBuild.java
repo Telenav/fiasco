@@ -14,7 +14,7 @@ import static com.telenav.fiasco.runtime.metadata.Role.WRITER;
 /**
  * @author jonathanl (shibo)
  */
-public class MockupBuild extends TelenavBuild
+public class FiascoBuild extends TelenavBuild
 {
     @Override
     public void onInitialize()

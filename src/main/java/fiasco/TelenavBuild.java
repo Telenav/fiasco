@@ -18,7 +18,7 @@ public abstract class TelenavBuild extends BaseBuild implements TelenavArtifacts
 {
     protected Copyright copyright(int firstYear)
     {
-        return new Copyright(StringSource.of("Copyright (C) " + firstYear));
+        return new Copyright(StringSource.of("Copyright (C) " + firstYear + ", distributed under Apache License 2.0"));
     }
 
     protected Contributor jonathan()

@@ -1,9 +1,9 @@
 package com.telenav.fiasco.internal.building.builders;
 
 import com.telenav.fiasco.internal.building.BuildListener;
-import com.telenav.fiasco.internal.building.BuildResult;
 import com.telenav.fiasco.internal.building.Buildable;
 import com.telenav.fiasco.internal.building.planning.BuildableGroup;
+import com.telenav.fiasco.runtime.BuildResult;
 import com.telenav.kivakit.kernel.language.values.count.Count;
 import com.telenav.kivakit.kernel.language.vm.JavaVirtualMachine;
 

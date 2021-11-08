@@ -1,9 +1,8 @@
 package com.telenav.fiasco.internal.building.phase.compilation;
 
-import com.telenav.fiasco.internal.building.Phase;
 import com.telenav.fiasco.internal.building.ProjectFoldersTrait;
-import com.telenav.fiasco.runtime.Build;
 import com.telenav.fiasco.runtime.Dependency;
+import com.telenav.fiasco.runtime.Phase;
 import com.telenav.fiasco.runtime.tools.compiler.JavaCompiler;
 import com.telenav.fiasco.runtime.tools.repository.Librarian;
 import com.telenav.kivakit.kernel.interfaces.lifecycle.Initializable;
@@ -55,6 +54,7 @@ public interface CompilationPhaseMixin extends
         onGenerate();
     }
 
+    @Override
     default void initialize()
     {
         onInitialize();
@@ -70,6 +70,7 @@ public interface CompilationPhaseMixin extends
         return compilationPhase().librarian();
     }
 
+    @Override
     default void nextStep()
     {
         compilationPhase().nextStep();
@@ -77,7 +78,7 @@ public interface CompilationPhaseMixin extends
 
     default void onCompile()
     {
-        javaCompiler().compile((Build) this);
+        javaCompiler().compile(sourceFolder());
     }
 
     default void onCompileDocumentation()
@@ -88,6 +89,7 @@ public interface CompilationPhaseMixin extends
     {
     }
 
+    @Override
     default void onInitialize()
     {
     }

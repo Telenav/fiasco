@@ -1,5 +1,6 @@
 package com.telenav.fiasco.internal.building;
 
+import com.telenav.fiasco.runtime.BuildResult;
 import com.telenav.fiasco.runtime.Dependency;
 
 import java.util.concurrent.Callable;

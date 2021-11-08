@@ -3,14 +3,15 @@ package com.telenav.fiasco.internal.fiasco;
 import com.telenav.fiasco.runtime.tools.compiler.JavaCompiler;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.filesystem.File;
-import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.kernel.language.reflection.Type;
 import com.telenav.kivakit.resource.path.Extension;
 
 import java.io.StringWriter;
+import java.io.Writer;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import static com.telenav.fiasco.runtime.tools.compiler.JavaCompiler.JavaVersion.JAVA_16;
 import static java.lang.reflect.Modifier.isAbstract;
 
 /**
@@ -25,43 +26,43 @@ import static java.lang.reflect.Modifier.isAbstract;
 public class FiascoCompiler extends BaseComponent
 {
     /**
-     * @return True if the source files in the given folder were successfully compiled
+     * Compiles the given source file and returns the class file
+     *
+     * @param source The source file
+     * @return The compiled class file
      */
-    public boolean compile(Folder folder)
+    public File compile(File source)
     {
-        var output = new StringWriter();
-        var compiler = JavaCompiler.compiler(this, output);
-        if (!compiler.compile(folder))
+        if (isTrueOr(source.exists(), "Build source file does not exist: $", source))
         {
-            problem("Could not compile folder: $\n\n$", folder, output);
-            return false;
+            var output = new StringWriter();
+            var compiler = compiler(output);
+            if (isNonNullOr(compiler.compile(source.parent()), "Could not compile source file: $\n\n$", source, output))
+            {
+                return compiler.targetFolder()
+                        .file(source.fileName()
+                                .withoutExtension()
+                                .withExtension(Extension.CLASS));
+            }
         }
 
-        return true;
+        return null;
     }
 
     /**
-     * Compiles the given source file, instantiates the resulting class, and if the class is assignable to the expected
-     * type, returns the build object
-     *
-     * @param source The source file
-     * @param expectedType The expected type of the compiled class
-     * @return The build object or null if the source file was not valid or was not assignable to the expected type
+     * @return A configured JavaCompiler for building FiascoBuild.java build files
      */
-    public <T> T compileAndInstantiate(File source, Class<T> expectedType)
+    public JavaCompiler compiler(Writer output)
     {
-        // compile the source file into a build class,
-        var classFile = compile(source);
-        if (classFile != null)
-        {
-            // and execute the build.
-            return instantiate(classFile, expectedType);
-        }
-        else
-        {
-            problem("Build source file couldn't be compiled: $", source);
-            return null;
-        }
+        var cache = require(FiascoCache.class);
+
+        return JavaCompiler.create(this)
+                .withOutput(output)
+                .withSourceVersion(JAVA_16)
+                .withTargetVersion(JAVA_16)
+                .withTargetFolder(cache.targetFolder())
+                .withClasspathJar(cache.runtimeJar())
+                .withOption("-implicit:class");
     }
 
     /**
@@ -82,20 +83,16 @@ public class FiascoCompiler extends BaseComponent
             Class<?> loaded = classLoader.loadClass("fiasco." + classFile.baseName().name());
 
             // and if the class was loaded,
-            if (loaded != null)
+            if (isNonNullOr(loaded, "Could not load class: $", classFile))
             {
                 // and it's not abstract,
                 if (!isAbstract(loaded.getModifiers()))
                 {
                     // and it is assignable to the expected type,
-                    if (expectedType.isAssignableFrom(loaded))
+                    if (isTrueOr(expectedType.isAssignableFrom(loaded), "The class file $ does not contain a subclass of ${class}", classFile, expectedType))
                     {
                         // then return a new instance of the class.
                         return (T) Type.forClass(loaded).newInstance();
-                    }
-                    else
-                    {
-                        problem("The class file $ does not contain a subclass of ${class}", classFile, expectedType);
                     }
                 }
                 else
@@ -104,44 +101,10 @@ public class FiascoCompiler extends BaseComponent
                     return null;
                 }
             }
-            else
-            {
-                problem("Could not load class: $", classFile);
-            }
         }
         catch (Exception e)
         {
             problem(e, "Could not load and instantiate class: $", classFile);
-        }
-
-        return null;
-    }
-
-    /**
-     * @param source The Java file to compile
-     * @return The class file for the given source file or null if the compilation process failed
-     */
-    private File compile(File source)
-    {
-        if (source.exists())
-        {
-            var output = new StringWriter();
-            var compiler = JavaCompiler.compiler(this, output);
-            if (compiler.compile(source.parent()))
-            {
-                return compiler.targetFolder()
-                        .file(source.fileName()
-                                .withoutExtension()
-                                .withExtension(Extension.CLASS));
-            }
-            else
-            {
-                problem("Could not compile Fiasco build source file: $\n\n$", source, output);
-            }
-        }
-        else
-        {
-            problem("Build source file does not exist: $", source);
         }
 
         return null;

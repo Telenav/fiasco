@@ -1,16 +1,16 @@
 package com.telenav.fiasco;
 
 import com.telenav.fiasco.internal.building.BuildListener;
-import com.telenav.fiasco.internal.building.BuildResult;
 import com.telenav.fiasco.internal.building.Buildable;
 import com.telenav.fiasco.internal.building.Builder;
 import com.telenav.fiasco.internal.building.builders.ParallelBuilder;
 import com.telenav.fiasco.internal.building.planning.BuildPlan;
 import com.telenav.fiasco.internal.building.planning.BuildPlanner;
-import com.telenav.fiasco.internal.fiasco.FiascoBuildStore;
+import com.telenav.fiasco.internal.fiasco.FiascoCache;
 import com.telenav.fiasco.internal.fiasco.FiascoCompiler;
-import com.telenav.fiasco.internal.fiasco.FiascoFolders;
+import com.telenav.fiasco.internal.fiasco.FiascoProjectStore;
 import com.telenav.fiasco.runtime.Build;
+import com.telenav.fiasco.runtime.BuildResult;
 import com.telenav.kivakit.application.Application;
 import com.telenav.kivakit.commandline.ArgumentParser;
 import com.telenav.kivakit.commandline.SwitchParser;
@@ -93,20 +93,20 @@ public class Fiasco extends Application
             .optional()
             .build();
 
-    /** List of build names to build */
-    private final ArgumentParser<String> BUILDS = ArgumentParser.stringArgumentParser(this, "Names of builds to perform (for a list of available builds, run Fiasco with no arguments)")
+    /** List of projects to build */
+    private final ArgumentParser<String> PROJECTS = ArgumentParser.stringArgumentParser(this, "Names of projects to build (for a list of remembered projects, run Fiasco with no arguments)")
             .optional()
             .zeroOrMore()
             .build();
 
     /** Java preferences settings for Fiasco */
-    private final FiascoBuildStore settings = listenTo(register(new FiascoBuildStore()));
+    private final FiascoProjectStore projects = listenTo(register(new FiascoProjectStore()));
 
     /** Locations of fiasco resources */
-    private final FiascoFolders resources = listenTo(register(new FiascoFolders()));
+    private final FiascoCache resources = listenTo(register(new FiascoCache()));
 
     /** Project-related utilities */
-    private final FiascoCompiler project = listenTo(new FiascoCompiler());
+    private final FiascoCompiler compiler = listenTo(new FiascoCompiler());
 
     public Fiasco(Project... projects)
     {
@@ -116,15 +116,7 @@ public class Fiasco extends Application
     @Override
     protected List<ArgumentParser<?>> argumentParsers()
     {
-        return List.of(BUILDS);
-    }
-
-    /**
-     * @return The {@link Builder} to use for this build
-     */
-    protected Builder builder()
-    {
-        return new ParallelBuilder();
+        return List.of(PROJECTS);
     }
 
     @Override
@@ -134,32 +126,35 @@ public class Fiasco extends Application
         if (has(REMEMBER))
         {
             // store it in Java preferences.
-            settings.rememberProject(get(REMEMBER));
+            projects.rememberProject(get(REMEMBER));
         }
 
         // If we are asked to forget a project root,
         if (has(FORGET))
         {
             // remove it from Java preferences.
-            settings.forgetProject(FolderGlobPattern.parse(this, get(FORGET)));
+            projects.forgetProject(FolderGlobPattern.parse(this, get(FORGET)));
         }
 
         // If there are no arguments,
         if (argumentList().isEmpty())
         {
             // then show the available builds
-            information(settings.buildNames().titledBox("Available Builds"));
+            information(projects.projects()
+                    .mapped(at -> at.name() + ": " + at.rootFolder())
+                    .asStringList()
+                    .titledBox("Available Builds"));
         }
         else
         {
-            // otherwise, check that all builds exist,
-            for (var buildName : arguments(BUILDS))
+            // otherwise, check that all specified projects are valid,
+            for (var at : arguments(PROJECTS))
             {
-                ensure(settings.buildNames().contains(buildName), "Not a valid build: $", buildName);
+                ensure(projects.isProjectName(at), "Not a valid build: $", at);
             }
 
             // and build, announcing each build as it completes.
-            build(result -> announce(result.toString()), arguments(BUILDS));
+            build(result -> announce(result.toString()), arguments(PROJECTS));
         }
     }
 
@@ -170,32 +165,31 @@ public class Fiasco extends Application
     }
 
     /**
-     * Compiles and runs the named builds, reporting build completions to the given listener
+     * Compiles and runs the named projects, reporting build completions to the given listener
      */
-    private void build(BuildListener buildListener, ObjectList<String> buildNames)
+    private void build(BuildListener buildListener, ObjectList<String> projectNames)
     {
         // For each specified build,
-        for (var buildName : buildNames)
+        for (var projectName : projectNames)
         {
             // get the .java build file with the given name,
-            var source = settings.buildSourceFile(buildName);
-            var build = project.compileAndInstantiate(source, Build.class);
-            if (build != null)
+            var project = projects.project(projectName);
+            if (isNonNullOr(project, "Not a valid Fiasco project name: \"$\"", projectName))
             {
-                listenTo(build);
-
-                var projectRoot = source.parent() // fiasco
-                        .parent() // java
-                        .parent() // main
-                        .parent() // src
-                        .parent(); // [root]
-
-                build.projectRootFolder(projectRoot);
-                build(buildListener, build);
-            }
-            else
-            {
-                problem("Unable to load build defined in: $", source);
+                var source = project.buildFile();
+                var classFile = compiler.compile(source);
+                if (isNonNullOr(classFile, "Could not compile: $", source))
+                {
+                    trace("Compiled $", source);
+                    var build = compiler.instantiate(classFile, Build.class);
+                    if (isNonNullOr(build, "Unable to load: $", classFile))
+                    {
+                        announce("Loaded build $", project);
+                        listenTo(build);
+                        build.projectRootFolder(project.rootFolder());
+                        build(buildListener, build);
+                    }
+                }
             }
         }
     }
@@ -209,6 +203,7 @@ public class Fiasco extends Application
      */
     private void build(BuildListener listener, Build build)
     {
+        trace("Executing build");
         var result = new BuildResult(name());
         result.start();
         try
@@ -221,5 +216,13 @@ public class Fiasco extends Application
         {
             result.end();
         }
+    }
+
+    /**
+     * @return The {@link Builder} to use for this build
+     */
+    private Builder builder()
+    {
+        return new ParallelBuilder();
     }
 }

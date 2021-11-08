@@ -4,6 +4,7 @@ import com.telenav.fiasco.Fiasco;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.filesystem.File;
 import com.telenav.kivakit.filesystem.Folder;
+import com.telenav.kivakit.kernel.messaging.Message;
 
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
 
@@ -12,29 +13,41 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
  *
  * @author jonathanl (shibo)
  */
-public class FiascoFolders extends BaseComponent
+public class FiascoCache extends BaseComponent
 {
     /**
      * @return The cache folder for Fiasco
      */
-    public Folder cacheFolder()
+    public Folder folder()
     {
         var version = require(Fiasco.class).version();
         if (version != null)
         {
-            return Folder.parse(this, "$/.fiasco/$", System.getProperty("user.home"), version);
+            var path = Message.format("$/.fiasco/$", System.getProperty("user.home"), version);
+            var cache = Folder.parse(this, path);
+            if (cache != null)
+            {
+                return cache.mkdirs();
+            }
+            return fail("Unable to parse fiasco cache folder: $", path);
         }
         return fail("Unable to get version for fiasco cache folder");
     }
 
     /**
+     * @return The named sub-folder of the cache folder
+     */
+    public Folder folder(String child)
+    {
+        return folder().folder(child).mkdirs();
+    }
+
+    /**
      * @return The Fiasco runtime jar
      */
-    public File fiascoRuntimeJar()
+    public File runtimeJar()
     {
-        return cacheFolder()
-                .folder("downloads")
-                .file("fiasco-runtime-$.jar", require(Fiasco.class).version());
+        return folder("modules").file("fiasco-runtime-$.jar", require(Fiasco.class).version());
     }
 
     /**
@@ -42,6 +55,6 @@ public class FiascoFolders extends BaseComponent
      */
     public Folder targetFolder()
     {
-        return cacheFolder().folder("target");
+        return folder("target");
     }
 }
