@@ -54,4 +54,12 @@ public interface Dependency extends Validatable, Named, Component, Addable<Depen
      * @param exclusion The exclusion
      */
     Dependency excluding(Matcher<Dependency> exclusion);
+
+    /**
+     * @return True if this dependency has no dependencies
+     */
+    default boolean isLeaf()
+    {
+        return dependencies().isEmpty();
+    }
 }

@@ -5,6 +5,7 @@ import com.telenav.fiasco.internal.building.planning.BuildableGroup;
 import com.telenav.fiasco.runtime.Build;
 import com.telenav.fiasco.runtime.Dependency;
 import com.telenav.kivakit.kernel.data.validation.ensure.Ensure;
+import com.telenav.kivakit.kernel.interfaces.function.BooleanFunction;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.collections.list.StringList;
 
@@ -46,10 +47,6 @@ public class DependencyGraph
         default void atNode(Dependency node)
         {
         }
-
-        default void onGroup(BuildableGroup leaves)
-        {
-        }
     }
 
     /** The root of this project graph */
@@ -62,40 +59,55 @@ public class DependencyGraph
 
     /**
      * @return A list of groups of {@link Buildable}s that can be built simultaneously (when the first group is done,
-     * the next group can be built)
+     * the next group can be built). How this works is described in detail in the documentation for {@link
+     * #isLogicalLeaf(Dependency, Set)}.
+     * @see #isLogicalLeaf(Dependency, Set)
      */
     public ObjectList<BuildableGroup> buildableGroups()
     {
+        // Create a list of buildable groups,
         var groups = new ObjectList<BuildableGroup>();
-        var visitedLeaves = new HashSet<Dependency>();
 
+        // and a set of visited leaves,
+        var visitedLeaves = new HashSet<Dependency>();
+        var previouslyVisitedLeaves = new HashSet<Dependency>();
+
+        // then loop,
         while (true)
         {
+            // creating a new group,
             var group = new BuildableGroup();
 
-            depthFirstTraversal(new Visitor()
+            // and visiting all the "logical leaf" nodes from the root.
+            depthFirstTraversal(root, new HashSet<>(), dependency -> isLogicalLeaf(dependency, previouslyVisitedLeaves), new Visitor()
             {
                 @Override
                 public void atLeaf(Dependency leaf)
                 {
+                    // If a leaf node is Buildable,
                     if (leaf instanceof Buildable)
                     {
+                        // add it to the group
                         group.add((Buildable) leaf);
+
+                        // and to the leaves we've visited on this pass.
+                        visitedLeaves.add(leaf);
                     }
                 }
             });
 
+            // If the group is empty,
             if (group.isEmpty())
             {
+                // return the groups we've found,
                 return groups;
             }
 
+            // otherwise, add the group of leaves we found,
             groups.add(group);
 
-            if (group.size() == 1 && group.get(0).equals(root))
-            {
-                return groups;
-            }
+            // and we have previously visited all the leaves
+            previouslyVisitedLeaves.addAll(visitedLeaves);
         }
     }
 
@@ -107,7 +119,7 @@ public class DependencyGraph
      */
     public void depthFirstTraversal(Visitor visitor)
     {
-        depthFirstTraversal(root, new HashSet<>(), visitor);
+        depthFirstTraversal(root, new HashSet<>(), Dependency::isLeaf, visitor);
     }
 
     /**
@@ -145,9 +157,13 @@ public class DependencyGraph
      *
      * @param at The node to traverse from
      * @param visited The set of nodes already visited
+     * @param isLeaf Function to identify leaf nodes
      * @param visitor THe visitor to call with nodes
      */
-    private void depthFirstTraversal(Dependency at, Set<Dependency> visited, Visitor visitor)
+    private void depthFirstTraversal(Dependency at,
+                                     Set<Dependency> visited,
+                                     BooleanFunction<Dependency> isLeaf,
+                                     Visitor visitor)
     {
         // If we already visited this node,
         if (visited.contains(at))
@@ -160,11 +176,11 @@ public class DependencyGraph
         for (var child : at.dependencies())
         {
             // explore it (in a depth-first traversal)
-            depthFirstTraversal(child, visited, visitor);
+            depthFirstTraversal(child, visited, isLeaf, visitor);
         }
 
         // If the node we're at is a leaf,
-        if (isLeaf(at, visited))
+        if (isLeaf.isTrue(at))
         {
             // then visit the leaf,
             visitor.atLeaf(at);
@@ -180,18 +196,34 @@ public class DependencyGraph
     }
 
     /**
-     * @return True if the given node doesn't have an unvisited dependency
+     * @return True if the given dependency is a "logical leaf" node given previous traversals which have populated the
+     * given visited set. On the first traversal, physical leaf nodes will be placed into the visited set. On the second
+     * traversal, interior nodes which had all dependencies visited on the prior traversal are logically considered
+     * leaves. This algorithm essentially "shaves off" sets of leaf nodes from the original graph until there are no
+     * nodes left. The group of leaf nodes found on each pass can be built in parallel since those nodes have no
+     * dependencies (so long as all prior groups have been built).
      */
-    private boolean isLeaf(Dependency node, Set<Dependency> visited)
+    private boolean isLogicalLeaf(Dependency node, Set<Dependency> visited)
     {
+        // If we already visited this node,
+        if (visited.contains(node))
+        {
+            // then it can't be a leaf
+            return false;
+        }
+
+        // otherwise, go though the node's dependencies
         for (var at : node.dependencies())
         {
+            // and if there's a child of the node that has not been visited,
             if (!visited.contains(at))
             {
+                // we don't have a logical leaf
                 return false;
             }
         }
 
+        // We have not visited this dependency and it has no unvisited children, so it's a logical leaf node.
         return true;
     }
 

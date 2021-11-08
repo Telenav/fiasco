@@ -25,7 +25,6 @@ import com.telenav.kivakit.kernel.language.reflection.Type;
 import com.telenav.kivakit.kernel.language.strings.AsciiArt;
 
 import java.io.StringWriter;
-import java.util.Objects;
 
 import static com.telenav.fiasco.runtime.BuildStep.FIASCO_STARTUP;
 import static com.telenav.fiasco.runtime.BuildStep.INITIALIZE;
@@ -36,7 +35,6 @@ import static com.telenav.fiasco.runtime.BuildStep.TEST_RUN_TESTS;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.unsupported;
 
 /**
  * Base class for Fiasco build definitions
@@ -67,7 +65,7 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.unsupport
  * {@link BuildListener#onBuildStep(BuildStep)} method with the new build step.
  * </p>
  */
-public abstract class BaseBuild extends BaseDependency implements
+public class BaseBuild extends BaseDependency implements
         Named,
         Buildable,
         DependentProject,
@@ -86,6 +84,21 @@ public abstract class BaseBuild extends BaseDependency implements
 
     /** The librarian to resolve artifacts for this project */
     private final Librarian librarian = new Librarian(this);
+
+    /** The artifact descriptor for this project */
+    private ArtifactDescriptor descriptor;
+
+    public BaseBuild artifactDescriptor(ArtifactDescriptor descriptor)
+    {
+        this.descriptor = descriptor;
+        return this;
+    }
+
+    public BaseBuild artifactDescriptor(String descriptor)
+    {
+        artifactDescriptor(parseArtifactDescriptor(descriptor));
+        return this;
+    }
 
     /**
      * {@inheritDoc}
@@ -106,18 +119,7 @@ public abstract class BaseBuild extends BaseDependency implements
     @Override
     public ArtifactDescriptor descriptor()
     {
-        return unsupported();
-    }
-
-    @Override
-    public boolean equals(Object object)
-    {
-        if (object instanceof BaseBuild)
-        {
-            var that = (BaseBuild) object;
-            return projectRootFolder().equals(that.projectRootFolder());
-        }
-        return false;
+        return descriptor;
     }
 
     /**
@@ -158,12 +160,6 @@ public abstract class BaseBuild extends BaseDependency implements
         {
             result.end();
         }
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return Objects.hash(projectRootFolder());
     }
 
     /**
@@ -258,7 +254,7 @@ public abstract class BaseBuild extends BaseDependency implements
      * @param root The project root folder
      */
     @Override
-    public Build projectRootFolder(Folder root)
+    public BaseBuild projectRootFolder(Folder root)
     {
         this.root = root;
         return this;
@@ -293,6 +289,12 @@ public abstract class BaseBuild extends BaseDependency implements
     {
         narrate(AsciiArt.line(step.name().replaceAll("_", " ")));
         this.step = step;
+    }
+
+    @Override
+    public String toString()
+    {
+        return descriptor().toString();
     }
 
     @Override

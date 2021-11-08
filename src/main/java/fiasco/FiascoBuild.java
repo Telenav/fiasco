@@ -16,6 +16,11 @@ import static com.telenav.fiasco.runtime.metadata.Role.WRITER;
  */
 public class FiascoBuild extends TelenavBuild
 {
+    public FiascoBuild()
+    {
+        artifactDescriptor("com.telenav.fiasco:fiasco:1.0.0");
+    }
+
     @Override
     public void onInitialize()
     {
