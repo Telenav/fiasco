@@ -2,9 +2,12 @@ package com.telenav.fiasco.runtime;
 
 import com.telenav.fiasco.runtime.dependencies.DependencySet;
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
+import com.telenav.fiasco.runtime.dependencies.repository.ArtifactDescriptor;
 import com.telenav.kivakit.component.Component;
 import com.telenav.kivakit.kernel.data.validation.Validatable;
+import com.telenav.kivakit.kernel.interfaces.collection.Addable;
 import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
+import com.telenav.kivakit.kernel.interfaces.naming.Named;
 
 import java.util.Arrays;
 
@@ -19,7 +22,7 @@ import java.util.Arrays;
  * @see Library
  * @see Artifact
  */
-public interface Dependency extends Validatable, Component
+public interface Dependency extends Validatable, Named, Component, Addable<Dependency>
 {
     /**
      * @return A deep copy of this dependency
@@ -30,6 +33,11 @@ public interface Dependency extends Validatable, Component
      * @return The immediate dependencies of this dependency
      */
     DependencySet dependencies();
+
+    /**
+     * @return The artifact descriptor for this dependency in [group-name]:[artifact-name](:[version])? form.
+     */
+    ArtifactDescriptor descriptor();
 
     /**
      * @return This dependency with the given exclusions as filters

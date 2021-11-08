@@ -30,7 +30,7 @@ public class BuildPlanner
     public BuildPlan plan(Build build)
     {
         var plan = new BuildPlan();
-        DependencyGraph.of(build).visitLeafGroups(plan::add);
+        DependencyGraph.of(build).buildableGroups().forEach(plan::add);
         return plan;
     }
 }

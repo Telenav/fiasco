@@ -18,11 +18,6 @@ import com.telenav.kivakit.resource.path.FilePath;
 public interface Artifact extends Dependency
 {
     /**
-     * @return The artifact descriptor [group-name]:[artifact-name](:[version])?
-     */
-    ArtifactDescriptor descriptor();
-
-    /**
      * @return The group to which this artifact belongs
      */
     default ArtifactGroup group()
@@ -47,6 +42,7 @@ public interface Artifact extends Dependency
     /**
      * @return The fully-qualified name of the artifact
      */
+    @Override
     String name();
 
     /**

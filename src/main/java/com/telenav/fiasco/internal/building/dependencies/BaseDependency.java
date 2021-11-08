@@ -53,6 +53,13 @@ public abstract class BaseDependency extends BaseComponent implements Dependency
         exclusions = new MatcherSet<>();
     }
 
+    @Override
+    public boolean add(Dependency value)
+    {
+        dependencies.add(value);
+        return true;
+    }
+
     /**
      * {@inheritDoc}
      */

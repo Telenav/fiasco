@@ -20,6 +20,7 @@ package com.telenav.fiasco.runtime;
 
 import com.telenav.fiasco.internal.building.dependencies.BaseDependency;
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
+import com.telenav.fiasco.runtime.dependencies.repository.ArtifactDescriptor;
 import com.telenav.kivakit.kernel.data.validation.BaseValidator;
 import com.telenav.kivakit.kernel.data.validation.ValidationType;
 import com.telenav.kivakit.kernel.data.validation.Validator;
@@ -68,6 +69,12 @@ public class Library extends BaseDependency
     public Dependency copy()
     {
         return new Library(artifact);
+    }
+
+    @Override
+    public ArtifactDescriptor descriptor()
+    {
+        return artifact.descriptor();
     }
 
     @Override

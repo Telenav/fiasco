@@ -11,6 +11,7 @@ import com.telenav.fiasco.internal.building.phase.packaging.PackagingPhase;
 import com.telenav.fiasco.internal.building.phase.testing.TestingPhase;
 import com.telenav.fiasco.internal.fiasco.FiascoCompiler;
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
+import com.telenav.fiasco.runtime.dependencies.repository.ArtifactDescriptor;
 import com.telenav.fiasco.runtime.dependencies.repository.ResolvedArtifact;
 import com.telenav.fiasco.runtime.tools.repository.Librarian;
 import com.telenav.kivakit.filesystem.Folder;
@@ -35,6 +36,7 @@ import static com.telenav.fiasco.runtime.BuildStep.TEST_RUN_TESTS;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
+import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.unsupported;
 
 /**
  * Base class for Fiasco build definitions
@@ -99,6 +101,12 @@ public abstract class BaseBuild extends BaseDependency implements
     public BaseBuild copy()
     {
         return Type.forClass(getClass()).newInstance();
+    }
+
+    @Override
+    public ArtifactDescriptor descriptor()
+    {
+        return unsupported();
     }
 
     @Override
