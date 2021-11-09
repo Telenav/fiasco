@@ -104,7 +104,7 @@ public interface CompilationPhaseMixin extends
 
     default void onResolveArtifacts()
     {
-        listenTo(librarian()).resolveAll(this);
+        listenTo(librarian()).resolveTransitive(this);
     }
 
     default void onVerify()

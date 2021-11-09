@@ -273,9 +273,9 @@ public class BaseBuild extends BaseDependency implements
      * {@inheritDoc}
      */
     @Override
-    public ObjectList<ResolvedArtifact> resolveAll(Dependency dependency)
+    public ObjectList<ResolvedArtifact> resolveTransitive(Dependency dependency)
     {
-        return librarian.resolveAll(dependency);
+        return librarian.resolveTransitive(dependency);
     }
 
     /**

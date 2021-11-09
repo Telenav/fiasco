@@ -11,15 +11,15 @@ import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
  *
  * <p><b>Artifact Resolution</b></p>
  * <p>
- * An artifact is considered resolved when it is located in the local repository. The {@link #resolveAll(Dependency)}
- * method searches a series of remote repositories, resolving dependent artifacts by installing them from one of the
- * remote repositories. If an artifact cannot be found, an exception will be thrown.
+ * An artifact is considered resolved when it is located in the local repository. The {@link
+ * #resolveTransitive(Dependency)} method searches a series of remote repositories, resolving dependent artifacts by
+ * installing them from one of the remote repositories. If an artifact cannot be found, an exception will be thrown.
  * </p>
  *
  * <p><b>Transitive Dependencies</b></p>
  * <p>
- * The {@link #resolveAll(Dependency)} method resolves artifacts by examining all transitive dependencies starting from
- * the given root dependency. The root {@link Dependency} may be:
+ * The {@link #resolveTransitive(Dependency)} method resolves artifacts by examining all transitive dependencies
+ * starting from the given root dependency. The root {@link Dependency} may be:
  * <ul>
  *     <li>Artifact - An artifact with dependent artifacts</li>
  *     <li>Library - A library with dependent artifacts</li>
@@ -45,5 +45,5 @@ public interface ArtifactResolver
      * @return The transitively resolved artifacts
      * @throws RuntimeException A runtime exception is thrown if all artifacts cannot be resolved
      */
-    ObjectList<ResolvedArtifact> resolveAll(Dependency dependency);
+    ObjectList<ResolvedArtifact> resolveTransitive(Dependency dependency);
 }

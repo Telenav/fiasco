@@ -9,6 +9,7 @@ import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.collections.list.StringList;
 import com.telenav.kivakit.kernel.language.objects.Objects;
 import com.telenav.kivakit.kernel.messaging.Listener;
+import com.telenav.kivakit.resource.resources.other.PropertyMap;
 
 import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.ToolProvider;
@@ -68,6 +69,9 @@ public class JavaCompiler extends BaseComponent
     /** Compiler output */
     private Writer output;
 
+    /** True to include all debugging information */
+    private boolean debugInformation = true;
+
     /** Folder for class files and other generated resources */
     private Folder target;
 
@@ -77,11 +81,17 @@ public class JavaCompiler extends BaseComponent
     /** JAR files on the class path */
     private StringList classPath = new StringList();
 
-    /** Modules to include on the module path with --module-path */
+    /** Folders containing modules to include on the module path with --module-path */
     private ObjectList<Folder> modulePath = new ObjectList<>();
+
+    /** Folders to include on the source path with --source-path */
+    private ObjectList<Folder> sourcePath = new ObjectList<>();
 
     /** The list of modules to add with --add-modules */
     private StringList addModules = new StringList();
+
+    /** Virtual machine properties */
+    private final PropertyMap properties = PropertyMap.create();
 
     protected JavaCompiler(Listener listener)
     {
@@ -96,8 +106,10 @@ public class JavaCompiler extends BaseComponent
         target = that.target;
         options = that.options.copy();
         modulePath = that.modulePath.copy();
+        sourcePath = that.sourcePath.copy();
         addModules = that.addModules.copy();
         classPath = that.classPath.copy();
+        debugInformation = that.debugInformation;
         copyListeners(that);
     }
 
@@ -112,15 +124,18 @@ public class JavaCompiler extends BaseComponent
         ensureNotNull(targetVersion, "No target version specified");
         ensureNotNull(target, "No target folder specified");
 
+        // Get the fiasco node for the user,
         var node = Preferences.userNodeForPackage(getClass()).node("fiasco");
 
+        // and the source and target digests for the fiasco build classes,
         var lastSourceDigest = node.getByteArray("sourceDigest", null);
         var lastTargetDigest = node.getByteArray("targetDigest", null);
 
+        // create a digest for the current source and target files,
         var sourceDigest = source.nestedFiles().digest();
         var targetDigest = target.nestedFiles().digest();
 
-        // If the source and target folders are identical to the last compile,
+        // and if the source and target folders are identical to the last compile,
         if (Objects.equalPairs(lastSourceDigest, sourceDigest, lastTargetDigest, targetDigest))
         {
             // then we can skip compiling
@@ -129,15 +144,14 @@ public class JavaCompiler extends BaseComponent
         }
         else
         {
-            // otherwise, build the source files.
+            // otherwise, we do a full compile of the build source files.
             var files = source.nestedFiles(JAVA.fileMatcher());
             announce("Compiling: $\n  $", this, files.join("\n  "));
             if (task(files, output, options()).call())
             {
-                // and store the digests for next time
+                // and if the compile succeeded, we store the digests for next time
                 node.putByteArray("sourceDigest", sourceDigest);
                 node.putByteArray("targetDigest", targetDigest);
-
                 tryCatch(UncheckedVoid.of(node::flush), "Failed to flush preferences");
                 return true;
             }
@@ -171,16 +185,6 @@ public class JavaCompiler extends BaseComponent
     }
 
     /**
-     * Adds the module to the modules to resolve (with the --add-modules switch)
-     */
-    public JavaCompiler withAddedModule(String moduleName)
-    {
-        var copy = copy();
-        copy.addModules.add(moduleName);
-        return copy;
-    }
-
-    /**
      * Adds the given jar file to the class path for this compiler
      *
      * @param folder The folder to add to the classpath
@@ -207,12 +211,54 @@ public class JavaCompiler extends BaseComponent
     }
 
     /**
+     * @return This compiler with debug information turned on or off
+     */
+    public JavaCompiler withDebugInformation(boolean enable)
+    {
+        var copy = copy();
+        copy.debugInformation = enable;
+        return copy;
+    }
+
+    /**
      * @return This compiler object with deprecation warnings turned on
      */
     public JavaCompiler withDeprecationWarnings()
     {
+        return withOption("-deprecation");
+    }
+
+    /**
+     * @return This compiler with warnings causing termination
+     */
+    public JavaCompiler withFailOnWarnings()
+    {
+        return withOption("-Werror");
+    }
+
+    /**
+     * @return This compiler with implicit compilation enabled. Referenced classes are compiled transitively.
+     */
+    public JavaCompiler withImplicitCompilation()
+    {
+        return withOption("-implicit:class");
+    }
+
+    /**
+     * @return This compiler with the given virtual machine option
+     */
+    public JavaCompiler withJavaOption(String option)
+    {
+        return withOption("-J" + option);
+    }
+
+    /**
+     * Adds the module to the modules to resolve (with the --add-modules switch)
+     */
+    public JavaCompiler withModule(String moduleName)
+    {
         var copy = copy();
-        copy.withOption("-deprecation");
+        copy.addModules.add(moduleName);
         return copy;
     }
 
@@ -245,6 +291,45 @@ public class JavaCompiler extends BaseComponent
     {
         var copy = copy();
         copy.output = output;
+        return copy;
+    }
+
+    /**
+     * @return This compiler with preview features enabled
+     */
+    public JavaCompiler withPreviewFeatures()
+    {
+        return withOption("--enable-preview");
+    }
+
+    /**
+     * Adds the given property with -Dkey=value
+     *
+     * @param key The property key
+     * @param value The property value
+     */
+    public JavaCompiler withProperty(String key, String value)
+    {
+        var copy = copy();
+        copy.properties.put(key, value);
+        return copy;
+    }
+
+    /**
+     * @return This compiler with the given source encoding, typically "UTF-8"
+     */
+    public JavaCompiler withSourceEncoding(String encoding)
+    {
+        return withOption("-encoding").withOption(encoding);
+    }
+
+    /**
+     * @return This compiler with the given source folder
+     */
+    public JavaCompiler withSourceFolder(Folder folder)
+    {
+        var copy = copy();
+        copy.sourcePath.add(folder);
         return copy;
     }
 
@@ -285,6 +370,22 @@ public class JavaCompiler extends BaseComponent
     }
 
     /**
+     * @return This compiler with verbose output
+     */
+    public JavaCompiler withVerboseOutput()
+    {
+        return withOption("-verbose");
+    }
+
+    /**
+     * @return This compiler without warnings
+     */
+    public JavaCompiler withoutWarnings()
+    {
+        return withOption("-nowarn");
+    }
+
+    /**
      * @return A copy of this compiler
      */
     private JavaCompiler copy()
@@ -293,14 +394,38 @@ public class JavaCompiler extends BaseComponent
     }
 
     /**
-     * @return A copy of this compiler with module and classpath options resolved
+     * @return A copy of this compiler with all options resolved
      */
     private JavaCompiler resolved()
     {
-        // Add the module path to the compiler,
-        var compiler = withOption("--class-path")
-                .withOption(classPath.join(";"));
+        var compiler = this;
 
+        // Add any -D properties,
+        for (var key : properties.keySet())
+        {
+            compiler = compiler.withOption("-D" + key + "=" + properties.get(key));
+        }
+
+        // debug information switch,
+        compiler = compiler.withOption(debugInformation ? "-g" : "-g:none");
+
+        // class-path,
+        if (classPath.isNonEmpty())
+        {
+            compiler = compiler
+                    .withOption("--class-path")
+                    .withOption(classPath.join(";"));
+        }
+
+        // source-path,
+        if (sourcePath.isNonEmpty())
+        {
+            compiler = compiler
+                    .withOption("--source-path")
+                    .withOption(sourcePath.join(";"));
+        }
+
+        // module-path,
         if (modulePath.isNonEmpty())
         {
             compiler = compiler
@@ -308,10 +433,11 @@ public class JavaCompiler extends BaseComponent
                     .withOption(modulePath.join(";"));
         }
 
-        // add any modules to include in the compile,
+        // and any modules to reference during compilation.
         if (addModules.isNonEmpty())
         {
-            compiler = compiler.withOption("--add-modules")
+            compiler = compiler
+                    .withOption("--add-modules")
                     .withOption(addModules.join(","));
         }
 
