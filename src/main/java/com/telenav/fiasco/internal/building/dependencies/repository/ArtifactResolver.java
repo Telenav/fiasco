@@ -7,7 +7,11 @@ import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 
 /**
+ * <b>Not public API</b>
+ *
+ * <p>
  * Resolves one or more {@link Artifact}s for a {@link Dependency}.
+ * </p>
  *
  * <p><b>Artifact Resolution</b></p>
  * <p>
@@ -31,7 +35,11 @@ import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 public interface ArtifactResolver
 {
     /**
+     * <b>Not public API</b>
+     *
+     * <p>
      * Resolves a single artifact
+     * </p>
      *
      * @param artifact The artifact
      * @return The resolved artifact
@@ -39,7 +47,11 @@ public interface ArtifactResolver
     ResolvedArtifact resolve(Artifact artifact);
 
     /**
+     * <b>Not public API</b>
+     *
+     * <p>
      * Resolves all transitive artifacts for the given dependency ({@link Artifact}, {@link Library} or {@link Build})
+     * </p>
      *
      * @param dependency The dependency to resolve
      * @return The transitively resolved artifacts

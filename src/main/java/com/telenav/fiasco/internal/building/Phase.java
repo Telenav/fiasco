@@ -1,5 +1,6 @@
-package com.telenav.fiasco.runtime;
+package com.telenav.fiasco.internal.building;
 
+import com.telenav.fiasco.runtime.Build;
 import com.telenav.kivakit.component.Component;
 
 /**
@@ -11,12 +12,12 @@ import com.telenav.kivakit.component.Component;
 public interface Phase extends Component
 {
     /**
-     * @return The project to which this phase belongs
+     * @return The build to which this phase belongs
      */
     Build build();
 
     /**
-     * Move the project build forward a step
+     * Move the build forward a step
      */
     default void nextStep()
     {

@@ -62,7 +62,7 @@ public class FiascoCompiler extends BaseComponent
                 .withTargetVersion(JAVA_16)
                 .withTargetFolder(cache.targetFolder())
                 .withClasspathJar(cache.runtimeJar())
-                .withOption("-implicit:class");
+                .withImplicitCompilation();
     }
 
     /**

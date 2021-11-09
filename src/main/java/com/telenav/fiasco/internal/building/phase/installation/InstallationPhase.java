@@ -1,9 +1,9 @@
 package com.telenav.fiasco.internal.building.phase.installation;
 
+import com.telenav.fiasco.internal.building.BuildStep;
+import com.telenav.fiasco.internal.building.Phase;
 import com.telenav.fiasco.internal.building.phase.BasePhase;
 import com.telenav.fiasco.runtime.Build;
-import com.telenav.fiasco.runtime.BuildStep;
-import com.telenav.fiasco.runtime.Phase;
 
 /**
  * <b>Not public API</b>

@@ -1,4 +1,4 @@
-package com.telenav.fiasco.runtime;
+package com.telenav.fiasco.internal.building;
 
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
 
@@ -19,7 +19,7 @@ public enum BuildStep
     // Compile sources
     INITIALIZE,
     RESOLVE_ARTIFACTS,
-    GENERATE,
+    GENERATE_SOURCES,
     PREPROCESS,
     COMPILE,
     POSTPROCESS,
@@ -29,7 +29,7 @@ public enum BuildStep
     // Compile test sources
     TEST_INITIALIZE,
     TEST_RESOLVE_ARTIFACTS,
-    TEST_GENERATE,
+    TEST_GENERATE_SOURCES,
     TEST_PREPROCESS,
     TEST_COMPILE,
     TEST_POSTPROCESS,

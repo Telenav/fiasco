@@ -1,8 +1,10 @@
 package com.telenav.fiasco.runtime;
 
 import com.telenav.fiasco.internal.building.BuildListener;
+import com.telenav.fiasco.internal.building.BuildStep;
 import com.telenav.fiasco.internal.building.Buildable;
 import com.telenav.fiasco.internal.building.DependentProject;
+import com.telenav.fiasco.internal.building.Phase;
 import com.telenav.fiasco.internal.building.ProjectFoldersTrait;
 import com.telenav.fiasco.internal.building.dependencies.BaseDependency;
 import com.telenav.fiasco.internal.building.dependencies.repository.ResolvedArtifact;
@@ -26,12 +28,12 @@ import com.telenav.kivakit.kernel.language.strings.AsciiArt;
 
 import java.io.StringWriter;
 
-import static com.telenav.fiasco.runtime.BuildStep.FIASCO_STARTUP;
-import static com.telenav.fiasco.runtime.BuildStep.INITIALIZE;
-import static com.telenav.fiasco.runtime.BuildStep.PACKAGE_INITIALIZE;
-import static com.telenav.fiasco.runtime.BuildStep.PACKAGE_INSTALL;
-import static com.telenav.fiasco.runtime.BuildStep.TEST_INITIALIZE;
-import static com.telenav.fiasco.runtime.BuildStep.TEST_RUN_TESTS;
+import static com.telenav.fiasco.internal.building.BuildStep.FIASCO_STARTUP;
+import static com.telenav.fiasco.internal.building.BuildStep.INITIALIZE;
+import static com.telenav.fiasco.internal.building.BuildStep.PACKAGE_INITIALIZE;
+import static com.telenav.fiasco.internal.building.BuildStep.PACKAGE_INSTALL;
+import static com.telenav.fiasco.internal.building.BuildStep.TEST_INITIALIZE;
+import static com.telenav.fiasco.internal.building.BuildStep.TEST_RUN_TESTS;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
@@ -169,6 +171,7 @@ public class BaseBuild extends BaseDependency implements
      * True if the build is at the given build step
      * </p>
      */
+    @SuppressWarnings("ClassEscapesDefinedScope")
     public boolean isAt(BuildStep at)
     {
         return step == at;
@@ -264,6 +267,7 @@ public class BaseBuild extends BaseDependency implements
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("ClassEscapesDefinedScope")
     public ResolvedArtifact resolve(Artifact artifact)
     {
         return librarian.resolve(artifact);
@@ -273,6 +277,7 @@ public class BaseBuild extends BaseDependency implements
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("ClassEscapesDefinedScope")
     public ObjectList<ResolvedArtifact> resolveTransitive(Dependency dependency)
     {
         return librarian.resolveTransitive(dependency);
@@ -285,6 +290,7 @@ public class BaseBuild extends BaseDependency implements
      * Sets the build step to the given step
      * </p>
      */
+    @SuppressWarnings("ClassEscapesDefinedScope")
     public void step(BuildStep step)
     {
         narrate(AsciiArt.line(step.name().replaceAll("_", " ")));

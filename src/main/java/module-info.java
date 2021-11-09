@@ -14,7 +14,6 @@ open module com.telenav.fiasco
     // Exports
     exports com.telenav.fiasco;
     exports com.telenav.fiasco.runtime;
-    exports com.telenav.fiasco.runtime.dependencies;
     exports com.telenav.fiasco.runtime.dependencies.repository;
     exports com.telenav.fiasco.runtime.dependencies.repository.maven;
     exports com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.popular;
@@ -27,7 +26,5 @@ open module com.telenav.fiasco
     exports com.telenav.fiasco.runtime.tools.network;
     exports com.telenav.fiasco.runtime.tools.repository;
     exports com.telenav.fiasco.runtime.tools.test;
-    exports com.telenav.fiasco.internal.building.dependencies.repository.maven;
-    exports com.telenav.fiasco.internal.building.dependencies.repository;
     exports com.telenav.fiasco.runtime.dependencies.repository.maven.artifact;
 }

@@ -60,6 +60,61 @@ public class JavaCompiler extends BaseComponent
         }
     }
 
+    /**
+     * -Xlint warnings used with {@link #withWarning(Warning)} and {@link #withoutWarning(Warning)}
+     */
+    @SuppressWarnings("SpellCheckingInspection")
+    public enum Warning
+    {
+        ABNORMAL_FINALLY_CLAUSE_TERMINATION("finally"),
+        ACCESS_OF_STATIC_MEMBER_WITH_REFERENCE("static"),
+        ALL_WARNINGS("all"),
+        ANNOTATION_PROCESSING_ISSUES("processing"),
+        CASE_FALLTHROUGH_ISSUES("fallthrough"),
+        CLASS_FILE_ISSUES("classfile"),
+        COMMAND_LINE_ISSUES("options"),
+        DIVIDE_BY_ZERO("divzero"),
+        EMPTY_IF_BLOCK("empty"),
+        INVALID_PATH_ELEMENTS("path"),
+        METHOD_OVERLOAD_ISSUES("overloads"),
+        METHOD_OVERRIDE_ISSUES("overrides"),
+        MISSING_EXPLICIT_CONSTRUCTORS("missing-explicit-ctor"),
+        MISSING_SERIALIZATION_VERSION_IDENTIFIERS("serial"),
+        MISSING_TYPE_PARAMETERS("rawtypes"),
+        MODULE_EXPORT_ISSUES("exports"),
+        MODULE_ISSUES("module"),
+        MODULE_OPENS_ISSUES("opens"),
+        NO_WARNINGS("none"),
+        REQUIRED_AUTOMATIC_MODULES("requires-automatic"),
+        REQUIRED_TRANSITIVE_AUTOMATIC_MODULES("requires-transitive-automatic"),
+        RISKY_SYNCHRONIZATION_ISSUES("synchronization"),
+        TEXT_BLOCK_INDENTATION_ISSUES("text-blocks"),
+        TRY_BLOCK_ISSUES("try"),
+        UNCHECKED_OPERATIONS("unchecked"),
+        UNNECESSARY_CASTS("cast"),
+        UNSAFE_VARIABLE_ARGUMENT_METHODS("varargs"),
+        USE_OF_API_MARKED_FOR_REMOVAL("removal"),
+        USE_OF_DEPRECATED_CODE("deprecation"),
+        USE_OF_PREVIEW_LANGUAGE_FEATURES("preview");
+
+        private String value;
+
+        Warning(String value)
+        {
+            this.value = value;
+        }
+
+        public String option()
+        {
+            return "-Xlint:" + value;
+        }
+
+        public String removeOption()
+        {
+            return "-Xlint:-" + value;
+        }
+    }
+
     /** The Java source code version */
     private JavaVersion sourceVersion;
 
@@ -88,7 +143,7 @@ public class JavaCompiler extends BaseComponent
     private ObjectList<Folder> sourcePath = new ObjectList<>();
 
     /** The list of modules to add with --add-modules */
-    private StringList addModules = new StringList();
+    private StringList modules = new StringList();
 
     /** Virtual machine properties */
     private final PropertyMap properties = PropertyMap.create();
@@ -107,7 +162,7 @@ public class JavaCompiler extends BaseComponent
         options = that.options.copy();
         modulePath = that.modulePath.copy();
         sourcePath = that.sourcePath.copy();
-        addModules = that.addModules.copy();
+        modules = that.modules.copy();
         classPath = that.classPath.copy();
         debugInformation = that.debugInformation;
         copyListeners(that);
@@ -166,11 +221,6 @@ public class JavaCompiler extends BaseComponent
     public StringList options()
     {
         return resolved().options;
-    }
-
-    public Writer out()
-    {
-        return output;
     }
 
     public Folder targetFolder()
@@ -258,7 +308,7 @@ public class JavaCompiler extends BaseComponent
     public JavaCompiler withModule(String moduleName)
     {
         var copy = copy();
-        copy.addModules.add(moduleName);
+        copy.modules.add(moduleName);
         return copy;
     }
 
@@ -378,6 +428,22 @@ public class JavaCompiler extends BaseComponent
     }
 
     /**
+     * @return This compiler with the given lint warning
+     */
+    public JavaCompiler withWarning(Warning warning)
+    {
+        return withOption(warning.option());
+    }
+
+    /**
+     * @return This compiler without the given lint warning
+     */
+    public JavaCompiler withoutWarning(Warning warning)
+    {
+        return withOption(warning.removeOption());
+    }
+
+    /**
      * @return This compiler without warnings
      */
     public JavaCompiler withoutWarnings()
@@ -434,11 +500,11 @@ public class JavaCompiler extends BaseComponent
         }
 
         // and any modules to reference during compilation.
-        if (addModules.isNonEmpty())
+        if (modules.isNonEmpty())
         {
             compiler = compiler
                     .withOption("--add-modules")
-                    .withOption(addModules.join(","));
+                    .withOption(modules.join(","));
         }
 
         return compiler;
