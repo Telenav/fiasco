@@ -17,6 +17,12 @@ public class ApacheCommons extends MavenArtifactGroup
     }
 
     @Override
+    public ApacheCommons defaultVersion(String defaultVersion)
+    {
+        return (ApacheCommons) super.defaultVersion(defaultVersion);
+    }
+
+    @Override
     public ApacheCommons defaultVersion(Version defaultVersion)
     {
         return (ApacheCommons) super.defaultVersion(defaultVersion);

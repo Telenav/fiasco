@@ -6,7 +6,6 @@ import com.telenav.kivakit.kernel.data.validation.Validatable;
 import com.telenav.kivakit.kernel.data.validation.ValidationType;
 import com.telenav.kivakit.kernel.data.validation.Validator;
 import com.telenav.kivakit.kernel.interfaces.naming.Named;
-import com.telenav.kivakit.kernel.language.values.version.Version;
 import com.telenav.kivakit.kernel.messaging.Listener;
 import com.telenav.kivakit.resource.path.FilePath;
 
@@ -23,7 +22,7 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
  *
  * <p>
  * Artifact descriptors can be created by calling the {@link #MavenArtifactDescriptor(MavenArtifactGroup, String,
- * Version)} constructor, or by parsing a descriptor string with {@link #parse(Listener, String)}.
+ * String)} constructor, or by parsing a descriptor string with {@link #parse(Listener, String)}.
  * </p>
  *
  * <p><b>Properties</b></p>
@@ -39,7 +38,7 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
  * <p><b>Functional methods</b></p>
  *
  * <p>
- * The method {@link #withVersion(Version)} returns a copy of this descriptor with a different {@link Version}
+ * The method {@link #withVersion(String)} returns a copy of this descriptor with a different version
  * </p>
  *
  * @author jonathanl (shibo)
@@ -66,8 +65,7 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
         {
             var group = new MavenArtifactGroup(matcher.group("group"));
             var identifier = matcher.group("identifier");
-            var versionText = matcher.group("version");
-            var version = versionText == null ? null : Version.parse(listener, versionText);
+            var version = matcher.group("version");
 
             var descriptor = new MavenArtifactDescriptor(group, identifier, version);
             if (descriptor.isValid(listener))
@@ -89,9 +87,9 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
     private String identifier;
 
     /** The artifact version */
-    private Version version;
+    private String version;
 
-    public MavenArtifactDescriptor(MavenArtifactGroup group, String identifier, Version version)
+    public MavenArtifactDescriptor(MavenArtifactGroup group, String identifier, String version)
     {
         this.group = ensureNotNull(group);
         this.identifier = ensureNotNull(identifier);
@@ -192,7 +190,7 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
         return group()
                 .path()
                 .withChild(identifier())
-                .withChild(version.toString());
+                .withChild(version);
     }
 
     @Override
@@ -219,10 +217,10 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
     }
 
     /**
-     * @return The version of this descriptor
+     * @return The version text of this descriptor
      */
     @Override
-    public Version version()
+    public String version()
     {
         return version;
     }
@@ -250,7 +248,7 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
     /**
      * @return The given version of this artifact
      */
-    public MavenArtifactDescriptor withVersion(Version version)
+    public MavenArtifactDescriptor withVersion(String version)
     {
         var copy = new MavenArtifactDescriptor(this);
         copy.version = version;

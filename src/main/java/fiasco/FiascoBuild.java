@@ -12,6 +12,8 @@ import static com.telenav.fiasco.runtime.metadata.Role.ORIGINATOR;
 import static com.telenav.fiasco.runtime.metadata.Role.WRITER;
 
 /**
+ * Example Fiasco build.
+ *
  * @author jonathanl (shibo)
  */
 public class FiascoBuild extends TelenavBuild

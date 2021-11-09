@@ -16,7 +16,7 @@ import java.util.Objects;
  *
  * <p>
  * A group is created with {@link #parse(Listener, String)}, passing in the Maven group identifier. The {@link
- * #defaultVersion(Version)} method can be called to specify a default version used when artifacts in the group are
+ * #defaultVersion(String)} method can be called to specify a default version used when artifacts in the group are
  * created with {@link #artifact(String)}. This averts needing to specify the version of each artifact and allows the
  * version of all artifacts in the group to be changed in one place. For example:
  * <pre>
@@ -50,7 +50,7 @@ public class MavenArtifactGroup implements ArtifactGroup
     private final String identifier;
 
     /** Default version for artifacts in this group */
-    private Version defaultVersion;
+    private String defaultVersion;
 
     protected MavenArtifactGroup(String identifier)
     {
@@ -83,9 +83,18 @@ public class MavenArtifactGroup implements ArtifactGroup
     /**
      * Sets the default version of this group
      */
-    public MavenArtifactGroup defaultVersion(Version defaultVersion)
+    public MavenArtifactGroup defaultVersion(String defaultVersion)
     {
         this.defaultVersion = defaultVersion;
+        return this;
+    }
+
+    /**
+     * Sets the default version of this group
+     */
+    public MavenArtifactGroup defaultVersion(Version defaultVersion)
+    {
+        this.defaultVersion = defaultVersion.toString();
         return this;
     }
 

@@ -37,12 +37,29 @@ public class FiascoCompiler extends BaseComponent
         {
             var output = new StringWriter();
             var compiler = compiler(output);
-            if (isNonNullOr(compiler.compile(source.parent()), "Could not compile source file: $\n\n$", source, output))
+            var sourceFolder = source.parent();
+            var classFile = compiler.targetFolder()
+                    .file(source.fileName()
+                            .withoutExtension()
+                            .withExtension(Extension.CLASS));
+
+            // If the source or target folder has changed since the last time,
+            if (sourceFolder.hasChanged() || compiler.targetFolder().hasChanged())
             {
-                return compiler.targetFolder()
-                        .file(source.fileName()
-                                .withoutExtension()
-                                .withExtension(Extension.CLASS));
+                // and the source folder compiles successfully,
+                if (isNonNullOr(compiler.compile(sourceFolder), "Could not compile source file: $\n\n$", source, output))
+                {
+                    // then note the new change in the target folder,
+                    compiler.targetFolder().hasChanged();
+
+                    // and return the compiled class file.
+                    return classFile;
+                }
+            }
+            else
+            {
+                // otherwise, if the source and target are the same, just return the last class file.
+                return classFile;
             }
         }
 

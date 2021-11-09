@@ -145,6 +145,18 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
     }
 
     /**
+     * <b>Not public API</b>
+     *
+     * <p>
+     * Sets this artifact version during POM property resolution
+     * </p>
+     */
+    public void resolveVersion(String version)
+    {
+        descriptor = descriptor.withVersion(version);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -190,7 +202,7 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
      * @return The version of this artifact
      */
     @Override
-    public Version version()
+    public String version()
     {
         return descriptor.version();
     }
@@ -213,6 +225,14 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
 
     @Override
     public MavenArtifact withVersion(Version version)
+    {
+        var copy = copy();
+        copy.descriptor = descriptor.withVersion(version.toString());
+        return copy;
+    }
+
+    @Override
+    public MavenArtifact withVersion(String version)
     {
         var copy = copy();
         copy.descriptor = descriptor.withVersion(version);

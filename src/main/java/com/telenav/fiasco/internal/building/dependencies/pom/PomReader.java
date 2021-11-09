@@ -6,7 +6,6 @@ import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.data.formats.xml.stax.StaxPath;
 import com.telenav.kivakit.data.formats.xml.stax.StaxReader;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
-import com.telenav.kivakit.kernel.language.values.version.Version;
 import com.telenav.kivakit.kernel.messaging.Listener;
 import com.telenav.kivakit.resource.Resource;
 import com.telenav.kivakit.resource.resources.other.PropertyMap;
@@ -33,9 +32,11 @@ public class PomReader extends BaseComponent
         try (var reader = StaxReader.open(resource))
         {
             // and return the parsed POM information.
-            return listener.listenTo(new PomReader(reader)).read();
+            return listener.listenTo(new PomReader(resource, reader)).read();
         }
     }
+
+    private final Resource resource;
 
     private final StaxReader reader;
 
@@ -51,8 +52,9 @@ public class PomReader extends BaseComponent
 
     private final StaxPath DEPENDENCY_MANAGEMENT_DEPENDENCY = parseXmlPath("project/dependencyManagement/dependency");
 
-    protected PomReader(StaxReader reader)
+    protected PomReader(Resource resource, StaxReader reader)
     {
+        this.resource = resource;
         this.reader = listenTo(reader);
     }
 
@@ -81,12 +83,19 @@ public class PomReader extends BaseComponent
             }
             if (reader.isInside(DEPENDENCY_MANAGEMENT))
             {
-                pom.dependencyManagementDependencies = readDependencies
-                        (DEPENDENCY_MANAGEMENT, DEPENDENCY_MANAGEMENT_DEPENDENCY, pom.properties);
+                pom.dependencyManagementDependencies = readDependencies(DEPENDENCY_MANAGEMENT, DEPENDENCY_MANAGEMENT_DEPENDENCY, pom.properties);
             }
         }
 
+        pom.resolveDependencyVersions();
+
         return pom;
+    }
+
+    @Override
+    public String toString()
+    {
+        return resource.path().asString();
     }
 
     /**
@@ -117,7 +126,7 @@ public class PomReader extends BaseComponent
     {
         MavenArtifactGroup artifactGroup = null;
         String artifactIdentifier = null;
-        Version version = null;
+        String version = null;
 
         for (; reader.isInside(dependencyPath); reader.next())
         {
@@ -131,7 +140,7 @@ public class PomReader extends BaseComponent
             }
             if (reader.isAtOpenTag("version"))
             {
-                version = Version.parse(this, properties.expand(reader.enclosedText()));
+                version = reader.enclosedText();
             }
         }
 

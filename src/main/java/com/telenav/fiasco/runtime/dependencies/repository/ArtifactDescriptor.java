@@ -2,6 +2,7 @@ package com.telenav.fiasco.runtime.dependencies.repository;
 
 import com.telenav.kivakit.kernel.interfaces.naming.Named;
 import com.telenav.kivakit.kernel.language.values.version.Version;
+import com.telenav.kivakit.kernel.messaging.Listener;
 import com.telenav.kivakit.resource.path.FilePath;
 
 /**
@@ -50,5 +51,13 @@ public interface ArtifactDescriptor extends Named
     /**
      * @return The artifact version, or null if the descriptor matches all artifact versions
      */
-    Version version();
+    String version();
+
+    /**
+     * @return The artifact version text as a {@link Version}, or null if the text is not a valid {@link Version}
+     */
+    default Version version(Listener listener)
+    {
+        return Version.parse(listener, version());
+    }
 }

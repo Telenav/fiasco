@@ -1,22 +1,29 @@
 package com.telenav.fiasco.internal.building.dependencies.pom;
 
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifact;
+import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.collections.list.StringList;
 import com.telenav.kivakit.kernel.language.reflection.property.KivaKitIncludeProperty;
 import com.telenav.kivakit.resource.resources.other.PropertyMap;
 
+import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
+
 /**
  * Simple model of properties and dependencies a Maven pom.xml file
  */
-public class Pom
+public class Pom extends BaseComponent
 {
+    /** The parent artifact */
     MavenArtifact parent;
 
+    /** List of dependencies */
     ObjectList<MavenArtifact> dependencies = new ObjectList<>();
 
+    /** List of "managed" Maven dependencies */
     ObjectList<MavenArtifact> dependencyManagementDependencies = new ObjectList<>();
 
+    /** POM properties */
     PropertyMap properties = PropertyMap.create();
 
     @KivaKitIncludeProperty
@@ -78,6 +85,22 @@ public class Pom
     public PropertyMap properties()
     {
         return properties;
+    }
+
+    public void resolveDependencyVersions()
+    {
+        // For each dependency,
+        for (var dependency : dependencies)
+        {
+            ensure(dependency.isResolved(), "Dependency version is unresolved: $", dependency);
+
+            // if its version needs to be expanded,
+            if (dependency.version().contains("${"))
+            {
+                // then expand it.
+                dependency.resolveVersion(properties.expand(dependency.version()));
+            }
+        }
     }
 
     @Override

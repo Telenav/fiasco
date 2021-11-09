@@ -4,17 +4,14 @@ import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.filesystem.File;
 import com.telenav.kivakit.filesystem.FileList;
 import com.telenav.kivakit.filesystem.Folder;
-import com.telenav.kivakit.kernel.interfaces.code.UncheckedVoid;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.collections.list.StringList;
-import com.telenav.kivakit.kernel.language.objects.Objects;
 import com.telenav.kivakit.kernel.messaging.Listener;
 import com.telenav.kivakit.resource.resources.other.PropertyMap;
 
 import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.ToolProvider;
 import java.io.Writer;
-import java.util.prefs.Preferences;
 
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
@@ -179,43 +176,17 @@ public class JavaCompiler extends BaseComponent
         ensureNotNull(targetVersion, "No target version specified");
         ensureNotNull(target, "No target folder specified");
 
-        // Get the fiasco node for the user,
-        var node = Preferences.userNodeForPackage(getClass()).node("fiasco");
-
-        // and the source and target digests for the fiasco build classes,
-        var lastSourceDigest = node.getByteArray("sourceDigest", null);
-        var lastTargetDigest = node.getByteArray("targetDigest", null);
-
-        // create a digest for the current source and target files,
-        var sourceDigest = source.nestedFiles().digest();
-        var targetDigest = target.nestedFiles().digest();
-
-        // and if the source and target folders are identical to the last compile,
-        if (Objects.equalPairs(lastSourceDigest, sourceDigest, lastTargetDigest, targetDigest))
+        // otherwise, we do a full compile of the build source files.
+        var files = source.nestedFiles(JAVA.fileMatcher());
+        if (isDebugOn())
         {
-            // then we can skip compiling
-            trace("Source and target folders are unchanged, skipping compilation");
-            return true;
+            trace("Compiling: " + this + files.join("\n  "));
         }
         else
         {
-            // otherwise, we do a full compile of the build source files.
-            var files = source.nestedFiles(JAVA.fileMatcher());
-            announce("Compiling: $\n  $", this, files.join("\n  "));
-            if (task(files, output, options()).call())
-            {
-                // and if the compile succeeded, we store the digests for next time
-                node.putByteArray("sourceDigest", sourceDigest);
-                node.putByteArray("targetDigest", targetDigest);
-                tryCatch(UncheckedVoid.of(node::flush), "Failed to flush preferences");
-                return true;
-            }
-            else
-            {
-                problem("Compilation failed:\n\n$\n", output);
-                return false;
-            }
+            announce("Compiling $", source);
         }
+        return isNonNullOr(task(files, output, options()).call(), "Compilation failed:\n\n$\n", output);
     }
 
     public StringList options()
@@ -231,7 +202,7 @@ public class JavaCompiler extends BaseComponent
     @Override
     public String toString()
     {
-        return "javac\n  " + options().join("\n  ");
+        return "javac\n  " + join(options());
     }
 
     /**
@@ -457,6 +428,32 @@ public class JavaCompiler extends BaseComponent
     private JavaCompiler copy()
     {
         return new JavaCompiler(this);
+    }
+
+    /**
+     * @return The given options joined together
+     */
+    private String join(StringList options)
+    {
+        var builder = new StringBuilder();
+
+        // For each option string,
+        for (var index = 0; index < options.size(); index++)
+        {
+            // append the option,
+            builder.append(options.get(index));
+
+            // and if the option is a switch and the next option is not a switch,
+            if (options.get(index).startsWith("-") &&
+                    (index + 1 < options.size() && !options.get(index + 1).startsWith("-")))
+            {
+                // then append the switch value
+                builder.append(" " + options.get(index + 1));
+                index++;
+            }
+            builder.append("\n  ");
+        }
+        return builder.toString();
     }
 
     /**

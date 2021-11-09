@@ -4,6 +4,7 @@ import com.telenav.fiasco.runtime.Dependency;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifact;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.values.version.Version;
+import com.telenav.kivakit.kernel.messaging.Listener;
 import com.telenav.kivakit.resource.Resource;
 import com.telenav.kivakit.resource.path.Extension;
 import com.telenav.kivakit.resource.path.FilePath;
@@ -57,7 +58,15 @@ public interface Artifact extends Dependency
     /**
      * @return The version of this artifact
      */
-    Version version();
+    String version();
+
+    /**
+     * @return The artifact version text as a {@link Version}, or null if the text is not a valid {@link Version}
+     */
+    default Version version(Listener listener)
+    {
+        return Version.parse(listener, version());
+    }
 
     /**
      * @return This artifact with the given group
