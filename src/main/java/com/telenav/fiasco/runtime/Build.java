@@ -3,12 +3,12 @@ package com.telenav.fiasco.runtime;
 import com.telenav.fiasco.internal.building.Buildable;
 import com.telenav.fiasco.internal.building.DependentProject;
 import com.telenav.fiasco.internal.building.ProjectFoldersTrait;
+import com.telenav.fiasco.internal.building.dependencies.repository.ArtifactResolver;
 import com.telenav.fiasco.internal.building.phase.compilation.CompilationPhaseMixin;
 import com.telenav.fiasco.internal.building.phase.installation.InstallationPhaseMixin;
 import com.telenav.fiasco.internal.building.phase.packaging.PackagingPhaseMixin;
 import com.telenav.fiasco.internal.building.phase.testing.TestingPhaseMixin;
-import com.telenav.fiasco.runtime.dependencies.repository.ArtifactResolver;
-import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenPopularArtifacts;
+import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenPopularArtifacts;
 import com.telenav.kivakit.kernel.interfaces.lifecycle.Initializable;
 
 /**

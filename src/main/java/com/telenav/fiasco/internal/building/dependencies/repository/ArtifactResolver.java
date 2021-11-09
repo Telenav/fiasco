@@ -1,8 +1,9 @@
-package com.telenav.fiasco.runtime.dependencies.repository;
+package com.telenav.fiasco.internal.building.dependencies.repository;
 
 import com.telenav.fiasco.runtime.Build;
 import com.telenav.fiasco.runtime.Dependency;
 import com.telenav.fiasco.runtime.Library;
+import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 
 /**

@@ -1,5 +1,6 @@
 package com.telenav.fiasco.runtime.dependencies.repository;
 
+import com.telenav.kivakit.kernel.interfaces.naming.Named;
 import com.telenav.kivakit.kernel.language.values.version.Version;
 import com.telenav.kivakit.resource.path.FilePath;
 
@@ -18,7 +19,7 @@ import com.telenav.kivakit.resource.path.FilePath;
  *
  * @author jonathanl (shibo)
  */
-public interface ArtifactDescriptor
+public interface ArtifactDescriptor extends Named
 {
     /**
      * @return The artifact group (groupId)
@@ -38,6 +39,7 @@ public interface ArtifactDescriptor
     /**
      * @return The fully qualified artifact descriptor, like "com.telenav.kivakit:kivakit-kernel:9.5.0"
      */
+    @Override
     String name();
 
     /**

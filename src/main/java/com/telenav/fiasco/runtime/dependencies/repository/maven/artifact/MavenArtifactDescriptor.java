@@ -1,4 +1,4 @@
-package com.telenav.fiasco.runtime.dependencies.repository.maven;
+package com.telenav.fiasco.runtime.dependencies.repository.maven.artifact;
 
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactDescriptor;
 import com.telenav.kivakit.kernel.data.validation.BaseValidator;
@@ -83,10 +83,10 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
     }
 
     /** The group of this artifact */
-    private final MavenArtifactGroup group;
+    private MavenArtifactGroup group;
 
     /** The artifact identifier */
-    private final String identifier;
+    private String identifier;
 
     /** The artifact version */
     private Version version;
@@ -225,6 +225,26 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
     public Version version()
     {
         return version;
+    }
+
+    /**
+     * @return The given version of this artifact
+     */
+    public MavenArtifactDescriptor withGroup(MavenArtifactGroup group)
+    {
+        var copy = new MavenArtifactDescriptor(this);
+        copy.group = group;
+        return copy;
+    }
+
+    /**
+     * @return The given version of this artifact
+     */
+    public MavenArtifactDescriptor withIdentifier(String identifier)
+    {
+        var copy = new MavenArtifactDescriptor(this);
+        copy.identifier = identifier;
+        return copy;
     }
 
     /**

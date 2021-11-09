@@ -1,10 +1,11 @@
-package com.telenav.fiasco.runtime.dependencies.repository.maven;
+package com.telenav.fiasco.runtime.dependencies.repository.maven.artifact;
 
 import com.telenav.fiasco.internal.building.dependencies.BaseDependency;
 import com.telenav.fiasco.runtime.Dependency;
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactDescriptor;
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactGroup;
+import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenRepository;
 import com.telenav.kivakit.kernel.data.validation.BaseValidator;
 import com.telenav.kivakit.kernel.data.validation.ValidationType;
 import com.telenav.kivakit.kernel.data.validation.Validator;
@@ -35,7 +36,7 @@ import static com.telenav.kivakit.resource.path.Extension.SHA1;
  *     <li>{@link #group()} - The group to which this artifact belongs</li>
  *     <li>{@link #identifier()} - The artifact identifier</li>
  *     <li>{@link #version()} - The artifact version</li>
- *     <li>{@link #name()} - The fully qualified name of the artifact: [group-name]:[artifact-name]:[version]</li>
+ *     <li>{@link #descriptor()} - An artifact descriptor of the form: [group-name]:[artifact-name](:[version])?</li>
  *     <li>{@link #path()} - The complete path to the artifact from the root of a repository</li>
  * </ul>
  *
@@ -56,7 +57,7 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
     /** The descriptor for this artifact */
     private MavenArtifactDescriptor descriptor;
 
-    public MavenArtifact(MavenArtifact that)
+    protected MavenArtifact(MavenArtifact that)
     {
         super(that);
         descriptor = that.descriptor.copy();
@@ -138,15 +139,6 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
      * {@inheritDoc}
      */
     @Override
-    public String name()
-    {
-        return descriptor.name();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public FilePath path()
     {
         return descriptor.path();
@@ -156,9 +148,9 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
      * {@inheritDoc}
      */
     @Override
-    public Resource resource(FilePath path, Extension extension)
+    public Resource resource(FilePath repositoryRoot, Extension extension)
     {
-        return Resource.resolve(this, path.withChild(identifier() + "-" + version() + extension));
+        return Resource.resolve(this, repositoryRoot.withChild(identifier() + "-" + version() + extension));
     }
 
     /**
@@ -201,6 +193,22 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
     public Version version()
     {
         return descriptor.version();
+    }
+
+    @Override
+    public MavenArtifact withGroup(ArtifactGroup group)
+    {
+        var copy = copy();
+        copy.descriptor = descriptor.withGroup((MavenArtifactGroup) group);
+        return copy;
+    }
+
+    @Override
+    public MavenArtifact withIdentifier(String identifier)
+    {
+        var copy = copy();
+        copy.descriptor = descriptor.withIdentifier(identifier);
+        return copy;
     }
 
     @Override

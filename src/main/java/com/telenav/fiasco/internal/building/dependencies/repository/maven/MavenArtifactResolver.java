@@ -1,10 +1,11 @@
-package com.telenav.fiasco.runtime.dependencies.repository.maven;
+package com.telenav.fiasco.internal.building.dependencies.repository.maven;
 
+import com.telenav.fiasco.internal.building.dependencies.repository.ArtifactResolver;
+import com.telenav.fiasco.internal.building.dependencies.repository.ResolvedArtifact;
 import com.telenav.fiasco.runtime.Dependency;
 import com.telenav.fiasco.runtime.Library;
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
-import com.telenav.fiasco.runtime.dependencies.repository.ArtifactResolver;
-import com.telenav.fiasco.runtime.dependencies.repository.ResolvedArtifact;
+import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenRepository;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.strings.AsciiArt;
@@ -15,6 +16,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
 
 /**
+ * <b>Not public API</b>
+ * <p>
  * Resolves Maven artifacts. Artifacts that are in the local repository are already resolved. Artifacts that are not yet
  * in the local repository are located by scanning a list of {@link MavenRepository}s. If the artifact is found in a
  * Maven repository, it is copied from that repository into the local repository. Resolution of artifacts with {@link

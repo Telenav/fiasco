@@ -1,7 +1,7 @@
 package com.telenav.fiasco.runtime.dependencies.repository;
 
 import com.telenav.fiasco.runtime.Dependency;
-import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenArtifact;
+import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifact;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.values.version.Version;
 import com.telenav.kivakit.resource.Resource;
@@ -40,20 +40,14 @@ public interface Artifact extends Dependency
     }
 
     /**
-     * @return The fully-qualified name of the artifact
-     */
-    @Override
-    String name();
-
-    /**
      * @return This artifact's path relative to repository root
      */
     FilePath path();
 
     /**
-     * @return This artifact's resource with the given extensions at the given repository path
+     * @return This artifact's resource with the given extensions at the given repository root path
      */
-    Resource resource(FilePath path, Extension extension);
+    Resource resource(FilePath repositoryRoot, Extension extension);
 
     /**
      * @return The expected artifact resources at the given path
@@ -64,6 +58,16 @@ public interface Artifact extends Dependency
      * @return The version of this artifact
      */
     Version version();
+
+    /**
+     * @return This artifact with the given group
+     */
+    Artifact withGroup(ArtifactGroup group);
+
+    /**
+     * @return This artifact with the given identifier
+     */
+    Artifact withIdentifier(String identifier);
 
     /**
      * @return The given version of this artifact

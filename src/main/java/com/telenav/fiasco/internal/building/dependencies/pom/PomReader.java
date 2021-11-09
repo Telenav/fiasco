@@ -1,7 +1,7 @@
 package com.telenav.fiasco.internal.building.dependencies.pom;
 
-import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenArtifact;
-import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenArtifactGroup;
+import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifact;
+import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifactGroup;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.data.formats.xml.stax.StaxPath;
 import com.telenav.kivakit.data.formats.xml.stax.StaxReader;

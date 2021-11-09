@@ -1,6 +1,6 @@
 package com.telenav.fiasco.internal.building.dependencies.pom;
 
-import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenArtifact;
+import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifact;
 import com.telenav.kivakit.resource.resources.packaged.PackageResource;
 import com.telenav.kivakit.test.UnitTest;
 import org.junit.Test;

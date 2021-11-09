@@ -1,4 +1,4 @@
-package com.telenav.fiasco.runtime.dependencies.repository.maven;
+package com.telenav.fiasco.runtime.dependencies.repository.maven.artifact;
 
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactGroup;
 import com.telenav.kivakit.kernel.language.values.version.Version;
@@ -15,7 +15,7 @@ import java.util.Objects;
  * <p><b>Creating a Group</b></p>
  *
  * <p>
- * A group is created with {@link #parse(String)}, passing in the Maven group identifier. The {@link
+ * A group is created with {@link #parse(Listener, String)}, passing in the Maven group identifier. The {@link
  * #defaultVersion(Version)} method can be called to specify a default version used when artifacts in the group are
  * created with {@link #artifact(String)}. This averts needing to specify the version of each artifact and allows the
  * version of all artifacts in the group to be changed in one place. For example:

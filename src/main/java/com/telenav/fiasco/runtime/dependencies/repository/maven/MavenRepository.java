@@ -6,6 +6,8 @@ import com.telenav.fiasco.internal.building.dependencies.pom.Pom;
 import com.telenav.fiasco.internal.building.dependencies.pom.PomReader;
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactRepository;
+import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifact;
+import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifactGroup;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
@@ -175,9 +177,12 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
     }
 
     /**
+     * <b>Not public API</b>
+     *
      * @param artifact The artifact for which to read the POM information from this repository
      * @return The POM information
      */
+    @SuppressWarnings("ClassEscapesDefinedScope")
     public Pom pom(Artifact artifact)
     {
         return PomReader.read(this, listenTo(resource(artifact, POM)));

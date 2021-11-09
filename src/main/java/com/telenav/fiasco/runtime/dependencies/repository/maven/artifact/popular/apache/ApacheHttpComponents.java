@@ -1,7 +1,7 @@
 package com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.popular.apache;
 
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
-import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenArtifactGroup;
+import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifactGroup;
 
 public class ApacheHttpComponents extends MavenArtifactGroup
 {

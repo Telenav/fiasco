@@ -2,7 +2,7 @@ package com.telenav.fiasco.internal.building.dependencies;
 
 import com.telenav.fiasco.runtime.BaseBuild;
 import com.telenav.fiasco.runtime.Dependency;
-import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenArtifact;
+import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifact;
 import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.test.UnitTest;

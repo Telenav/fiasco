@@ -1,6 +1,8 @@
-package com.telenav.fiasco.runtime.dependencies.repository;
+package com.telenav.fiasco.internal.building.dependencies.repository;
 
 import com.telenav.fiasco.internal.building.dependencies.pom.Pom;
+import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
+import com.telenav.fiasco.runtime.dependencies.repository.ArtifactRepository;
 import com.telenav.kivakit.resource.Resource;
 import com.telenav.kivakit.resource.path.Extension;
 

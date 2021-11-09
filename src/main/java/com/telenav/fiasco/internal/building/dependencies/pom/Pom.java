@@ -1,6 +1,6 @@
 package com.telenav.fiasco.internal.building.dependencies.pom;
 
-import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenArtifact;
+import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifact;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.collections.list.StringList;
 import com.telenav.kivakit.kernel.language.reflection.property.KivaKitIncludeProperty;

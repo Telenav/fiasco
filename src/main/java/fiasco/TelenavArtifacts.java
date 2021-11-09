@@ -1,6 +1,6 @@
 package fiasco;
 
-import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenPopularArtifacts;
+import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenPopularArtifacts;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.popular.apache.ApacheCommons;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.popular.apache.ApacheWicket;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.popular.telenav.KivaKit;

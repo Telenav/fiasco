@@ -1,4 +1,4 @@
-package com.telenav.fiasco.runtime.dependencies.repository.maven;
+package com.telenav.fiasco.runtime.dependencies.repository.maven.artifact;
 
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.popular.Apache;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.popular.Telenav;

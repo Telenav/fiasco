@@ -1,11 +1,11 @@
 package com.telenav.fiasco.internal.building.dependencies;
 
 import com.telenav.fiasco.runtime.Dependency;
+import com.telenav.fiasco.runtime.DependencySet;
 import com.telenav.fiasco.runtime.Library;
-import com.telenav.fiasco.runtime.dependencies.DependencySet;
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactDescriptor;
-import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenArtifact;
-import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenArtifactDescriptor;
+import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifact;
+import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifactDescriptor;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
 import com.telenav.kivakit.kernel.interfaces.comparison.MatcherSet;
@@ -20,10 +20,21 @@ import java.util.Objects;
  * Base class for dependencies.
  * </p>
  *
+ * <p><b>Dependencies</b></p>
  * <p>
- * Dependencies can be added with {@link #require(Dependency...)} or {@link #require(String)}, and retrieved with {@link
- * #dependencies()}. The dependencies returned by {@link #dependencies()} are filtered by the set of matchers added with
- * successive calls to the functional method {@link #excluding(Matcher)}.
+ * Dependencies can be added with {@link #add(Dependency)}, {@link #require(Dependency...)} or {@link #require(String)},
+ * and retrieved with {@link #dependencies()}. The dependencies returned by {@link #dependencies()} are filtered by the
+ * set of matchers added with successive calls to the functional method {@link #excluding(Matcher)}. The method {@link
+ * #isLeaf()} will return true if a dependency has no sub-dependencies.
+ * </p>
+ *
+ * <p><b>Properties</b></p>
+ * <p>
+ * <ul>
+ *     <li>{@link #descriptor()} - The artifact descriptor for the dependency</li>
+ *     <li>{@link #dependencies()} - The dependency's sub-dependencies</li>
+ *     <li>{@link #isLeaf()} - True if the dependency has no children</li>
+ * </ul>
  * </p>
  *
  * @author jonathanl (shibo)

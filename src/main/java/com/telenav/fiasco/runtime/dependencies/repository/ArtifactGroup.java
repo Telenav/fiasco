@@ -15,7 +15,7 @@ public interface ArtifactGroup
     String identifier();
 
     /**
-     * @return Path to this group relative to a repository root
+     * @return The relative path to this group relative to any repository root
      */
     FilePath path();
 }
