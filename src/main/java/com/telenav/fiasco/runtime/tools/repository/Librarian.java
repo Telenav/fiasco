@@ -27,14 +27,15 @@ import com.telenav.fiasco.runtime.dependencies.repository.ArtifactRepository;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenRepository;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
+import com.telenav.kivakit.kernel.language.values.count.Count;
 import com.telenav.kivakit.kernel.messaging.Listener;
 
 /**
  * Locates and installs dependencies from a list of repositories designated by calls to {@link
- * #addRemoteRepository(MavenRepository)}. When {@link #resolveTransitive(Dependency)} is called, the transitive
- * dependencies of the given dependency are resolved using an {@link ArtifactResolver}. Dependent artifacts are realized
- * into the local repository if they are not already installed there. If the librarian cannot find any of the dependent
- * artifacts in any repository, an exception is thrown.
+ * #addRepository(MavenRepository)}. When {@link #resolveTransitive(Dependency)} is called, the transitive dependencies
+ * of the given dependency are resolved using an {@link ArtifactResolver}. Dependent artifacts are realized into the
+ * local repository if they are not already installed there. If the librarian cannot find any of the dependent artifacts
+ * in any repository, an exception is thrown.
  *
  * @author shibo
  * @see ArtifactRepository
@@ -42,29 +43,39 @@ import com.telenav.kivakit.kernel.messaging.Listener;
  */
 public class Librarian extends BaseComponent implements ArtifactResolver
 {
-    private final MavenArtifactResolver resolver = listenTo(new MavenArtifactResolver());
+    private final MavenArtifactResolver resolver;
 
-    public Librarian(Listener listener)
+    public Librarian(Listener listener, Count threads)
     {
         addListener(listener);
+
+        resolver = listenTo(new MavenArtifactResolver(threads));
     }
 
     /**
      * Adds the given repository to the list of repositories that this librarian searches
      */
-    public Librarian addRemoteRepository(MavenRepository repository)
+    public Librarian addRepository(MavenRepository repository)
     {
-        resolver.addRemoteRepository(repository);
+        resolver.addRepository(repository);
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
+    @SuppressWarnings("ClassEscapesDefinedScope")
     public ResolvedArtifact resolve(Artifact artifact)
     {
         return resolver.resolve(artifact);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
+    @SuppressWarnings("ClassEscapesDefinedScope")
     public ObjectList<ResolvedArtifact> resolveTransitive(Dependency dependency)
     {
         return resolver.resolveTransitive(dependency);

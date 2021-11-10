@@ -7,7 +7,9 @@ import com.telenav.kivakit.resource.Resource;
 import com.telenav.kivakit.resource.path.Extension;
 
 /**
- * A resolved artifact
+ * A resolved artifact, including the artifact's repository, resources and POM.
+ *
+ * @author jonathanl (shibo)
  */
 public class ResolvedArtifact
 {
@@ -29,16 +31,25 @@ public class ResolvedArtifact
         this.pom = pom;
     }
 
+    /**
+     * @return The artifact
+     */
     public Artifact artifact()
     {
         return artifact;
     }
 
+    /**
+     * @return The POM for the artifact
+     */
     public Pom pom()
     {
         return pom;
     }
 
+    /**
+     * @return The repository where the artifact was found
+     */
     public ArtifactRepository repository()
     {
         return repository;

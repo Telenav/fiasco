@@ -3,6 +3,7 @@ package com.telenav.fiasco.internal.building.dependencies.download;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.kernel.language.collections.set.ObjectSet;
+import com.telenav.kivakit.kernel.language.values.count.Count;
 import com.telenav.kivakit.kernel.messaging.Message;
 import com.telenav.kivakit.resource.CopyMode;
 import com.telenav.kivakit.resource.Resource;
@@ -37,6 +38,17 @@ import static com.telenav.kivakit.kernel.language.objects.Objects.equalPairs;
  */
 public class Downloader extends BaseComponent
 {
+    private static Downloader instance;
+
+    public static Downloader get(Count threads)
+    {
+        if (instance == null)
+        {
+            instance = new Downloader(threads);
+        }
+        return instance;
+    }
+
     /** The current status of a download */
     public enum DownloadStatus
     {
@@ -137,16 +149,22 @@ public class Downloader extends BaseComponent
     }
 
     /** The executor for downloading in parallel */
-    private final Executor executor = Executors.newFixedThreadPool(16);
+    private final Executor executor;
 
     /** The completion service that manages which downloads finish */
-    private final ExecutorCompletionService<Download> downloader = new ExecutorCompletionService<>(executor);
+    private final ExecutorCompletionService<Download> downloader;
 
     /** The downloads that have already been completed */
     private final ObjectSet<Download> completed = new ObjectSet<>();
 
     /** The downloads that are in progress */
     private final Map<Download, Future<Download>> downloading = new ConcurrentHashMap<>();
+
+    private Downloader(Count threads)
+    {
+        executor = Executors.newFixedThreadPool(threads.asInt());
+        downloader = new ExecutorCompletionService<>(executor);
+    }
 
     /**
      * Adds a download job to this downloader that will copy the <i>from</i> resource to the <i>to</i> folder using the

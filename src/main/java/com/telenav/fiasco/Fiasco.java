@@ -11,6 +11,7 @@ import com.telenav.fiasco.internal.fiasco.FiascoCompiler;
 import com.telenav.fiasco.internal.fiasco.FiascoProjectStore;
 import com.telenav.fiasco.runtime.Build;
 import com.telenav.fiasco.runtime.BuildResult;
+import com.telenav.fiasco.runtime.tools.repository.Librarian;
 import com.telenav.kivakit.application.Application;
 import com.telenav.kivakit.commandline.ArgumentParser;
 import com.telenav.kivakit.commandline.SwitchParser;
@@ -18,6 +19,7 @@ import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.filesystem.FolderGlobPattern;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.collections.set.ObjectSet;
+import com.telenav.kivakit.kernel.language.values.count.Count;
 import com.telenav.kivakit.kernel.messaging.messages.status.Announcement;
 import com.telenav.kivakit.kernel.project.Project;
 
@@ -89,6 +91,12 @@ public class Fiasco extends Application
             .build();
 
     /** Switch to remove a build folder to Fiasco */
+    private final SwitchParser<Count> DOWNLOAD_THREADS = SwitchParser.countSwitchParser(this, "download-threads", "The number of threads used by the Librarian to download artifact resources")
+            .optional()
+            .defaultValue(Count._8)
+            .build();
+
+    /** Switch to remove a build folder to Fiasco */
     private final SwitchParser<String> FORGET = SwitchParser.stringSwitchParser(this, "forget", "Removes one or more project root folders from Fiasco by glob pattern")
             .optional()
             .build();
@@ -136,6 +144,9 @@ public class Fiasco extends Application
             projects.forgetProject(FolderGlobPattern.parse(this, get(FORGET)));
         }
 
+        // Register a librarian to resolve artifacts
+        register(new Librarian(this, get(DOWNLOAD_THREADS)));
+
         // If there are no arguments,
         if (argumentList().isEmpty())
         {
@@ -161,7 +172,7 @@ public class Fiasco extends Application
     @Override
     protected ObjectSet<SwitchParser<?>> switchParsers()
     {
-        return ObjectSet.objectSet(REMEMBER, FORGET);
+        return ObjectSet.objectSet(REMEMBER, FORGET, DOWNLOAD_THREADS);
     }
 
     /**

@@ -1,26 +1,14 @@
 package com.telenav.fiasco.runtime.dependencies.repository.maven;
 
-import com.telenav.fiasco.internal.building.dependencies.download.Downloader;
-import com.telenav.fiasco.internal.building.dependencies.download.Downloader.Download;
-import com.telenav.fiasco.internal.building.dependencies.pom.Pom;
-import com.telenav.fiasco.internal.building.dependencies.pom.PomReader;
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactRepository;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifact;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifactGroup;
 import com.telenav.kivakit.component.BaseComponent;
-import com.telenav.kivakit.filesystem.Folder;
-import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.messaging.Listener;
 import com.telenav.kivakit.resource.Resource;
 import com.telenav.kivakit.resource.path.Extension;
 import com.telenav.kivakit.resource.path.FilePath;
-
-import java.util.concurrent.Future;
-
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
-import static com.telenav.kivakit.resource.CopyMode.OVERWRITE;
-import static com.telenav.kivakit.resource.path.Extension.POM;
 
 /**
  * A maven repository containing {@link MavenArtifact}s, organized in {@link MavenArtifactGroup}s. A {@link
@@ -30,18 +18,13 @@ import static com.telenav.kivakit.resource.path.Extension.POM;
  *
  * <p>
  * The {@link #contains(Artifact)} method returns true if this repository contains the given artifact. The {@link
- * #folderPath(Artifact)} method returns the full path to the given artifact within this repository. The {@link
- * #install(ArtifactRepository, Artifact)} method copies the given artifact from the given repository into this
- * repository if it is not already there.
+ * #pathTo(Artifact)} method returns the full path to the given artifact within this repository.
  * </p>
  *
  * @author jonathanl (shibo)
  */
 public class MavenRepository extends BaseComponent implements ArtifactRepository
 {
-    /** Parallel copier to speed up downloads */
-    private static final Downloader downloader = new Downloader();
-
     /**
      * @return A {@link MavenRepository} instance with the given name (but no root path)
      */
@@ -79,7 +62,6 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
         name = that.name;
         root = that.root;
 
-        listenTo(downloader);
         copyListeners(that);
     }
 
@@ -94,71 +76,8 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
     @Override
     public boolean contains(Artifact artifact)
     {
-        return Resource.resolve(this, folderPath(artifact)
+        return Resource.resolve(this, pathTo(artifact)
                 .withChild(artifact.identifier() + "-" + artifact.version() + ".jar")).exists();
-    }
-
-    /**
-     * @return The full path to the given artifact in this repository
-     */
-    @Override
-    public FilePath folderPath(Artifact artifact)
-    {
-        return root.withoutTrailingSlash().withChild(artifact.path());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean install(ArtifactRepository source, Artifact artifact)
-    {
-        try
-        {
-            // Get the artifact path in the source repository,
-            var artifactFolder = source.folderPath(artifact);
-
-            // and then for each resource in the set of artifact resources to be downloaded,
-            var futureDownloads = new ObjectList<Future<Download>>();
-            for (var resource : artifact.resources(artifactFolder))
-            {
-                // submit a job to copy the resource into this repository in the background.
-                var download = new Download(resource, Folder.of(folderPath(artifact)).mkdirs(), OVERWRITE);
-                futureDownloads.addIfNotNull(downloader.download(download));
-            }
-
-            // Then, for each submitted resource that is downloading in the background,
-            for (var futureDownload : futureDownloads)
-            {
-                // wait for the download to complete,
-                var download = futureDownload.get();
-
-                // and check the status.
-                switch (download.status())
-                {
-                    case DOWNLOADED:
-                        // information(job.toString());
-                        break;
-
-                    case FAILED:
-                        problem(download.toString());
-                        return false;
-
-                    case WAITING:
-                    case DOWNLOADING:
-                    default:
-                        fail("Internal error: download completed in state: $", download.status());
-                        break;
-                }
-            }
-
-            return true;
-        }
-        catch (Exception e)
-        {
-            problem(e, "Unable to install $ $ => $", artifact, source, this);
-            return false;
-        }
     }
 
     @Override
@@ -177,15 +96,12 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
     }
 
     /**
-     * <b>Not public API</b>
-     *
-     * @param artifact The artifact for which to read the POM information from this repository
-     * @return The POM information
+     * @return The full path to the given artifact in this repository
      */
-    @SuppressWarnings("ClassEscapesDefinedScope")
-    public Pom pom(Artifact artifact)
+    @Override
+    public FilePath pathTo(Artifact artifact)
     {
-        return PomReader.read(this, listenTo(resource(artifact, POM)));
+        return root.withoutTrailingSlash().withChild(artifact.path());
     }
 
     /**
@@ -194,7 +110,7 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
     @Override
     public Resource resource(Artifact artifact, Extension extension)
     {
-        return artifact.resource(folderPath(artifact), extension);
+        return artifact.resource(pathTo(artifact), extension);
     }
 
     @Override

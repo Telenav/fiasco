@@ -2,6 +2,7 @@ package com.telenav.fiasco.internal.building.dependencies.download;
 
 import com.telenav.fiasco.internal.building.dependencies.download.Downloader.Download;
 import com.telenav.kivakit.filesystem.Folder;
+import com.telenav.kivakit.kernel.language.values.count.Count;
 import com.telenav.kivakit.network.http.HttpNetworkLocation;
 import com.telenav.kivakit.resource.path.Extension;
 import com.telenav.kivakit.test.UnitTest;
@@ -29,7 +30,7 @@ public class DownloaderTest extends UnitTest
                 "https://repo1.maven.org/maven2/com/telenav/kivakit/kivakit-application/1.0.0");
 
         var futures = new ArrayList<Future<Download>>();
-        var downloader = new Downloader();
+        var downloader = Downloader.get(Count._4);
         for (var extension : extensions())
         {
             var download = new Download(base.child("kivakit-application-1.0.0" + extension).get(), destination, OVERWRITE);

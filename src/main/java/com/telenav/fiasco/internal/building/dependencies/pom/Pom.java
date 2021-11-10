@@ -15,7 +15,7 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
 public class Pom extends BaseComponent
 {
     /** The parent artifact */
-    MavenArtifact parent;
+    Pom parent;
 
     /** List of dependencies */
     ObjectList<MavenArtifact> dependencies = new ObjectList<>();
@@ -76,7 +76,7 @@ public class Pom extends BaseComponent
     }
 
     @KivaKitIncludeProperty
-    public MavenArtifact parent()
+    public Pom parent()
     {
         return parent;
     }

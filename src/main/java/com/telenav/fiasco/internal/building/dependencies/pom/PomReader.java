@@ -1,12 +1,15 @@
 package com.telenav.fiasco.internal.building.dependencies.pom;
 
+import com.telenav.fiasco.internal.building.dependencies.repository.maven.MavenArtifactResolver;
+import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
+import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenRepository;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifact;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifactGroup;
 import com.telenav.kivakit.component.BaseComponent;
+import com.telenav.kivakit.configuration.lookup.Registry;
 import com.telenav.kivakit.data.formats.xml.stax.StaxPath;
 import com.telenav.kivakit.data.formats.xml.stax.StaxReader;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
-import com.telenav.kivakit.kernel.messaging.Listener;
 import com.telenav.kivakit.resource.Resource;
 import com.telenav.kivakit.resource.resources.other.PropertyMap;
 
@@ -15,6 +18,7 @@ import javax.xml.stream.events.XMLEvent;
 import static com.telenav.kivakit.data.formats.xml.stax.StaxPath.parseXmlPath;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
+import static com.telenav.kivakit.resource.path.Extension.POM;
 
 /**
  * <b>Not public API</b>
@@ -26,17 +30,30 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNot
  */
 public class PomReader extends BaseComponent
 {
-    public static Pom read(Listener listener, Resource resource)
+    /**
+     * The POM for the given artifact in the given repository
+     *
+     * @param repository The repository where the artifact resides
+     * @param artifact The artifact whose POM should be read
+     * @return The POM
+     */
+    public static Pom read(MavenRepository repository, Artifact artifact)
     {
-        // Open it with a STAX reader,
+        // Ensure that the artifact is resolved into the local repository,
+        Registry.global().require(MavenArtifactResolver.class).resolve(artifact);
+
+        // then the artifact's POM resource with a StaxReader,
+        var resource = repository.resource(artifact, POM);
         try (var reader = StaxReader.open(resource))
         {
             // and return the parsed POM information.
-            return listener.listenTo(new PomReader(resource, reader)).read();
+            return repository.listenTo(new PomReader(resource, repository, reader)).read();
         }
     }
 
     private final Resource resource;
+
+    private final MavenRepository repository;
 
     private final StaxReader reader;
 
@@ -52,14 +69,20 @@ public class PomReader extends BaseComponent
 
     private final StaxPath DEPENDENCY_MANAGEMENT_DEPENDENCY = parseXmlPath("project/dependencyManagement/dependency");
 
-    protected PomReader(Resource resource, StaxReader reader)
+    /**
+     * @param resource The POM resource to read
+     * @param repository The repository that contains the resource
+     * @param reader The XML reader
+     */
+    private PomReader(Resource resource, MavenRepository repository, StaxReader reader)
     {
         this.resource = resource;
+        this.repository = repository;
         this.reader = listenTo(reader);
     }
 
     /**
-     * Reads the dependencies in this pom.xml XML stream using {@link StaxReader}
+     * Reads this POM resource using {@link StaxReader}
      *
      * @return The POM model containing properties and dependencies
      */
@@ -71,7 +94,7 @@ public class PomReader extends BaseComponent
         {
             if (reader.isInside(PARENT))
             {
-                pom.parent = readDependency(PARENT, pom.properties);
+                pom.parent = PomReader.read(repository, readDependency(PARENT));
             }
             if (reader.isInside(PROPERTIES))
             {
@@ -79,11 +102,11 @@ public class PomReader extends BaseComponent
             }
             if (reader.isInside(DEPENDENCIES))
             {
-                pom.dependencies = readDependencies(DEPENDENCIES, DEPENDENCY, pom.properties);
+                pom.dependencies = readDependencies(DEPENDENCIES, DEPENDENCY);
             }
             if (reader.isInside(DEPENDENCY_MANAGEMENT))
             {
-                pom.dependencyManagementDependencies = readDependencies(DEPENDENCY_MANAGEMENT, DEPENDENCY_MANAGEMENT_DEPENDENCY, pom.properties);
+                pom.dependencyManagementDependencies = readDependencies(DEPENDENCY_MANAGEMENT, DEPENDENCY_MANAGEMENT_DEPENDENCY);
             }
         }
 
@@ -102,8 +125,7 @@ public class PomReader extends BaseComponent
      * @return List of dependent {@link MavenArtifact}s
      */
     private ObjectList<MavenArtifact> readDependencies(StaxPath dependenciesPath,
-                                                       StaxPath dependencyPath,
-                                                       PropertyMap properties)
+                                                       StaxPath dependencyPath)
     {
         var dependencies = new ObjectList<MavenArtifact>();
 
@@ -111,7 +133,7 @@ public class PomReader extends BaseComponent
         {
             if (reader.isAtOpenTag("dependency"))
             {
-                dependencies.add(readDependency(dependencyPath, properties));
+                dependencies.add(readDependency(dependencyPath));
             }
         }
 
@@ -119,16 +141,16 @@ public class PomReader extends BaseComponent
     }
 
     /**
-     * @return The next dependency
+     * @return The dependency at the given path
      */
     @SuppressWarnings("ConstantConditions")
-    private MavenArtifact readDependency(StaxPath dependencyPath, PropertyMap properties)
+    private MavenArtifact readDependency(StaxPath path)
     {
         MavenArtifactGroup artifactGroup = null;
         String artifactIdentifier = null;
         String version = null;
 
-        for (; reader.isInside(dependencyPath); reader.next())
+        for (; reader.isInside(path); reader.next())
         {
             if (reader.isAtOpenTag("groupId"))
             {

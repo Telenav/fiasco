@@ -15,6 +15,7 @@ import com.telenav.fiasco.internal.building.phase.testing.TestingPhase;
 import com.telenav.fiasco.internal.fiasco.FiascoCompiler;
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactDescriptor;
+import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenRepository;
 import com.telenav.fiasco.runtime.tools.repository.Librarian;
 import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.kernel.data.validation.BaseValidator;
@@ -27,6 +28,7 @@ import com.telenav.kivakit.kernel.language.reflection.Type;
 import com.telenav.kivakit.kernel.language.strings.AsciiArt;
 
 import java.io.StringWriter;
+import java.util.List;
 
 import static com.telenav.fiasco.internal.building.BuildStep.FIASCO_STARTUP;
 import static com.telenav.fiasco.internal.building.BuildStep.INITIALIZE;
@@ -84,11 +86,20 @@ public class BaseBuild extends BaseDependency implements
     /** The current build step */
     private BuildStep step;
 
-    /** The librarian to resolve artifacts for this project */
-    private final Librarian librarian = new Librarian(this);
-
     /** The artifact descriptor for this project */
     private ArtifactDescriptor descriptor;
+
+    /**
+     * Initializes the build:
+     *
+     * <ol>
+     *     <li>Adds each repository returned by {@link #repositories()} to the Librarian</li>
+     * </ol>
+     */
+    public BaseBuild()
+    {
+        repositories().forEach(librarian()::addRepository);
+    }
 
     public BaseBuild artifactDescriptor(ArtifactDescriptor descriptor)
     {
@@ -175,6 +186,12 @@ public class BaseBuild extends BaseDependency implements
     public boolean isAt(BuildStep at)
     {
         return step == at;
+    }
+
+    @Override
+    public Librarian librarian()
+    {
+        return require(Librarian.class);
     }
 
     /**
@@ -270,7 +287,7 @@ public class BaseBuild extends BaseDependency implements
     @SuppressWarnings("ClassEscapesDefinedScope")
     public ResolvedArtifact resolve(Artifact artifact)
     {
-        return librarian.resolve(artifact);
+        return librarian().resolve(artifact);
     }
 
     /**
@@ -280,7 +297,7 @@ public class BaseBuild extends BaseDependency implements
     @SuppressWarnings("ClassEscapesDefinedScope")
     public ObjectList<ResolvedArtifact> resolveTransitive(Dependency dependency)
     {
-        return librarian.resolveTransitive(dependency);
+        return librarian().resolveTransitive(dependency);
     }
 
     /**
@@ -324,5 +341,13 @@ public class BaseBuild extends BaseDependency implements
     public Folder workspace()
     {
         return Folder.parse(this, "${WORKSPACE}");
+    }
+
+    /**
+     * @return The repositories to search for this build
+     */
+    protected List<MavenRepository> repositories()
+    {
+        return List.of(MavenRepository.mavenCentral(this));
     }
 }

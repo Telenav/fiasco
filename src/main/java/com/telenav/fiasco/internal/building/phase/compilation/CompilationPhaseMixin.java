@@ -67,7 +67,7 @@ public interface CompilationPhaseMixin extends
 
     default Librarian librarian()
     {
-        return compilationPhase().librarian();
+        return require(Librarian.class);
     }
 
     @Override

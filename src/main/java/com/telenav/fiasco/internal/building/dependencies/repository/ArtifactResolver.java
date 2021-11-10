@@ -1,5 +1,6 @@
 package com.telenav.fiasco.internal.building.dependencies.repository;
 
+import com.telenav.fiasco.internal.building.dependencies.pom.Pom;
 import com.telenav.fiasco.runtime.Build;
 import com.telenav.fiasco.runtime.Dependency;
 import com.telenav.fiasco.runtime.Library;
@@ -34,6 +35,18 @@ import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
  */
 public interface ArtifactResolver
 {
+    /**
+     * Retrieves a POM for the given artifact
+     *
+     * @param artifact The artifact for which to resolve a POM
+     * @return The POM
+     */
+    @SuppressWarnings("ClassEscapesDefinedScope")
+    default Pom pom(Artifact artifact)
+    {
+        return resolve(artifact).pom();
+    }
+
     /**
      * <b>Not public API</b>
      *

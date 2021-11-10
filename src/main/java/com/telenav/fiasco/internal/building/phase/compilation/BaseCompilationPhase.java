@@ -4,9 +4,7 @@ import com.telenav.fiasco.internal.building.BuildStep;
 import com.telenav.fiasco.internal.building.Phase;
 import com.telenav.fiasco.internal.building.phase.BasePhase;
 import com.telenav.fiasco.runtime.Build;
-import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenRepository;
 import com.telenav.fiasco.runtime.tools.compiler.JavaCompiler;
-import com.telenav.fiasco.runtime.tools.repository.Librarian;
 
 import java.io.StringWriter;
 
@@ -50,13 +48,10 @@ public class BaseCompilationPhase extends BasePhase
                 .withOutput(output)
                 .withSourceVersion(JAVA_11)
                 .withTargetVersion(JAVA_11)
-                .withTargetFolder(build().projectRootFolder().folder("target").mkdirs())
-                .withImplicitCompilation();
-    }
-
-    protected Librarian librarian()
-    {
-        return new Librarian(build())
-                .addRemoteRepository(MavenRepository.mavenCentral(this));
+                .withImplicitCompilation()
+                .withTargetFolder(build()
+                        .projectRootFolder()
+                        .folder("target")
+                        .mkdirs());
     }
 }

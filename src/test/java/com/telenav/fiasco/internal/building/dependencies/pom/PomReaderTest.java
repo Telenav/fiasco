@@ -11,6 +11,7 @@ public class PomReaderTest extends UnitTest
     public void testNoParent()
     {
         var resource = PackageResource.packageResource(this, getClass(), "no-parent-pom.xml");
+
         var pom = PomReader.read(this, resource);
         ensure(pom.parent() == null);
         ensure(pom.dependencies().size() == 4);
