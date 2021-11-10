@@ -8,6 +8,7 @@ import com.telenav.kivakit.kernel.data.validation.ensure.Ensure;
 import com.telenav.kivakit.kernel.interfaces.function.BooleanFunction;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.collections.list.StringList;
+import com.telenav.kivakit.kernel.language.strings.AsciiArt;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -32,20 +33,60 @@ public class DependencyGraph
     }
 
     /**
-     * Called with each {@link BuildableGroup} of leaves in the graph
+     * Visitor with methods that are invoked, as appropriate, at each node during a graph traversal
      */
     public interface Visitor
     {
-        default void atInteriorNode(Dependency node)
+        /**
+         * @param traversal The state of the traversal
+         * @param node The node we're visiting
+         */
+        default void atInteriorNode(TraversalState traversal, Dependency node)
         {
         }
 
-        default void atLeaf(Dependency leaf)
+        /**
+         * @param traversal The state of the traversal
+         * @param leaf The lead we're visiting
+         */
+        default void atLeaf(TraversalState traversal, Dependency leaf)
         {
         }
 
-        default void atNode(Dependency node)
+        /**
+         * @param traversal The state of the traversal
+         * @param node The node we're visiting
+         */
+        default void atNode(TraversalState traversal, Dependency node)
         {
+        }
+    }
+
+    /**
+     * The state of a traversal in progress, including the recursion level and indent text
+     */
+    public static class TraversalState
+    {
+        private int recursionLevel = 0;
+
+        public String indent()
+        {
+            return AsciiArt.repeat(recursionLevel * 2, ' ') + "├─ ";
+        }
+
+        public void pop()
+        {
+            recursionLevel++;
+        }
+
+        public void push()
+        {
+            recursionLevel++;
+        }
+
+        public int recursionLevel()
+        {
+            return recursionLevel;
         }
     }
 
@@ -79,10 +120,10 @@ public class DependencyGraph
             var group = new BuildableGroup();
 
             // and visiting all the "logical leaf" nodes from the root.
-            depthFirstTraversal(root, new HashSet<>(), dependency -> isLogicalLeaf(dependency, previouslyVisitedLeaves), new Visitor()
+            depthFirstTraversal(new TraversalState(), root, new HashSet<>(), dependency -> isLogicalLeaf(dependency, previouslyVisitedLeaves), new Visitor()
             {
                 @Override
-                public void atLeaf(Dependency leaf)
+                public void atLeaf(TraversalState traversal, Dependency leaf)
                 {
                     // If a leaf node is Buildable,
                     if (leaf instanceof Buildable)
@@ -119,7 +160,24 @@ public class DependencyGraph
      */
     public void depthFirstTraversal(Visitor visitor)
     {
-        depthFirstTraversal(root, new HashSet<>(), Dependency::isLeaf, visitor);
+        depthFirstTraversal(new TraversalState(), root, new HashSet<>(), Dependency::isLeaf, visitor);
+    }
+
+    /**
+     * @return Indented text describing this dependency graph
+     */
+    public String text()
+    {
+        var text = new StringList();
+        depthFirstTraversal(new Visitor()
+        {
+            @Override
+            public void atNode(TraversalState traversal, Dependency node)
+            {
+                text.append(traversal.indent() + node.descriptor());
+            }
+        });
+        return text.join("\n");
     }
 
     /**
@@ -138,7 +196,7 @@ public class DependencyGraph
         depthFirstTraversal(new Visitor()
         {
             @Override
-            public void atNode(Dependency node)
+            public void atNode(TraversalState traversal, Dependency node)
             {
                 uml.append("artifact " + umlName(node));
                 node.dependencies().forEach(at -> uml.append(umlName(node) + " --> " + umlName(at)));
@@ -155,12 +213,13 @@ public class DependencyGraph
      * Calls the visitor with the dependencies of the given node in depth-first order. If a circular dependency is
      * detected, {@link Ensure#fail()} is called.
      *
+     * @param traversal Information about the state of the traversal, such as the indentation level
      * @param at The node to traverse from
      * @param visited The set of nodes already visited
      * @param isLeaf Function to identify leaf nodes
-     * @param visitor THe visitor to call with nodes
+     * @param visitor The visitor to call with nodes
      */
-    private void depthFirstTraversal(Dependency at,
+    private void depthFirstTraversal(TraversalState traversal, Dependency at,
                                      Set<Dependency> visited,
                                      BooleanFunction<Dependency> isLeaf,
                                      Visitor visitor)
@@ -176,22 +235,24 @@ public class DependencyGraph
         for (var child : at.dependencies())
         {
             // explore it (in a depth-first traversal)
-            depthFirstTraversal(child, visited, isLeaf, visitor);
+            traversal.push();
+            depthFirstTraversal(traversal, child, visited, isLeaf, visitor);
+            traversal.pop();
         }
 
         // If the node we're at is a leaf,
         if (isLeaf.isTrue(at))
         {
             // then visit the leaf,
-            visitor.atLeaf(at);
+            visitor.atLeaf(traversal, at);
         }
         else
         {
             // otherwise, visit the interior node.
-            visitor.atInteriorNode(at);
+            visitor.atInteriorNode(traversal, at);
         }
 
-        visitor.atNode(at);
+        visitor.atNode(traversal, at);
         visited.add(at);
     }
 

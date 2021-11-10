@@ -76,8 +76,9 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
     @Override
     public boolean contains(Artifact artifact)
     {
-        return Resource.resolve(this, pathTo(artifact)
-                .withChild(artifact.identifier() + "-" + artifact.version() + ".jar")).exists();
+        return folder(artifact)
+                .file(artifact.identifier() + "-" + artifact.version() + ".jar")
+                .exists();
     }
 
     @Override

@@ -3,7 +3,7 @@ package com.telenav.fiasco.runtime;
 import com.telenav.fiasco.internal.building.Buildable;
 import com.telenav.fiasco.internal.building.DependentProject;
 import com.telenav.fiasco.internal.building.ProjectFoldersTrait;
-import com.telenav.fiasco.internal.building.dependencies.repository.ArtifactResolver;
+import com.telenav.fiasco.internal.building.dependencies.DependencyResolver;
 import com.telenav.fiasco.internal.building.phase.compilation.CompilationPhaseMixin;
 import com.telenav.fiasco.internal.building.phase.installation.InstallationPhaseMixin;
 import com.telenav.fiasco.internal.building.phase.packaging.PackagingPhaseMixin;
@@ -33,7 +33,7 @@ public interface Build extends
         InstallationPhaseMixin, // Installs and deploys packages
         ProjectFoldersTrait,    // Defines the build layout
         DependentProject,       // Makes the build a project dependency
-        ArtifactResolver,       // Resolves artifacts
+        DependencyResolver,       // Resolves artifacts
         MavenPopularArtifacts   // Gives easy access to the top maven artifacts
 {
     @Override

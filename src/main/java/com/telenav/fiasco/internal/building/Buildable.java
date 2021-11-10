@@ -10,8 +10,8 @@ import java.util.concurrent.CompletionService;
  * <b>Not public API</b>
  *
  * <p>
- * An object that can be built by calling {@link #executeBuild()}. Implementing the {@link Callable} interface allows
- * the buildable to be used in the Java executor framework.
+ * An object that can be built by calling {@link #run()}. Implementing the {@link Callable} interface allows the
+ * buildable to be used in the Java executor framework.
  * </p>
  *
  * @author jonathanl (shibo)
@@ -26,7 +26,7 @@ public interface Buildable extends Dependency, Callable<BuildResult>
     @Override
     default BuildResult call()
     {
-        return executeBuild();
+        return run();
     }
 
     /**
@@ -34,5 +34,5 @@ public interface Buildable extends Dependency, Callable<BuildResult>
      *
      * @return The result of building this object
      */
-    BuildResult executeBuild();
+    BuildResult run();
 }

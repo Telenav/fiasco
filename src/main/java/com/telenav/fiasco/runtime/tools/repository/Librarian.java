@@ -18,9 +18,9 @@
 
 package com.telenav.fiasco.runtime.tools.repository;
 
-import com.telenav.fiasco.internal.building.dependencies.repository.ArtifactResolver;
+import com.telenav.fiasco.internal.building.dependencies.DependencyResolver;
 import com.telenav.fiasco.internal.building.dependencies.repository.ResolvedArtifact;
-import com.telenav.fiasco.internal.building.dependencies.repository.maven.MavenArtifactResolver;
+import com.telenav.fiasco.internal.building.dependencies.repository.maven.MavenDependencyResolver;
 import com.telenav.fiasco.runtime.Dependency;
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactRepository;
@@ -33,23 +33,23 @@ import com.telenav.kivakit.kernel.messaging.Listener;
 /**
  * Locates and installs dependencies from a list of repositories designated by calls to {@link
  * #addRepository(MavenRepository)}. When {@link #resolveTransitive(Dependency)} is called, the transitive dependencies
- * of the given dependency are resolved using an {@link ArtifactResolver}. Dependent artifacts are realized into the
+ * of the given dependency are resolved using an {@link DependencyResolver}. Dependent artifacts are realized into the
  * local repository if they are not already installed there. If the librarian cannot find any of the dependent artifacts
  * in any repository, an exception is thrown.
  *
  * @author shibo
  * @see ArtifactRepository
- * @see ArtifactResolver
+ * @see DependencyResolver
  */
-public class Librarian extends BaseComponent implements ArtifactResolver
+public class Librarian extends BaseComponent implements DependencyResolver
 {
-    private final MavenArtifactResolver resolver;
+    private final MavenDependencyResolver resolver;
 
     public Librarian(Listener listener, Count threads)
     {
         addListener(listener);
 
-        resolver = listenTo(new MavenArtifactResolver(threads));
+        resolver = listenTo(register(new MavenDependencyResolver(threads)));
     }
 
     /**

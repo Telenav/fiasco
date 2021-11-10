@@ -1,5 +1,6 @@
 package com.telenav.fiasco.runtime;
 
+import com.telenav.fiasco.internal.building.dependencies.DependencyGraph;
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactDescriptor;
 import com.telenav.kivakit.component.Component;
@@ -31,6 +32,17 @@ public interface Dependency extends Validatable, Component, Addable<Dependency>
      * @return The immediate dependencies of this dependency
      */
     DependencySet dependencies();
+
+    /**
+     * <b>Not public API</b>
+     *
+     * @return The dependency graph for this dependency
+     */
+    @SuppressWarnings("ClassEscapesDefinedScope")
+    default DependencyGraph dependencyGraph()
+    {
+        return DependencyGraph.of(this);
+    }
 
     /**
      * @return The artifact descriptor for this dependency in [group-name]:[artifact-name](:[version])? form.

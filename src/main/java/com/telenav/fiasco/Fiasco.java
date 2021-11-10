@@ -20,12 +20,14 @@ import com.telenav.kivakit.filesystem.FolderGlobPattern;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.collections.set.ObjectSet;
 import com.telenav.kivakit.kernel.language.values.count.Count;
+import com.telenav.kivakit.kernel.messaging.Message;
 import com.telenav.kivakit.kernel.messaging.messages.status.Announcement;
 import com.telenav.kivakit.kernel.project.Project;
 
 import java.util.List;
 
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
+import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.unsupported;
 
 /**
  * Fiasco build tool. <a href="https://en.wikipedia.org/wiki/Fiasco_(novel)"><i>Fiasco</i></a> is a science fiction
@@ -33,15 +35,18 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
  *
  * <p>
  * Fiasco maintains a list of project folders in the Java preferences store. Each project folder must have a "fiasco"
- * folder that contains one or more Java source files that end with "Build.java" and implement the {@link Build}
- * interface. Each such source file defines a build. Fiasco compiles these source files, loads them and executes them by
- * calling {@link Build#executeBuild()}.
+ * folder that contains a "FiascoBuild.java" class which implements the {@link Build} interface. Fiasco compiles this
+ * file, along with any other referenced source files. Once the build has been loaded in this way, Fiasco executes it by
+ * calling {@link Build#run()}.
  * </p>
  *
  * <p><b>Command Line Switches</b></p>
+ *
  * <ul>
  *     <li>-remember=[path] - Remembers the given path as a project folder</li>
  *     <li>-forget=[glob-pattern] - Forgets all project folders matching the given pattern</li>
+ *     <li>-download-threads=[count] - Sets the number of threads to use when downloading artifacts</li>
+ *     <li>-dependency-graph=[uml|text] - Outputs a text or UML representation of the dependency graph for each specified build</li>
  * </ul>
  *
  * <p><b>Examples</b></p>
@@ -85,6 +90,13 @@ public class Fiasco extends Application
         System.exit(0);
     }
 
+    private enum DependencyTreeOutput
+    {
+        NONE,
+        UML,
+        TEXT
+    }
+
     /** Switch to add a build folder to Fiasco */
     private final SwitchParser<Folder> REMEMBER = Folder.folderSwitchParser(this, "remember", "Adds a project root folder to Fiasco")
             .optional()
@@ -94,6 +106,12 @@ public class Fiasco extends Application
     private final SwitchParser<Count> DOWNLOAD_THREADS = SwitchParser.countSwitchParser(this, "download-threads", "The number of threads used by the Librarian to download artifact resources")
             .optional()
             .defaultValue(Count._8)
+            .build();
+
+    /** Switch to show dependency graphs for the given projects */
+    private final SwitchParser<DependencyTreeOutput> DEPENDENCY_GRAPH = SwitchParser.enumSwitchParser(this, "dependency-graph", "Outputs dependency information for the given builds", DependencyTreeOutput.class)
+            .optional()
+            .defaultValue(DependencyTreeOutput.NONE)
             .build();
 
     /** Switch to remove a build folder to Fiasco */
@@ -172,7 +190,11 @@ public class Fiasco extends Application
     @Override
     protected ObjectSet<SwitchParser<?>> switchParsers()
     {
-        return ObjectSet.objectSet(REMEMBER, FORGET, DOWNLOAD_THREADS);
+        return ObjectSet.objectSet(
+                REMEMBER,
+                FORGET,
+                DOWNLOAD_THREADS,
+                DEPENDENCY_GRAPH);
     }
 
     /**
@@ -214,18 +236,21 @@ public class Fiasco extends Application
      */
     private void build(BuildListener listener, Build build)
     {
-        trace("Executing build");
-        var result = new BuildResult(name());
-        result.start();
-        try
+        if (shouldBuild(build))
         {
-            new BuildPlanner()
-                    .plan(build)
-                    .build(listenTo(builder()), listener);
-        }
-        finally
-        {
-            result.end();
+            trace("Executing build");
+            var result = new BuildResult(name());
+            result.start();
+            try
+            {
+                new BuildPlanner()
+                        .plan(build)
+                        .build(listenTo(builder()), listener);
+            }
+            finally
+            {
+                result.end();
+            }
         }
     }
 
@@ -235,5 +260,28 @@ public class Fiasco extends Application
     private Builder builder()
     {
         return new ParallelBuilder();
+    }
+
+    /**
+     * @return True if a build should be executed given the switches passed on the command line
+     */
+    private boolean shouldBuild(Build build)
+    {
+        switch (get(DEPENDENCY_GRAPH))
+        {
+            case NONE:
+                return true;
+
+            case UML:
+                Message.println(build.dependencyGraph().uml());
+                return false;
+
+            case TEXT:
+                Message.println(build.dependencyGraph().text());
+                return false;
+
+            default:
+                return unsupported();
+        }
     }
 }

@@ -120,7 +120,7 @@ public class BaseBuild extends BaseDependency implements
     public BuildResult call()
     {
         step(FIASCO_STARTUP);
-        return executeBuild();
+        return run();
     }
 
     @Override
@@ -133,46 +133,6 @@ public class BaseBuild extends BaseDependency implements
     public ArtifactDescriptor descriptor()
     {
         return descriptor;
-    }
-
-    /**
-     * Builds this project
-     */
-    @Override
-    public BuildResult executeBuild()
-    {
-        var result = new BuildResult(getClass().getSimpleName());
-        try
-        {
-            result.listenTo(this);
-            result.start();
-
-            // Compile code,
-            step(INITIALIZE);
-            compileSources();
-
-            // build the tests,
-            ensure(isAt(TEST_INITIALIZE));
-            buildTestSources();
-
-            // run the tests,
-            ensure(isAt(TEST_RUN_TESTS));
-            runTests();
-
-            // package up the code,
-            ensure(isAt(PACKAGE_INITIALIZE));
-            buildPackages();
-
-            // and install it.
-            ensure(isAt(PACKAGE_INSTALL));
-            installPackages();
-
-            return result;
-        }
-        finally
-        {
-            result.end();
-        }
     }
 
     /**
@@ -298,6 +258,46 @@ public class BaseBuild extends BaseDependency implements
     public ObjectList<ResolvedArtifact> resolveTransitive(Dependency dependency)
     {
         return librarian().resolveTransitive(dependency);
+    }
+
+    /**
+     * Builds this project
+     */
+    @Override
+    public BuildResult run()
+    {
+        var result = new BuildResult(getClass().getSimpleName());
+        try
+        {
+            result.listenTo(this);
+            result.start();
+
+            // Compile code,
+            step(INITIALIZE);
+            compileSources();
+
+            // build the tests,
+            ensure(isAt(TEST_INITIALIZE));
+            buildTestSources();
+
+            // run the tests,
+            ensure(isAt(TEST_RUN_TESTS));
+            runTests();
+
+            // package up the code,
+            ensure(isAt(PACKAGE_INITIALIZE));
+            buildPackages();
+
+            // and install it.
+            ensure(isAt(PACKAGE_INSTALL));
+            installPackages();
+
+            return result;
+        }
+        finally
+        {
+            result.end();
+        }
     }
 
     /**

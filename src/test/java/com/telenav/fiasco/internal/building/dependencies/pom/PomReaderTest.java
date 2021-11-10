@@ -12,7 +12,7 @@ public class PomReaderTest extends UnitTest
     {
         var resource = PackageResource.packageResource(this, getClass(), "no-parent-pom.xml");
 
-        var pom = PomReader.read(this, resource);
+        var pom = new PomReader().read(resource);
         ensure(pom.parent() == null);
         ensure(pom.dependencies().size() == 4);
         ensure(has(pom, "com.telenav.kivakit:kivakit-test"));
@@ -27,7 +27,7 @@ public class PomReaderTest extends UnitTest
     public void testProperties()
     {
         var resource = PackageResource.packageResource(this, getClass(), "properties-pom.xml");
-        var pom = PomReader.read(this, resource);
+        var pom = new PomReader().read(resource);
         ensure(pom.parent() == null);
         ensure(pom.dependencies().size() == 4);
         ensure(pom.dependencies().contains(MavenArtifact.parse(this, "com.telenav.kivakit:kivakit-test")));

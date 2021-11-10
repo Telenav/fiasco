@@ -1,9 +1,9 @@
 package com.telenav.fiasco.internal.building.dependencies.repository.maven;
 
+import com.telenav.fiasco.internal.building.dependencies.DependencyResolver;
 import com.telenav.fiasco.internal.building.dependencies.download.Downloader;
 import com.telenav.fiasco.internal.building.dependencies.download.Downloader.Download;
 import com.telenav.fiasco.internal.building.dependencies.pom.PomReader;
-import com.telenav.fiasco.internal.building.dependencies.repository.ArtifactResolver;
 import com.telenav.fiasco.internal.building.dependencies.repository.ResolvedArtifact;
 import com.telenav.fiasco.runtime.Dependency;
 import com.telenav.fiasco.runtime.Library;
@@ -45,7 +45,7 @@ import static com.telenav.kivakit.resource.CopyMode.OVERWRITE;
  *
  * @author jonathanl (shibo)
  */
-public class MavenArtifactResolver extends BaseComponent implements ArtifactResolver
+public class MavenDependencyResolver extends BaseComponent implements DependencyResolver
 {
     /** Parallel downloader to speed up downloads */
     private final Downloader downloader;
@@ -56,7 +56,10 @@ public class MavenArtifactResolver extends BaseComponent implements ArtifactReso
     /** The repositories for artifacts that are already resolved */
     private final Map<Artifact, ResolvedArtifact> resolved = new ConcurrentHashMap<>();
 
-    public MavenArtifactResolver(Count threads)
+    /**
+     * @param threads The number of threads to use when downloading artifacts
+     */
+    public MavenDependencyResolver(Count threads)
     {
         downloader = listenTo(Downloader.get(threads));
     }
@@ -64,7 +67,7 @@ public class MavenArtifactResolver extends BaseComponent implements ArtifactReso
     /**
      * Adds the given repository to the list of repositories that this librarian searches
      */
-    public MavenArtifactResolver addRepository(MavenRepository repository)
+    public MavenDependencyResolver addRepository(MavenRepository repository)
     {
         repositories.add(repository);
         information("Repository => $", repository);
@@ -86,21 +89,22 @@ public class MavenArtifactResolver extends BaseComponent implements ArtifactReso
     @Override
     public ObjectList<ResolvedArtifact> resolveTransitive(Dependency dependency)
     {
-        var artifacts = new ObjectList<ResolvedArtifact>();
-        resolveTransitive(dependency, artifacts, 0);
-        return artifacts;
+        var resolved = new ObjectList<ResolvedArtifact>();
+        resolveTransitive(dependency, resolved, 0);
+        return resolved;
     }
 
     /**
-     * Installs the given artifact by copying all its resources from the source repository to the destination
-     * repository
+     * Copies the given artifact from the source repository to the destination repository by copying all its resources
      *
      * @param source The source repository
      * @param destination The destination repository
-     * @param artifact The artifact to install
-     * @return True if all of the artifact's resources were installed
+     * @param artifact The artifact to copy
+     * @return True if all of the artifact's resources were installed, false otherwise
      */
-    private boolean install(ArtifactRepository source, ArtifactRepository destination, Artifact artifact)
+    private boolean copyArtifact(ArtifactRepository source,
+                                 ArtifactRepository destination,
+                                 Artifact artifact)
     {
         try
         {
@@ -129,7 +133,6 @@ public class MavenArtifactResolver extends BaseComponent implements ArtifactReso
                         break;
 
                     case FAILED:
-                        problem(download.toString());
                         return false;
 
                     case WAITING:
@@ -150,15 +153,40 @@ public class MavenArtifactResolver extends BaseComponent implements ArtifactReso
     }
 
     /**
+     * @return True if the given artifact has been resolved
+     */
+    private boolean isResolved(Artifact artifact)
+    {
+        return resolved.containsKey(artifact);
+    }
+
+    /**
+     * Ensures that the given repository's artifact is installed in the local repository
+     */
+    private boolean materialize(ArtifactRepository repository, Artifact artifact)
+    {
+        // If the artifact is not already installed,
+        var local = MavenRepository.local(this);
+        if (!local.contains(artifact))
+        {
+            // then copy it into the local repository
+            return copyArtifact(repository, local, artifact);
+        }
+
+        // The artifact is already installed
+        return true;
+    }
+
+    /**
      * Resolves the given artifact into the local repository, searching the added repositories as needed.
      *
      * @param artifact The artifact to resolve
-     * @param indent The indentation of any output message, to allow the artifact hierarchy to be visualized
+     * @param level The indentation of any output message, to allow the artifact hierarchy to be visualized
      * @return The repository in which the artifact was found
      */
-    private ResolvedArtifact resolve(Artifact artifact, int indent)
+    private ResolvedArtifact resolve(Artifact artifact, int level)
     {
-        var indentation = AsciiArt.repeat(indent, ' ');
+        var indentation = AsciiArt.repeat(level, ' ');
 
         // If the artifact has not already been resolved,
         var resolved = this.resolved.get(artifact);
@@ -168,7 +196,7 @@ public class MavenArtifactResolver extends BaseComponent implements ArtifactReso
             var local = MavenRepository.local(this);
             if (local.contains(artifact))
             {
-                // resolve it from there,
+                // resolve it,
                 resolved = resolve(local, artifact);
                 information(indentation + "$ [$]", artifact, local);
             }
@@ -178,9 +206,9 @@ public class MavenArtifactResolver extends BaseComponent implements ArtifactReso
                 for (var repository : repositories)
                 {
                     // and if we are able to install the artifact locally,
-                    if (install(repository, local, artifact))
+                    if (materialize(repository, artifact))
                     {
-                        // resolve it locally.
+                        // resolve it.
                         resolved = resolve(repository, artifact);
                         information(indentation + "$ [$]", artifact, repository);
                         break;
@@ -201,23 +229,31 @@ public class MavenArtifactResolver extends BaseComponent implements ArtifactReso
     }
 
     /**
-     * Resolves artifact in the given repository and adds the {@link ResolvedArtifact} to the resolved map
+     * If the given artifact in the given repository has not yet been fully resolved (including reading its POM file),
+     * resolves it. First, materializes the artifact into the local repository. Then reads the POM for the artifact from
+     * the local repository, and finally records the artifact as a {@link ResolvedArtifact} with the POM information and
+     * the repository where the artifact was found.
      *
+     * @param repository The repository where the artifact was found
+     * @param artifact The artifact
      * @return The resolved artifact
      */
     private ResolvedArtifact resolve(MavenRepository repository, Artifact artifact)
     {
         // If the artifact hasn't already been resolved,
-        if (!resolved.containsKey(artifact))
+        if (!isResolved(artifact))
         {
-            // read the artifact's POM,
-            var pom = ensureNotNull(PomReader.read(repository, artifact));
+            // install the artifact if necessary,
+            materialize(repository, artifact);
 
-            //  and cache it,
+            // read the artifact's POM,
+            var pom = ensureNotNull(new PomReader().read(repository, artifact));
+
+            // and cache the resolved artifact.
             resolved.put(artifact, new ResolvedArtifact(repository, artifact, pom));
         }
 
-        // then return the resolved artifact.
+        // Return the resolved artifact.
         return resolved.get(artifact);
     }
 
@@ -225,24 +261,26 @@ public class MavenArtifactResolver extends BaseComponent implements ArtifactReso
      * Resolves all transitive dependencies of the given dependency
      *
      * @param dependency The dependency to resolve
+     * @param artifacts The artifacts that have been resolved so far
+     * @param level The level of recursion
      */
-    private void resolveTransitive(Dependency dependency, ObjectList<ResolvedArtifact> artifacts, int indent)
+    private void resolveTransitive(Dependency dependency, ObjectList<ResolvedArtifact> artifacts, int level)
     {
         // If the dependency is an artifact,
         if (dependency instanceof Artifact)
         {
             // resolve it as one,
-            artifacts.add(resolve((Artifact) dependency, indent));
+            artifacts.add(resolve((Artifact) dependency, level));
         }
 
         // and if the dependency is a library,
         if (dependency instanceof Library)
         {
             // resolve the library's artifact,
-            artifacts.add(resolve(((Library) dependency).artifact(), indent));
+            artifacts.add(resolve(((Library) dependency).artifact(), level));
         }
 
         // then, resolve all the child dependencies.
-        dependency.dependencies().forEach(at -> resolveTransitive(at, artifacts, indent + 4));
+        dependency.dependencies().forEach(at -> resolveTransitive(at, artifacts, level + 1));
     }
 }

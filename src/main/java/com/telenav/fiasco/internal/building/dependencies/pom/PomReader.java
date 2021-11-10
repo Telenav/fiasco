@@ -1,19 +1,16 @@
 package com.telenav.fiasco.internal.building.dependencies.pom;
 
-import com.telenav.fiasco.internal.building.dependencies.repository.maven.MavenArtifactResolver;
+import com.telenav.fiasco.internal.building.dependencies.DependencyResolver;
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenRepository;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifact;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifactGroup;
 import com.telenav.kivakit.component.BaseComponent;
-import com.telenav.kivakit.configuration.lookup.Registry;
 import com.telenav.kivakit.data.formats.xml.stax.StaxPath;
 import com.telenav.kivakit.data.formats.xml.stax.StaxReader;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.resource.Resource;
 import com.telenav.kivakit.resource.resources.other.PropertyMap;
-
-import javax.xml.stream.events.XMLEvent;
 
 import static com.telenav.kivakit.data.formats.xml.stax.StaxPath.parseXmlPath;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
@@ -30,33 +27,6 @@ import static com.telenav.kivakit.resource.path.Extension.POM;
  */
 public class PomReader extends BaseComponent
 {
-    /**
-     * The POM for the given artifact in the given repository
-     *
-     * @param repository The repository where the artifact resides
-     * @param artifact The artifact whose POM should be read
-     * @return The POM
-     */
-    public static Pom read(MavenRepository repository, Artifact artifact)
-    {
-        // Ensure that the artifact is resolved into the local repository,
-        Registry.global().require(MavenArtifactResolver.class).resolve(artifact);
-
-        // then the artifact's POM resource with a StaxReader,
-        var resource = repository.resource(artifact, POM);
-        try (var reader = StaxReader.open(resource))
-        {
-            // and return the parsed POM information.
-            return repository.listenTo(new PomReader(resource, repository, reader)).read();
-        }
-    }
-
-    private final Resource resource;
-
-    private final MavenRepository repository;
-
-    private final StaxReader reader;
-
     private final StaxPath PARENT = parseXmlPath("project/parent");
 
     private final StaxPath PROPERTIES = parseXmlPath("project/properties");
@@ -70,70 +40,73 @@ public class PomReader extends BaseComponent
     private final StaxPath DEPENDENCY_MANAGEMENT_DEPENDENCY = parseXmlPath("project/dependencyManagement/dependency");
 
     /**
-     * @param resource The POM resource to read
-     * @param repository The repository that contains the resource
-     * @param reader The XML reader
+     * The POM for the given artifact in the given repository
+     *
+     * @param repository The repository where the artifact resides
+     * @param artifact The artifact whose POM should be read
+     * @return The POM
      */
-    private PomReader(Resource resource, MavenRepository repository, StaxReader reader)
+    public Pom read(MavenRepository repository, Artifact artifact)
     {
-        this.resource = resource;
-        this.repository = repository;
-        this.reader = listenTo(reader);
+        return read(repository, repository.resource(artifact, POM));
     }
 
     /**
-     * Reads this POM resource using {@link StaxReader}
-     *
-     * @return The POM model containing properties and dependencies
+     * Testing entrypoint for reading a POM resource that's not in a repository
      */
-    public Pom read()
+    public Pom read(Resource resource)
     {
-        var pom = new Pom();
-
-        for (reader.next(); reader.hasNext(); reader.next())
-        {
-            if (reader.isInside(PARENT))
-            {
-                pom.parent = PomReader.read(repository, readDependency(PARENT));
-            }
-            if (reader.isInside(PROPERTIES))
-            {
-                pom.properties = readProperties();
-            }
-            if (reader.isInside(DEPENDENCIES))
-            {
-                pom.dependencies = readDependencies(DEPENDENCIES, DEPENDENCY);
-            }
-            if (reader.isInside(DEPENDENCY_MANAGEMENT))
-            {
-                pom.dependencyManagementDependencies = readDependencies(DEPENDENCY_MANAGEMENT, DEPENDENCY_MANAGEMENT_DEPENDENCY);
-            }
-        }
-
-        pom.resolveDependencyVersions();
-
-        return pom;
+        return read(null, resource);
     }
 
-    @Override
-    public String toString()
+    Pom read(MavenRepository repository, Resource resource)
     {
-        return resource.path().asString();
+        try (var reader = StaxReader.open(resource))
+        {
+            var pom = new Pom();
+
+            for (reader.next(); reader.hasNext(); reader.next())
+            {
+                if (reader.isUnder(PARENT))
+                {
+                    var parentArtifact = readDependency(reader, PARENT);
+                    require(DependencyResolver.class).resolve(parentArtifact);
+                    pom.parent = read(repository, parentArtifact);
+                }
+                if (reader.isUnder(PROPERTIES))
+                {
+                    pom.properties = readProperties(reader);
+                }
+                if (reader.isUnder(DEPENDENCIES))
+                {
+                    pom.dependencies = readDependencies(reader, DEPENDENCIES, DEPENDENCY);
+                }
+                if (reader.isUnder(DEPENDENCY_MANAGEMENT))
+                {
+                    pom.dependencyManagementDependencies = readDependencies(reader, DEPENDENCY_MANAGEMENT, DEPENDENCY_MANAGEMENT_DEPENDENCY);
+                }
+            }
+
+            pom.resolveDependencyVersions();
+
+            return pom;
+        }
     }
 
     /**
      * @return List of dependent {@link MavenArtifact}s
      */
-    private ObjectList<MavenArtifact> readDependencies(StaxPath dependenciesPath,
+    private ObjectList<MavenArtifact> readDependencies(StaxReader reader,
+                                                       StaxPath dependenciesPath,
                                                        StaxPath dependencyPath)
     {
         var dependencies = new ObjectList<MavenArtifact>();
 
-        for (; reader.isInside(dependenciesPath); reader.next())
+        for (; reader.isUnder(dependenciesPath); reader.next())
         {
             if (reader.isAtOpenTag("dependency"))
             {
-                dependencies.add(readDependency(dependencyPath));
+                dependencies.add(readDependency(reader, dependencyPath));
             }
         }
 
@@ -144,13 +117,13 @@ public class PomReader extends BaseComponent
      * @return The dependency at the given path
      */
     @SuppressWarnings("ConstantConditions")
-    private MavenArtifact readDependency(StaxPath path)
+    private MavenArtifact readDependency(StaxReader reader, StaxPath path)
     {
         MavenArtifactGroup artifactGroup = null;
         String artifactIdentifier = null;
         String version = null;
 
-        for (; reader.isInside(path); reader.next())
+        for (; reader.isAtOrUnder(path); reader.next())
         {
             if (reader.isAtOpenTag("groupId"))
             {
@@ -178,25 +151,30 @@ public class PomReader extends BaseComponent
      * &lt;kivakit.version&gt;9.5&lt;/kivakit.version&gt;
      * </p>
      */
-    private PropertyMap readProperties()
+    private PropertyMap readProperties(StaxReader reader)
     {
         var properties = PropertyMap.create();
 
         while (true)
         {
             // Get the next start tag inside the properties path,
-            var open = reader.nextInside(PROPERTIES, (StaxReader.BooleanMatcher) XMLEvent::isStartElement);
+            var open = reader.nextAtOrUnder(PROPERTIES, (StaxReader.BooleanMatcher) ignored -> reader.isAtOpenTag());
             if (open != null)
             {
                 // read the tag name as the property name,
                 var propertyName = open.asStartElement().getName().getLocalPart();
 
-                // read the character data inside the tag
-                var characters = reader.next();
-                if (ensure(characters.isCharacters()))
+                // get the next element,
+                var next = reader.next();
+
+                // and if it's not an end element (like <tag/>)
+                if (!next.isEndElement())
                 {
+                    // read the character data inside the tag,
+                    ensure(next.isCharacters(), "Expected characters, not: $", next);
+
                     // and put it in the property map
-                    properties.put(propertyName, characters.asCharacters().getData());
+                    properties.put(propertyName, next.asCharacters().getData());
                 }
             }
             else

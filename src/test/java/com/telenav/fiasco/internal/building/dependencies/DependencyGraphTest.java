@@ -53,19 +53,19 @@ import org.junit.Test;
         graph.depthFirstTraversal(new DependencyGraph.Visitor()
         {
             @Override
-            public void atInteriorNode(Dependency node)
+            public void atInteriorNode(DependencyGraph.TraversalState traversal, Dependency node)
             {
                 ensure(interiorNodes.contains(node));
             }
 
             @Override
-            public void atLeaf(Dependency leaf)
+            public void atLeaf(DependencyGraph.TraversalState traversal, Dependency leaf)
             {
                 ensure(leafNodes.contains(leaf));
             }
 
             @Override
-            public void atNode(Dependency node)
+            public void atNode(DependencyGraph.TraversalState traversal, Dependency node)
             {
                 order.add(node);
             }

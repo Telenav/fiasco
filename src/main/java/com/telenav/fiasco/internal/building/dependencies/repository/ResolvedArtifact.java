@@ -7,7 +7,11 @@ import com.telenav.kivakit.resource.Resource;
 import com.telenav.kivakit.resource.path.Extension;
 
 /**
+ * <b>Not public API</b>
+ *
+ * <p>
  * A resolved artifact, including the artifact's repository, resources and POM.
+ * </p>
  *
  * @author jonathanl (shibo)
  */
