@@ -15,9 +15,13 @@ import com.telenav.fiasco.runtime.BuildResult;
 public interface BuildListener
 {
     /**
+     * <b>Not public API</b>
+     *
+     * <p>
      * Called with the build result for each {@link Buildable} as it is built.
+     * </p>
      *
      * @param result The build result
      */
-    void onBuildResult(BuildResult result);
+    void onBuildCompleted(BuildResult result);
 }

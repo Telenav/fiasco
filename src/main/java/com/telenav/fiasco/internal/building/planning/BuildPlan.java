@@ -3,35 +3,37 @@ package com.telenav.fiasco.internal.building.planning;
 import com.telenav.fiasco.internal.building.BuildListener;
 import com.telenav.fiasco.internal.building.Buildable;
 import com.telenav.fiasco.internal.building.Builder;
+import com.telenav.fiasco.internal.building.builders.ParallelBuilder;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
+import com.telenav.kivakit.kernel.language.time.Duration;
 
 /**
  * <b>Not public API</b>
  *
  * <p>
- * A build plan is a list of {@link BuildableGroup}s that can be built with a {@link Builder}
+ * A build plan is a list of {@link BuildableGroup}s that can be built with a {@link Builder}.
+ * </p>
+ *
+ * <p>
+ * A build plan is executed by calling {@link #build(Builder, BuildListener)}. The {@link Builder} builds each {@link
+ * BuildableGroup} in order. A {@link ParallelBuilder} builds each group in parallel due to the fact that a {@link
+ * BuildableGroup} contains only {@link Buildable}s which have no dependencies that have not already been built.
  * </p>
  *
  * @author jonathanl (shibo)
+ * @see Buildable
+ * @see BuildableGroup
+ * @see Builder
+ * @see BuildListener
+ * @see ParallelBuilder
  */
-public class BuildPlan
+public class BuildPlan extends ObjectList<BuildableGroup>
 {
-    /** The groups of {@link Buildable}s that must be built under this build plan */
-    private final ObjectList<BuildableGroup> groups = ObjectList.objectList();
-
-    /**
-     * Adds the group of Buildables to this plan
-     */
-    public void add(BuildableGroup group)
-    {
-        groups.add(group);
-    }
-
     /**
      * Executes this build plan using the given builder and build listener
      */
-    public void build(Builder builder, BuildListener listener)
+    public void build(Builder builder, BuildListener listener, Duration timeout)
     {
-        groups.forEach(group -> builder.build(listener, group));
+        forEach(group -> builder.build(listener, group, timeout));
     }
 }

@@ -7,6 +7,7 @@ import com.telenav.kivakit.component.Component;
 import com.telenav.kivakit.kernel.data.validation.Validatable;
 import com.telenav.kivakit.kernel.interfaces.collection.Addable;
 import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
+import com.telenav.kivakit.kernel.interfaces.naming.Named;
 
 import java.util.Arrays;
 
@@ -21,7 +22,7 @@ import java.util.Arrays;
  * @see Library
  * @see Artifact
  */
-public interface Dependency extends Validatable, Component, Addable<Dependency>
+public interface Dependency extends Validatable, Component, Addable<Dependency>, Named
 {
     /**
      * @return A deep copy of this dependency

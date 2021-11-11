@@ -28,14 +28,14 @@ import com.telenav.kivakit.component.Component;
 public interface Tool extends Component
 {
     /**
-     * Sets the project for this tool
+     * Sets the parent build for this tool
      *
      * @param build The build
      */
-    void build(Build build);
+    void parentBuild(Build build);
 
     /**
-     * @return The project that this tool is running in
+     * @return The build that this tool belongs to
      */
-    Build build();
+    Build parentBuild();
 }

@@ -1,8 +1,10 @@
 package com.telenav.fiasco.internal.fiasco;
 
+import com.telenav.fiasco.runtime.Build;
 import com.telenav.fiasco.runtime.tools.compiler.JavaCompiler;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.filesystem.File;
+import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.kernel.language.reflection.Type;
 import com.telenav.kivakit.resource.path.Extension;
 
@@ -18,32 +20,49 @@ import static java.lang.reflect.Modifier.isAbstract;
  * <b>Not public API</b>
  *
  * <p>
- * Class utilities used internally to compile and instantiate build sources
+ * Used internally to compile and instantiate build sources
+ * </p>
+ *
+ * <p>
+ * The {@link #compile(Folder, File)} method compiles a <i>FiascoBuild.java</i> file using the compiler configured by
+ * {@link #compiler(Folder, Writer)}. When the class file has been built, it can be loaded with {@link
+ * #loadBuild(File)}. If the class file can be instantiated, and it is concrete and implements the {@link Build}
+ * interface, the method returns the build, which can be executed by the caller with {@link Build#build}.
  * </p>
  *
  * @author jonathanl (shibo)
+ * @see JavaCompiler
+ * @see Folder
+ * @see File
  */
 public class FiascoCompiler extends BaseComponent
 {
     /**
-     * Compiles the given source file and returns the class file
+     * <b>Not public API</b>
      *
+     * <p>
+     * Compiles the given source file and returns the class file
+     * </p>
+     *
+     * @param target The target folder to put classes in
      * @param source The source file
      * @return The compiled class file
      */
-    public File compile(File source)
+    public File compile(Folder target, File source)
     {
+        // If the source file exists,
         if (isTrueOr(source.exists(), "Build source file does not exist: $", source))
         {
+            // get a compiler configured for Fiasco builds,
             var output = new StringWriter();
-            var compiler = compiler(output);
+            var compiler = compiler(target, output);
             var sourceFolder = source.parent();
             var classFile = compiler.targetFolder()
                     .file(source.fileName()
                             .withoutExtension()
                             .withExtension(Extension.CLASS));
 
-            // If the source or target folder has changed since the last time,
+            // and if the source or target folder has changed (at all) since the last time,
             if (sourceFolder.hasChanged() || compiler.targetFolder().hasChanged())
             {
                 // and the source folder compiles successfully,
@@ -67,9 +86,11 @@ public class FiascoCompiler extends BaseComponent
     }
 
     /**
+     * <b>Not public API</b>
+     *
      * @return A configured JavaCompiler for building FiascoBuild.java build files
      */
-    public JavaCompiler compiler(Writer output)
+    public JavaCompiler compiler(Folder target, Writer output)
     {
         var cache = require(FiascoCache.class);
 
@@ -77,20 +98,23 @@ public class FiascoCompiler extends BaseComponent
                 .withOutput(output)
                 .withSourceVersion(JAVA_16)
                 .withTargetVersion(JAVA_16)
-                .withTargetFolder(cache.targetFolder())
+                .withTargetFolder(target)
                 .withClasspathJar(cache.runtimeJar())
                 .withImplicitCompilation();
     }
 
     /**
-     * Loads the given class file and creates an instance of it
+     * <b>Not public API</b>
+     *
+     * <p>
+     * Loads the given class file, creates an instance of it and returns the object if it is a concreted class that
+     * implements {@link Build}.
+     * </p>
      *
      * @param classFile The class file to load and instantiate
-     * @param expectedType The expected type of the compiled class
-     * @return The object, or null if the class could not be instantiated or is not assignable to the expected type
+     * @return The object, or null if the class could not be instantiated or is not a subclass of {@link Build}
      */
-    @SuppressWarnings("unchecked")
-    public <T> T instantiate(File classFile, Class<T> expectedType)
+    public Build loadBuild(File classFile)
     {
         try
         {
@@ -106,10 +130,10 @@ public class FiascoCompiler extends BaseComponent
                 if (!isAbstract(loaded.getModifiers()))
                 {
                     // and it is assignable to the expected type,
-                    if (isTrueOr(expectedType.isAssignableFrom(loaded), "The class file $ does not contain a subclass of ${class}", classFile, expectedType))
+                    if (isTrueOr(Build.class.isAssignableFrom(loaded), "The class file $ does not contain a subclass of Build", classFile))
                     {
                         // then return a new instance of the class.
-                        return (T) Type.forClass(loaded).newInstance();
+                        return (Build) Type.forClass(loaded).newInstance();
                     }
                 }
                 else

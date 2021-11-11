@@ -37,17 +37,6 @@ import static com.telenav.kivakit.kernel.language.objects.Objects.equalPairs;
  */
 public class Downloader extends BaseComponent
 {
-    private static Downloader instance;
-
-    public static Downloader get(Count threads)
-    {
-        if (instance == null)
-        {
-            instance = new Downloader(threads);
-        }
-        return instance;
-    }
-
     /** The current status of a download */
     public enum DownloadStatus
     {
@@ -108,11 +97,6 @@ public class Downloader extends BaseComponent
             return this;
         }
 
-        public Folder destination()
-        {
-            return destination;
-        }
-
         @Override
         public boolean equals(Object object)
         {
@@ -130,11 +114,17 @@ public class Downloader extends BaseComponent
             return Objects.hash(source, destination);
         }
 
+        /**
+         * @return The resource being downloaded
+         */
         public Resource source()
         {
             return source;
         }
 
+        /**
+         * @return The status of the completed download
+         */
         public DownloadStatus status()
         {
             return status;
@@ -156,7 +146,10 @@ public class Downloader extends BaseComponent
     /** The downloads that are in progress */
     private final Map<Download, Future<Download>> downloading = new ConcurrentHashMap<>();
 
-    private Downloader(Count threads)
+    /**
+     * @param threads The number of downloading threads
+     */
+    public Downloader(Count threads)
     {
         downloads = new ExecutorCompletionService<>(Executors.newFixedThreadPool(threads.asInt()));
     }

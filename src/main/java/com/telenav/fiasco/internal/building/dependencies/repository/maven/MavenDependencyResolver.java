@@ -10,6 +10,7 @@ import com.telenav.fiasco.runtime.Library;
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactRepository;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenRepository;
+import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifact;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.strings.AsciiArt;
@@ -26,10 +27,10 @@ import static com.telenav.kivakit.resource.CopyMode.OVERWRITE;
 /**
  * <b>Not public API</b>
  *
- * <p><b>Artifact Resolution</b></p>
+ * <p><b>Dependency Resolution</b></p>
  *
  * <p>
- * Resolves Maven artifacts as follows:
+ * Resolves Maven artifacts and dependencies as follows:
  * </p>
  *
  * <ol>
@@ -44,13 +45,20 @@ import static com.telenav.kivakit.resource.CopyMode.OVERWRITE;
  * </ol>
  *
  * @author jonathanl (shibo)
+ * @see DependencyResolver
+ * @see Dependency
+ * @see Artifact
+ * @see ArtifactRepository
+ * @see MavenArtifact
+ * @see MavenRepository
+ * @see ResolvedArtifact
  */
 public class MavenDependencyResolver extends BaseComponent implements DependencyResolver
 {
-    /** Parallel downloader to speed up downloads */
+    /** Parallel downloader to speed up artifact resource downloads */
     private final Downloader downloader;
 
-    /** List of repositories to search for this project, with the local repository first */
+    /** List of repositories to search when artifacts are not in the local repository */
     private final ObjectList<MavenRepository> repositories = new ObjectList<>();
 
     /** The repositories for artifacts that are already resolved */
@@ -64,7 +72,7 @@ public class MavenDependencyResolver extends BaseComponent implements Dependency
      */
     public MavenDependencyResolver(Count threads)
     {
-        downloader = listenTo(Downloader.get(threads));
+        downloader = listenTo(register(new Downloader(threads)));
         pomReader = listenTo(new PomReader());
     }
 

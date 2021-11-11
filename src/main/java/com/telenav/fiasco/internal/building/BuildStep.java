@@ -1,5 +1,7 @@
 package com.telenav.fiasco.internal.building;
 
+import com.telenav.fiasco.runtime.Build;
+
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
 
 /**
@@ -10,6 +12,7 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
  * </p>
  *
  * @author jonathanl (shibo)
+ * @see Build
  */
 public enum BuildStep
 {

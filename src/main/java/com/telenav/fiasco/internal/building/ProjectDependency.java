@@ -15,7 +15,7 @@ import com.telenav.kivakit.filesystem.Folder;
  *
  * @author jonathanl (shibo)
  */
-public interface DependentProject extends Dependency
+public interface ProjectDependency extends Dependency
 {
     /**
      * Builds and adds project in the given folder

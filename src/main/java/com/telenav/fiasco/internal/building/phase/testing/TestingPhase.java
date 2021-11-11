@@ -7,8 +7,10 @@ import com.telenav.fiasco.runtime.Build;
 
 /**
  * <b>Not public API</b>
+ *
  * <p>
  * Executes the steps in the installation phase of a build:
+ * </p>
  *
  * <ol>
  *     <li>TEST_INITIALIZE</li>

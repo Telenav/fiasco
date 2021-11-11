@@ -39,6 +39,7 @@ import java.util.Objects;
  *
  * @author jonathanl (shibo)
  * @see Dependency
+ * @see DependencySet
  * @see BaseComponent
  */
 public abstract class BaseDependency extends BaseComponent implements Dependency

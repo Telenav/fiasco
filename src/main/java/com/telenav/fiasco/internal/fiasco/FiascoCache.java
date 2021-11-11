@@ -11,7 +11,20 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
 /**
  * <b>Not public API</b>
  *
+ * <p>
+ * Cache for Fiasco temporary resources.
+ * </p>
+ *
+ * <p>
+ * The cache folder accessed with {@link #folder()} is located in the .fiasco/[fiasco-version] folder in the user's home
+ * folder. The sub-folder "runtime" of this folder holds the Fiasco runtime JAR, which is used to build user code
+ * against. The {@link #targetFolder()} contains class files that have been built from user code in the
+ * src/main/java/fiasco folder of Fiasco-built projects.
+ * </p>
+ *
  * @author jonathanl (shibo)
+ * @see Folder
+ * @see File
  */
 public class FiascoCache extends BaseComponent
 {
@@ -43,11 +56,13 @@ public class FiascoCache extends BaseComponent
     }
 
     /**
+     * <b>Not public API</b>
+     *
      * @return The Fiasco runtime jar
      */
     public File runtimeJar()
     {
-        return folder("modules").file("fiasco-runtime-$.jar", require(Fiasco.class).version());
+        return folder("runtime").file("fiasco-runtime-$.jar", require(Fiasco.class).version());
     }
 
     /**

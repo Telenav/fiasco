@@ -25,23 +25,34 @@ import static com.telenav.fiasco.runtime.tools.compiler.JavaCompiler.JavaVersion
  * </ol>
  *
  * @author jonathanl (shibo)
+ * @see Build
  * @see BuildStep
  * @see Phase
+ * @see JavaCompiler
  */
-public class BaseCompilationPhase extends BasePhase
+public class CompilationPhase extends BasePhase
 {
     private final StringWriter output = new StringWriter();
 
-    public BaseCompilationPhase(Build build)
+    /**
+     * @param build The build to which this compilation phase belongs
+     */
+    public CompilationPhase(Build build)
     {
         super(build);
     }
 
+    /**
+     * @return The output of compilation
+     */
     public StringWriter output()
     {
         return output;
     }
 
+    /**
+     * @return The compiler to use when compiling Java sources
+     */
     protected JavaCompiler javaCompiler()
     {
         return JavaCompiler.create(this)
@@ -49,7 +60,7 @@ public class BaseCompilationPhase extends BasePhase
                 .withSourceVersion(JAVA_11)
                 .withTargetVersion(JAVA_11)
                 .withImplicitCompilation()
-                .withTargetFolder(build()
+                .withTargetFolder(parentBuild()
                         .projectRootFolder()
                         .folder("target")
                         .mkdirs());

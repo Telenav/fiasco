@@ -30,11 +30,22 @@ import com.telenav.kivakit.kernel.language.values.version.Version;
 import java.util.Objects;
 
 /**
- * A library is an artifact of a particular version, with a set of dependencies from the artifact. Dependencies can be
- * retrieved with {@link #dependencies()} and excluded with {@link #excluding(Matcher)} or {@link
- * #excluding(Dependency...)}.
+ * <p>
+ * A library is a unit of code reuse that has an artifact of a particular version.
+ * </p>
+ *
+ * <p>
+ * The dependencies for a {@link Library} can be retrieved with {@link #dependencies()} and excluded with {@link
+ * #excluding(Matcher)} or {@link #excluding(Dependency...)}. The main {@link Artifact} for a library can be accessed
+ * with {@link #artifact()} and that artifact's descriptor with {@link #descriptor()}. A library with a different
+ * version or without a version can be derived from this library using the functional methods {@link
+ * #withVersion(Version)}, {@link #withVersion(String)}, and {@link #withoutVersion()}.
  *
  * @author jonathanl (shibo)
+ * @see Dependency
+ * @see Artifact
+ * @see Version
+ * @see Validator
  */
 public class Library extends BaseDependency
 {
@@ -133,5 +144,15 @@ public class Library extends BaseDependency
     public Library withVersion(String version)
     {
         return withVersion(Version.parse(this, version));
+    }
+
+    /**
+     * @return This library without a version number
+     */
+    public Library withoutVersion()
+    {
+        var copy = new Library(this);
+        copy.artifact = artifact.withoutVersion();
+        return copy;
     }
 }

@@ -18,7 +18,7 @@ public abstract class BaseTool extends BaseComponent implements Tool
      * {@inheritDoc}
      */
     @Override
-    public void build(Build build)
+    public void parentBuild(Build build)
     {
         this.build = build;
     }
@@ -27,7 +27,7 @@ public abstract class BaseTool extends BaseComponent implements Tool
      * {@inheritDoc}
      */
     @Override
-    public Build build()
+    public Build parentBuild()
     {
         return build;
     }

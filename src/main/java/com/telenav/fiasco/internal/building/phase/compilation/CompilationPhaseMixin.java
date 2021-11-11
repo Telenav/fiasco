@@ -11,8 +11,10 @@ import com.telenav.kivakit.kernel.messaging.messages.MessageException;
 
 /**
  * <b>Not public API</b>
+ *
  * <p>
- * {@link Mixin} for {@link BaseCompilationPhase}
+ * {@link Mixin} for {@link CompilationPhase}
+ * </p>
  *
  * @author jonathanl (shibo)
  */
@@ -23,9 +25,9 @@ public interface CompilationPhaseMixin extends
         Dependency,
         ProjectFoldersTrait
 {
-    default BaseCompilationPhase compilationPhase()
+    default CompilationPhase compilationPhase()
     {
-        return state(CompilationPhaseMixin.class, () -> listenTo(new BaseCompilationPhase(build())));
+        return state(CompilationPhaseMixin.class, () -> listenTo(new CompilationPhase(parentBuild())));
     }
 
     default void compile()

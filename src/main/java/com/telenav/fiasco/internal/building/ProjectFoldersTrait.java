@@ -11,6 +11,8 @@ import com.telenav.kivakit.filesystem.Folder;
  * </p>
  *
  * @author jonathanl (shibo)
+ * @see Folder
+ * @see Build
  */
 public interface ProjectFoldersTrait
 {
@@ -36,6 +38,8 @@ public interface ProjectFoldersTrait
     Folder projectRootFolder();
 
     /**
+     * Sets the root of the project
+     *
      * @param root The project root folder
      */
     Build projectRootFolder(Folder root);

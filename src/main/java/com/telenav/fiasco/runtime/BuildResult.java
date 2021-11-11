@@ -3,6 +3,7 @@ package com.telenav.fiasco.runtime;
 import com.telenav.fiasco.internal.building.Buildable;
 import com.telenav.kivakit.kernel.language.collections.list.StringList;
 import com.telenav.kivakit.kernel.language.strings.Strip;
+import com.telenav.kivakit.kernel.language.threading.status.WakeState;
 import com.telenav.kivakit.kernel.language.time.Duration;
 import com.telenav.kivakit.kernel.language.time.Time;
 import com.telenav.kivakit.kernel.messaging.Listener;
@@ -35,6 +36,12 @@ public class BuildResult implements Listener
     /** The name of the build */
     private final String buildName;
 
+    /** The reason that the build ended */
+    private WakeState endedBecause;
+
+    /** The cause for termination if endedBecause is not COMPLETED */
+    private Exception terminationCause;
+
     public BuildResult(String buildName)
     {
         this.buildName = buildName;
@@ -53,6 +60,20 @@ public class BuildResult implements Listener
     public void end()
     {
         end = Time.now();
+    }
+
+    /**
+     * @return The reason why this build ended, either {@link WakeState#COMPLETED}, {@link WakeState#INTERRUPTED} or
+     * {@link WakeState#TIMED_OUT}.
+     */
+    public WakeState endedBecause()
+    {
+        return endedBecause;
+    }
+
+    public void endedBecause(WakeState wakeState)
+    {
+        endedBecause = wakeState;
     }
 
     public MessageList messages()
@@ -78,7 +99,17 @@ public class BuildResult implements Listener
 
     public StringList summary()
     {
-        return StringList.stringList("Elapsed: " + elapsed());
+        return StringList.stringList(Message.format("Build \"$\" completed in $", buildName(), elapsed()));
+    }
+
+    public Exception terminationCause()
+    {
+        return terminationCause;
+    }
+
+    public void terminationCause(Exception terminationCause)
+    {
+        this.terminationCause = terminationCause;
     }
 
     @Override

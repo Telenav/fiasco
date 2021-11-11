@@ -5,8 +5,10 @@ import com.telenav.kivakit.kernel.language.mixin.Mixin;
 
 /**
  * <b>Not public API</b>
+ *
  * <p>
  * {@link Mixin} for {@link PackagingPhase}
+ * </p>
  *
  * @author jonathanl (shibo)
  */
@@ -44,6 +46,6 @@ public interface PackagingPhaseMixin extends Phase, Mixin
 
     default PackagingPhase packagingPhase()
     {
-        return state(PackagingPhaseMixin.class, () -> new PackagingPhase(build()));
+        return state(PackagingPhaseMixin.class, () -> new PackagingPhase(parentBuild()));
     }
 }

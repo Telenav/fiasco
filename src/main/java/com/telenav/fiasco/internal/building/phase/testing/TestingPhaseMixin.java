@@ -11,12 +11,6 @@ import com.telenav.kivakit.kernel.language.mixin.Mixin;
  */
 public interface TestingPhaseMixin extends Phase, Mixin
 {
-    @Override
-    default Build build()
-    {
-        return testingPhase().build();
-    }
-
     default void buildTestSources()
     {
         testingPhase().buildTestSources();
@@ -47,6 +41,12 @@ public interface TestingPhaseMixin extends Phase, Mixin
         testingPhase().onTestVerify();
     }
 
+    @Override
+    default Build parentBuild()
+    {
+        return testingPhase().parentBuild();
+    }
+
     default void runTests()
     {
         testingPhase().runTests();
@@ -54,6 +54,6 @@ public interface TestingPhaseMixin extends Phase, Mixin
 
     default TestingPhase testingPhase()
     {
-        return state(TestingPhaseMixin.class, () -> new TestingPhase(build()));
+        return state(TestingPhaseMixin.class, () -> new TestingPhase(parentBuild()));
     }
 }

@@ -5,8 +5,10 @@ import com.telenav.kivakit.kernel.language.mixin.Mixin;
 
 /**
  * <b>Not public API</b>
+ *
  * <p>
  * {@link Mixin} for {@link InstallationPhase}
+ * </p>
  *
  * @author jonathanl (shibo)
  */
@@ -19,7 +21,7 @@ public interface InstallationPhaseMixin extends Phase, Mixin
 
     default InstallationPhase installationPhase()
     {
-        return state(InstallationPhaseMixin.class, () -> new InstallationPhase(build()));
+        return state(InstallationPhaseMixin.class, () -> new InstallationPhase(parentBuild()));
     }
 
     default void onPackageDeploy()

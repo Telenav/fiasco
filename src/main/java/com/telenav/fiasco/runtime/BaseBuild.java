@@ -3,8 +3,8 @@ package com.telenav.fiasco.runtime;
 import com.telenav.fiasco.internal.building.BuildListener;
 import com.telenav.fiasco.internal.building.BuildStep;
 import com.telenav.fiasco.internal.building.Buildable;
-import com.telenav.fiasco.internal.building.DependentProject;
 import com.telenav.fiasco.internal.building.Phase;
+import com.telenav.fiasco.internal.building.ProjectDependency;
 import com.telenav.fiasco.internal.building.ProjectFoldersTrait;
 import com.telenav.fiasco.internal.building.dependencies.BaseDependency;
 import com.telenav.fiasco.internal.building.dependencies.repository.ResolvedArtifact;
@@ -72,7 +72,7 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
 public class BaseBuild extends BaseDependency implements
         Named,
         Buildable,
-        DependentProject,
+        ProjectDependency,
         Initializable,
         Build,
         ProjectFoldersTrait
@@ -114,13 +114,53 @@ public class BaseBuild extends BaseDependency implements
     }
 
     /**
+     * Builds this project
+     */
+    @Override
+    public BuildResult build()
+    {
+        var result = new BuildResult(getClass().getSimpleName());
+        try
+        {
+            result.listenTo(this);
+            result.start();
+
+            // Compile code,
+            step(INITIALIZE);
+            compileSources();
+
+            // build the tests,
+            ensure(isAt(TEST_INITIALIZE));
+            buildTestSources();
+
+            // run the tests,
+            ensure(isAt(TEST_RUN_TESTS));
+            runTests();
+
+            // package up the code,
+            ensure(isAt(PACKAGE_INITIALIZE));
+            buildPackages();
+
+            // and install it.
+            ensure(isAt(PACKAGE_INSTALL));
+            installPackages();
+
+            return result;
+        }
+        finally
+        {
+            result.end();
+        }
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
     public BuildResult call()
     {
         step(FIASCO_STARTUP);
-        return run();
+        return build();
     }
 
     @Override
@@ -198,7 +238,7 @@ public class BaseBuild extends BaseDependency implements
 
         // create a compiler
         var output = new StringWriter();
-        var compiler = require(FiascoCompiler.class).compiler(output);
+        var compiler = require(FiascoCompiler.class).compiler(targetFolder(), output);
 
         // and if we can compile the source files,
         if (compiler.compile(fiasco))
@@ -210,7 +250,7 @@ public class BaseBuild extends BaseDependency implements
             var bootstrap = listenTo(new FiascoCompiler());
             for (var classFile : classes.files(file -> file.fileName().endsWith("Project.class")))
             {
-                dependencies().addIfNotNull(bootstrap.instantiate(classFile, Build.class));
+                dependencies().addIfNotNull(bootstrap.loadBuild(classFile));
             }
 
             ensure(dependencies().size() > 0, "Could not find any '*Project.java' files implementing FiascoProject in: $", fiasco);
@@ -258,46 +298,6 @@ public class BaseBuild extends BaseDependency implements
     public ObjectList<ResolvedArtifact> resolveTransitiveDependencies(Dependency dependency)
     {
         return librarian().resolveTransitiveDependencies(dependency);
-    }
-
-    /**
-     * Builds this project
-     */
-    @Override
-    public BuildResult run()
-    {
-        var result = new BuildResult(getClass().getSimpleName());
-        try
-        {
-            result.listenTo(this);
-            result.start();
-
-            // Compile code,
-            step(INITIALIZE);
-            compileSources();
-
-            // build the tests,
-            ensure(isAt(TEST_INITIALIZE));
-            buildTestSources();
-
-            // run the tests,
-            ensure(isAt(TEST_RUN_TESTS));
-            runTests();
-
-            // package up the code,
-            ensure(isAt(PACKAGE_INITIALIZE));
-            buildPackages();
-
-            // and install it.
-            ensure(isAt(PACKAGE_INSTALL));
-            installPackages();
-
-            return result;
-        }
-        finally
-        {
-            result.end();
-        }
     }
 
     /**

@@ -1,12 +1,11 @@
 package com.telenav.fiasco.internal.building.dependencies;
 
 import com.telenav.fiasco.internal.building.Buildable;
+import com.telenav.fiasco.internal.building.planning.BuildPlan;
 import com.telenav.fiasco.internal.building.planning.BuildableGroup;
-import com.telenav.fiasco.runtime.Build;
 import com.telenav.fiasco.runtime.Dependency;
 import com.telenav.kivakit.kernel.data.validation.ensure.Ensure;
 import com.telenav.kivakit.kernel.interfaces.function.BooleanFunction;
-import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.collections.list.StringList;
 import com.telenav.kivakit.kernel.language.strings.AsciiArt;
 
@@ -17,10 +16,24 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
 
 /**
  * <b>Not public API</b>
+ *
  * <p>
- * Traverses the graph of dependencies from the root {@link Build}.
+ * Provides traversals and processing of the graph of dependencies from the root {@link Dependency}.
+ * </p>
+ *
+ * <p>
+ * A dependency graph is created with {@link #of(Dependency)}. The graph can be converted into a textual representation
+ * for display to a user with {@link #text()} and into PlantUML with {@link #uml()}. A depth-first traversal of the
+ * graph (with cycle detection) is provided by {@link #depthFirstTraversal(Visitor)}. The {@link Visitor} parameter is
+ * called at each node, interior node and leaf of the graph during the traversal. Finally, the {@link #planBuild()}
+ * method returns a list of groups of {@link Buildable} objects. Each group is the set of leaves of the tree remaining
+ * after removing previous groups. Because each group has no dependencies once prior groups are processed, the {@link
+ * Buildable}s in a group can be processed in parallel.
+ * </p>
  *
  * @author shibo
+ * @see Dependency
+ * @see BuildableGroup
  */
 public class DependencyGraph
 {
@@ -41,7 +54,7 @@ public class DependencyGraph
          * @param traversal The state of the traversal
          * @param node The node we're visiting
          */
-        default void atInteriorNode(TraversalState traversal, Dependency node)
+        default void atInteriorNode(Traversal traversal, Dependency node)
         {
         }
 
@@ -49,7 +62,7 @@ public class DependencyGraph
          * @param traversal The state of the traversal
          * @param leaf The lead we're visiting
          */
-        default void atLeaf(TraversalState traversal, Dependency leaf)
+        default void atLeaf(Traversal traversal, Dependency leaf)
         {
         }
 
@@ -57,7 +70,7 @@ public class DependencyGraph
          * @param traversal The state of the traversal
          * @param node The node we're visiting
          */
-        default void atNode(TraversalState traversal, Dependency node)
+        default void atNode(Traversal traversal, Dependency node)
         {
         }
     }
@@ -65,7 +78,7 @@ public class DependencyGraph
     /**
      * The state of a traversal in progress, including the recursion level and indent text
      */
-    public static class TraversalState
+    public static class Traversal
     {
         private int recursionLevel = 0;
 
@@ -99,15 +112,26 @@ public class DependencyGraph
     }
 
     /**
+     * Calls the visitor with the dependencies of the given node in depth-first order. If a circular dependency is
+     * detected, {@link Ensure#fail()} is called.
+     *
+     * @param visitor THe visitor to call with nodes
+     */
+    public void depthFirstTraversal(Visitor visitor)
+    {
+        depthFirstTraversal(new Traversal(), root, new HashSet<>(), Dependency::isLeaf, visitor);
+    }
+
+    /**
      * @return A list of groups of {@link Buildable}s that can be built simultaneously (when the first group is done,
      * the next group can be built). How this works is described in detail in the documentation for {@link
      * #isLogicalLeaf(Dependency, Set)}.
      * @see #isLogicalLeaf(Dependency, Set)
      */
-    public ObjectList<BuildableGroup> buildableGroups()
+    public BuildPlan planBuild()
     {
         // Create a list of buildable groups,
-        var groups = new ObjectList<BuildableGroup>();
+        var plan = new BuildPlan();
 
         // and a set of visited leaves,
         var visitedLeaves = new HashSet<Dependency>();
@@ -120,10 +144,10 @@ public class DependencyGraph
             var group = new BuildableGroup();
 
             // and visiting all the "logical leaf" nodes from the root.
-            depthFirstTraversal(new TraversalState(), root, new HashSet<>(), dependency -> isLogicalLeaf(dependency, previouslyVisitedLeaves), new Visitor()
+            depthFirstTraversal(new Traversal(), root, new HashSet<>(), dependency -> isLogicalLeaf(dependency, previouslyVisitedLeaves), new Visitor()
             {
                 @Override
-                public void atLeaf(TraversalState traversal, Dependency leaf)
+                public void atLeaf(Traversal traversal, Dependency leaf)
                 {
                     // If a leaf node is Buildable,
                     if (leaf instanceof Buildable)
@@ -141,26 +165,15 @@ public class DependencyGraph
             if (group.isEmpty())
             {
                 // return the groups we've found,
-                return groups;
+                return plan;
             }
 
             // otherwise, add the group of leaves we found,
-            groups.add(group);
+            plan.add(group);
 
             // and we have previously visited all the leaves
             previouslyVisitedLeaves.addAll(visitedLeaves);
         }
-    }
-
-    /**
-     * Calls the visitor with the dependencies of the given node in depth-first order. If a circular dependency is
-     * detected, {@link Ensure#fail()} is called.
-     *
-     * @param visitor THe visitor to call with nodes
-     */
-    public void depthFirstTraversal(Visitor visitor)
-    {
-        depthFirstTraversal(new TraversalState(), root, new HashSet<>(), Dependency::isLeaf, visitor);
     }
 
     /**
@@ -172,7 +185,7 @@ public class DependencyGraph
         depthFirstTraversal(new Visitor()
         {
             @Override
-            public void atNode(TraversalState traversal, Dependency node)
+            public void atNode(Traversal traversal, Dependency node)
             {
                 text.append(traversal.indent() + node.descriptor());
             }
@@ -196,7 +209,7 @@ public class DependencyGraph
         depthFirstTraversal(new Visitor()
         {
             @Override
-            public void atNode(TraversalState traversal, Dependency node)
+            public void atNode(Traversal traversal, Dependency node)
             {
                 uml.append("artifact " + umlName(node));
                 node.dependencies().forEach(at -> uml.append(umlName(node) + " --> " + umlName(at)));
@@ -219,7 +232,7 @@ public class DependencyGraph
      * @param isLeaf Function to identify leaf nodes
      * @param visitor The visitor to call with nodes
      */
-    private void depthFirstTraversal(TraversalState traversal, Dependency at,
+    private void depthFirstTraversal(Traversal traversal, Dependency at,
                                      Set<Dependency> visited,
                                      BooleanFunction<Dependency> isLeaf,
                                      Visitor visitor)

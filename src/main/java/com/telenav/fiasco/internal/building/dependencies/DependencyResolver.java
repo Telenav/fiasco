@@ -35,11 +35,19 @@ import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
  * </ul>
  *
  * @author jonathanl (shibo)
+ * @see Dependency
+ * @see Artifact
+ * @see ResolvedArtifact
+ * @see Library
  */
 public interface DependencyResolver
 {
     /**
+     * <b>Not public API</b>
+     *
+     * <p>
      * Retrieves a POM for the given artifact
+     * </p>
      *
      * @param artifact The artifact for which to resolve a POM
      * @return The POM

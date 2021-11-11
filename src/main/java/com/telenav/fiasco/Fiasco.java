@@ -19,7 +19,9 @@ import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.filesystem.FolderGlobPattern;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.collections.set.ObjectSet;
+import com.telenav.kivakit.kernel.language.time.Duration;
 import com.telenav.kivakit.kernel.language.values.count.Count;
+import com.telenav.kivakit.kernel.language.vm.JavaVirtualMachine;
 import com.telenav.kivakit.kernel.messaging.Message;
 import com.telenav.kivakit.kernel.messaging.messages.status.Announcement;
 import com.telenav.kivakit.kernel.project.Project;
@@ -37,7 +39,7 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.unsupport
  * Fiasco maintains a list of project folders in the Java preferences store. Each project folder must have a "fiasco"
  * folder that contains a "FiascoBuild.java" class which implements the {@link Build} interface. Fiasco compiles this
  * file, along with any other referenced source files. Once the build has been loaded in this way, Fiasco executes it by
- * calling {@link Build#run()}.
+ * calling {@link Build#build()}.
  * </p>
  *
  * <p><b>Command Line Switches</b></p>
@@ -102,10 +104,22 @@ public class Fiasco extends Application
             .optional()
             .build();
 
-    /** Switch to remove a build folder to Fiasco */
+    /** Switch to configure the number of threads to use when downloading artifacts */
     private final SwitchParser<Count> DOWNLOAD_THREADS = SwitchParser.countSwitchParser(this, "download-threads", "The number of threads used by the Librarian to download artifact resources")
             .optional()
             .defaultValue(Count._8)
+            .build();
+
+    /** Switch to configure the number of threads to use for building */
+    private final SwitchParser<Count> BUILD_THREADS = SwitchParser.countSwitchParser(this, "build-threads", "The number of build threads to use")
+            .optional()
+            .defaultValue(JavaVirtualMachine.local().processors().times(2))
+            .build();
+
+    /** Switch to configure the maximum amount of time to wait for a possibly hung build */
+    private final SwitchParser<Duration> BUILD_TIMEOUT = SwitchParser.durationSwitchParser(this, "build-timeout", "The maximum amount of time to wait for a build")
+            .optional()
+            .defaultValue(Duration.minutes(5))
             .build();
 
     /** Switch to show dependency graphs for the given projects */
@@ -183,7 +197,24 @@ public class Fiasco extends Application
             }
 
             // and build, announcing each build as it completes.
-            build(result -> announce(result.toString()), arguments(PROJECTS));
+            build(arguments(PROJECTS), result ->
+            {
+                switch (result.endedBecause())
+                {
+                    case TERMINATED:
+                        announce("Build \"$\" terminated abnormally: $", result.buildName(), result.terminationCause());
+                        break;
+
+                    case INTERRUPTED:
+                    case TIMED_OUT:
+                        announce("Build \"$\" timed out or was interrupted. To increase the build timeout duration, use the -build-timeout switch", result.buildName());
+                        break;
+
+                    case COMPLETED:
+                        announce(result.toString());
+                        break;
+                }
+            });
         }
     }
 
@@ -194,13 +225,15 @@ public class Fiasco extends Application
                 REMEMBER,
                 FORGET,
                 DOWNLOAD_THREADS,
+                BUILD_THREADS,
+                BUILD_TIMEOUT,
                 DEPENDENCY_GRAPH);
     }
 
     /**
      * Compiles and runs the named projects, reporting build completions to the given listener
      */
-    private void build(BuildListener buildListener, ObjectList<String> projectNames)
+    private void build(ObjectList<String> projectNames, BuildListener buildListener)
     {
         // For each specified build,
         for (var projectName : projectNames)
@@ -209,12 +242,12 @@ public class Fiasco extends Application
             var project = projects.project(projectName);
             if (isNonNullOr(project, "Not a valid Fiasco project name: \"$\"", projectName))
             {
-                var source = project.buildFile();
-                var classFile = compiler.compile(source);
+                var source = project.buildSourceFile();
+                var classFile = compiler.compile(project.target(), source);
                 if (isNonNullOr(classFile, "Could not compile: $", source))
                 {
                     trace("Compiled $", source);
-                    var build = compiler.instantiate(classFile, Build.class);
+                    var build = compiler.loadBuild(classFile);
                     if (isNonNullOr(build, "Unable to load: $", classFile))
                     {
                         announce("Loaded build $", project);
@@ -245,7 +278,7 @@ public class Fiasco extends Application
             {
                 new BuildPlanner()
                         .plan(build)
-                        .build(listenTo(builder()), listener);
+                        .build(listenTo(builder()), listener, get(BUILD_TIMEOUT));
             }
             finally
             {
@@ -259,7 +292,7 @@ public class Fiasco extends Application
      */
     private Builder builder()
     {
-        return new ParallelBuilder();
+        return new ParallelBuilder(get(BUILD_THREADS));
     }
 
     /**

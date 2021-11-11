@@ -11,7 +11,7 @@ open module com.telenav.fiasco
     requires java.xml;
     requires kivakit.test;
 
-    // Exports
+    // Exports for use in compiling and running FiascoBuild.java classes created by end-users
     exports com.telenav.fiasco;
     exports com.telenav.fiasco.runtime;
     exports com.telenav.fiasco.runtime.dependencies.repository;

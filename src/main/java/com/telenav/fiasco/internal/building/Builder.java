@@ -3,6 +3,7 @@ package com.telenav.fiasco.internal.building;
 import com.telenav.fiasco.internal.building.planning.BuildableGroup;
 import com.telenav.fiasco.runtime.BuildResult;
 import com.telenav.kivakit.component.Component;
+import com.telenav.kivakit.kernel.language.time.Duration;
 
 /**
  * <b>Not public API</b>
@@ -13,12 +14,19 @@ import com.telenav.kivakit.component.Component;
  * </p>
  *
  * @author jonathanl (shibo)
+ * @see BuildableGroup
+ * @see BuildListener
+ * @see BuildResult
  */
 public interface Builder extends Component
 {
     /**
+     * <b>Not public API</b>
+     *
+     * <p>
      * Builds the given {@link BuildableGroup}, calling the {@link BuildListener} with each {@link BuildResult} as the
-     * build proceeds.
+     * build proceeds. Fails if the build takes longer than the given timeout.
+     * </p>
      */
-    void build(BuildListener listener, BuildableGroup buildables);
+    void build(BuildListener listener, BuildableGroup buildables, Duration timeout);
 }

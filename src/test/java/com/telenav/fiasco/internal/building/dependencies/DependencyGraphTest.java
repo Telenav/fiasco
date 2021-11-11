@@ -27,7 +27,7 @@ import org.junit.Test;
         var group2 = ObjectList.objectList(configuration);
         var group3 = ObjectList.objectList(root);
 
-        var groups = graph.buildableGroups();
+        var groups = graph.planBuild();
         ensureEqual(groups.size(), 3);
         ensureEqual(groups.get(0), group1);
         ensureEqual(groups.get(1), group2);
@@ -53,19 +53,19 @@ import org.junit.Test;
         graph.depthFirstTraversal(new DependencyGraph.Visitor()
         {
             @Override
-            public void atInteriorNode(DependencyGraph.TraversalState traversal, Dependency node)
+            public void atInteriorNode(DependencyGraph.Traversal traversal, Dependency node)
             {
                 ensure(interiorNodes.contains(node));
             }
 
             @Override
-            public void atLeaf(DependencyGraph.TraversalState traversal, Dependency leaf)
+            public void atLeaf(DependencyGraph.Traversal traversal, Dependency leaf)
             {
                 ensure(leafNodes.contains(leaf));
             }
 
             @Override
-            public void atNode(DependencyGraph.TraversalState traversal, Dependency node)
+            public void atNode(DependencyGraph.Traversal traversal, Dependency node)
             {
                 order.add(node);
             }

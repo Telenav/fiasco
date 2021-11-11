@@ -23,25 +23,42 @@ import static com.telenav.kivakit.resource.path.Extension.POM;
 /**
  * <b>Not public API</b>
  * <p>
- * Reads properties and {@link MavenArtifact} dependencies from a POM file. Maven artifacts are read from both the
- * dependencies section and the dependencyManagement section and a simple {@link Pom} model is returned.
+ * Reads Maven {@link Pom}s (Project Object Model) from pom.xml resources.
+ * </p>
+ *
+ * <p>
+ * The {@link #read(MavenRepository, Artifact)} method reads a {@link Pom} model from the POM resource for the given
+ * {@link MavenRepository} and {@link Artifact}. Dependency version numbers that contain property references (of the
+ * form "${variable}") are resolved from any properties declared in the POM resource and its ancestor POM resource(s).
+ * The &lt;dependencyManagement&gt; dependencies of ancestor {@link Pom}s are used to resolve the versions of any
+ * dependencies that don't declare an explicit version at all. The {@link #read(Resource)} method should be used for
+ * testing purposes only.
+ * </p>
  *
  * @author jonathanl (shibo)
+ * @see Pom
+ * @see StaxReader
+ * @see StaxPath
  */
 public class PomReader extends BaseComponent
 {
-    private final StaxPath PARENT = parseXmlPath("project/parent");
+    private final StaxPath PARENT_PATH = parseXmlPath("project/parent");
 
-    private final StaxPath PROPERTIES = parseXmlPath("project/properties");
+    private final StaxPath PROPERTIES_PATH = parseXmlPath("project/properties");
 
-    private final StaxPath DEPENDENCIES = parseXmlPath("project/dependencies");
+    private final StaxPath DEPENDENCIES_PATH = parseXmlPath("project/dependencies");
 
-    private final StaxPath DEPENDENCY_MANAGEMENT_DEPENDENCIES = parseXmlPath("project/dependencyManagement/dependencies");
+    private final StaxPath DEPENDENCY_MANAGEMENT_DEPENDENCIES_PATH = parseXmlPath("project/dependencyManagement/dependencies");
 
+    /** Cached {@link Pom} models to prevent re-reading of POMs */
     private final Map<Resource, Pom> poms = new HashMap<>();
 
     /**
+     * <b>Not public API</b>
+     *
+     * <p>
      * The POM for the given artifact in the given repository
+     * </p>
      *
      * @param repository The repository where the artifact resides
      * @param artifact The artifact whose POM should be read
@@ -53,7 +70,11 @@ public class PomReader extends BaseComponent
     }
 
     /**
+     * <b>Not public API</b>
+     *
+     * <p>
      * Testing entrypoint for reading a POM resource that's not in a repository
+     * </p>
      */
     public Pom read(Resource resource)
     {
@@ -78,24 +99,24 @@ public class PomReader extends BaseComponent
 
                 for (reader.next(); reader.hasNext(); reader.next())
                 {
-                    if (reader.isAt(PARENT))
+                    if (reader.isAt(PARENT_PATH))
                     {
                         var parentArtifact = readDependency(reader);
                         require(DependencyResolver.class).resolve(parentArtifact);
                         pom.parent = read(repository, parentArtifact);
                     }
 
-                    if (reader.isAt(PROPERTIES))
+                    if (reader.isAt(PROPERTIES_PATH))
                     {
                         pom.properties = readProperties(reader);
                     }
 
-                    if (reader.isAt(DEPENDENCIES))
+                    if (reader.isAt(DEPENDENCIES_PATH))
                     {
                         pom.dependencies = readDependencies(reader);
                     }
 
-                    if (reader.isAt(DEPENDENCY_MANAGEMENT_DEPENDENCIES))
+                    if (reader.isAt(DEPENDENCY_MANAGEMENT_DEPENDENCIES_PATH))
                     {
                         pom.managedDependencies = readDependencies(reader);
                     }
@@ -212,7 +233,7 @@ public class PomReader extends BaseComponent
         while (true)
         {
             // Get the next start tag inside the properties path,
-            var open = reader.nextAtOrInside(PROPERTIES, (StaxReader.BooleanMatcher) ignored -> reader.isAtOpenTag());
+            var open = reader.nextAtOrInside(PROPERTIES_PATH, (StaxReader.BooleanMatcher) ignored -> reader.isAtOpenTag());
             if (open != null)
             {
                 // read the tag name as the property name,

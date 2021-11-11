@@ -30,7 +30,7 @@ public class DownloaderTest extends UnitTest
                 "https://repo1.maven.org/maven2/com/telenav/kivakit/kivakit-application/1.0.0");
 
         var futures = new ArrayList<Future<Download>>();
-        var downloader = Downloader.get(Count._4);
+        var downloader = new Downloader(Count._4);
         for (var extension : extensions())
         {
             var download = new Download(base.child("kivakit-application-1.0.0" + extension).get(), destination, OVERWRITE);
@@ -42,7 +42,7 @@ public class DownloaderTest extends UnitTest
             try
             {
                 var download = future.get();
-                ensure(download.destination().file(download.source().fileName()).exists());
+                ensure(destination.file(download.source().fileName()).exists());
             }
             catch (Exception e)
             {

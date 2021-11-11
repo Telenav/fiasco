@@ -16,7 +16,11 @@ import com.telenav.fiasco.runtime.Build;
 public class BuildPlanner
 {
     /**
+     * <b>Not public API</b>
+     *
+     * <p>
      * Creates a build plan from the {@link Build} dependency graph.
+     * </p>
      *
      * <p><b>The Algorithm</b></p>
      *
@@ -26,11 +30,14 @@ public class BuildPlanner
      *     <li>These leaves are then marked as visited</li>
      *     <li>If there are more <i>unvisited</i> leaves left to process, go to Step 1</li>
      * </ol>
+     *
+     * @see Build
+     * @see Buildable
+     * @see BuildableGroup
+     * @see BuildPlan
      */
     public BuildPlan plan(Build build)
     {
-        var plan = new BuildPlan();
-        DependencyGraph.of(build).buildableGroups().forEach(plan::add);
-        return plan;
+        return DependencyGraph.of(build).planBuild();
     }
 }
