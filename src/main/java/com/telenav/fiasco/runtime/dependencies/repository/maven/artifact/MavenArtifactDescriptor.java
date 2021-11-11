@@ -126,7 +126,7 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
         if (object instanceof MavenArtifactDescriptor)
         {
             var that = (MavenArtifactDescriptor) object;
-            return toString().equals(that.toString());
+            return name().equals(that.name());
         }
         return false;
     }
@@ -143,7 +143,7 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
     @Override
     public int hashCode()
     {
-        return Objects.hash(toString());
+        return Objects.hash(name());
     }
 
     /**
@@ -230,7 +230,7 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
      */
     public MavenArtifactDescriptor withGroup(MavenArtifactGroup group)
     {
-        var copy = new MavenArtifactDescriptor(this);
+        var copy = copy();
         copy.group = group;
         return copy;
     }
@@ -240,7 +240,7 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
      */
     public MavenArtifactDescriptor withIdentifier(String identifier)
     {
-        var copy = new MavenArtifactDescriptor(this);
+        var copy = copy();
         copy.identifier = identifier;
         return copy;
     }
@@ -250,8 +250,16 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
      */
     public MavenArtifactDescriptor withVersion(String version)
     {
-        var copy = new MavenArtifactDescriptor(this);
+        var copy = copy();
         copy.version = version;
         return copy;
+    }
+
+    /**
+     * @return This descriptor without any version
+     */
+    public MavenArtifactDescriptor withoutVersion()
+    {
+        return withVersion(null);
     }
 }

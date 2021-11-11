@@ -2,6 +2,7 @@ package com.telenav.fiasco.runtime.dependencies.repository;
 
 import com.telenav.fiasco.runtime.Dependency;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifact;
+import com.telenav.kivakit.kernel.interfaces.naming.Named;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.values.version.Version;
 import com.telenav.kivakit.kernel.messaging.Listener;
@@ -16,7 +17,7 @@ import com.telenav.kivakit.resource.path.FilePath;
  * @see Dependency
  * @see MavenArtifact
  */
-public interface Artifact extends Dependency
+public interface Artifact extends Named, Dependency
 {
     /**
      * @return The group to which this artifact belongs
@@ -90,4 +91,9 @@ public interface Artifact extends Dependency
     {
         return withVersion(Version.parse(this, version));
     }
+
+    /**
+     * @return This artifact with no version
+     */
+    Artifact withoutVersion();
 }

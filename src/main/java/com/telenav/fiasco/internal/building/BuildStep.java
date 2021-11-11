@@ -18,7 +18,7 @@ public enum BuildStep
 
     // Compile sources
     INITIALIZE,
-    RESOLVE_ARTIFACTS,
+    RESOLVE_DEPENDENCIES,
     GENERATE_SOURCES,
     PREPROCESS,
     COMPILE,
@@ -28,7 +28,7 @@ public enum BuildStep
 
     // Compile test sources
     TEST_INITIALIZE,
-    TEST_RESOLVE_ARTIFACTS,
+    TEST_RESOLVE_DEPENDENCIES,
     TEST_GENERATE_SOURCES,
     TEST_PREPROCESS,
     TEST_COMPILE,

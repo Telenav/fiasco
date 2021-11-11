@@ -17,8 +17,6 @@ import com.telenav.kivakit.resource.Resource;
 import com.telenav.kivakit.resource.path.Extension;
 import com.telenav.kivakit.resource.path.FilePath;
 
-import java.util.Objects;
-
 import static com.telenav.kivakit.resource.path.Extension.JAR;
 import static com.telenav.kivakit.resource.path.Extension.MD5;
 import static com.telenav.kivakit.resource.path.Extension.POM;
@@ -51,7 +49,8 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
      */
     public static MavenArtifact parse(Listener listener, String text)
     {
-        return new MavenArtifact(MavenArtifactDescriptor.parse(listener, text));
+        var descriptor = MavenArtifactDescriptor.parse(listener, text);
+        return listener.listenTo(new MavenArtifact(descriptor));
     }
 
     /** The descriptor for this artifact */
@@ -61,6 +60,7 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
     {
         super(that);
         descriptor = that.descriptor.copy();
+        copyListeners(that);
     }
 
     protected MavenArtifact(MavenArtifactDescriptor descriptor)
@@ -115,7 +115,7 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
     @Override
     public int hashCode()
     {
-        return Objects.hash(descriptor);
+        return descriptor.hashCode();
     }
 
     /**
@@ -130,9 +130,15 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
     /**
      * @return True if this artifact's descriptor is complete
      */
-    public boolean isResolved()
+    public boolean isVersionResolved()
     {
         return descriptor.isResolved();
+    }
+
+    @Override
+    public String name()
+    {
+        return descriptor.name();
     }
 
     /**
@@ -236,6 +242,14 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
     {
         var copy = copy();
         copy.descriptor = descriptor.withVersion(version);
+        return copy;
+    }
+
+    @Override
+    public MavenArtifact withoutVersion()
+    {
+        var copy = copy();
+        copy.descriptor = descriptor.withoutVersion();
         return copy;
     }
 

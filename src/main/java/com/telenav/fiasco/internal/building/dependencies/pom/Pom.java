@@ -5,6 +5,7 @@ import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.collections.list.StringList;
 import com.telenav.kivakit.kernel.language.reflection.property.KivaKitIncludeProperty;
+import com.telenav.kivakit.resource.Resource;
 import com.telenav.kivakit.resource.resources.other.PropertyMap;
 
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
@@ -21,53 +22,37 @@ public class Pom extends BaseComponent
     ObjectList<MavenArtifact> dependencies = new ObjectList<>();
 
     /** List of "managed" Maven dependencies */
-    ObjectList<MavenArtifact> dependencyManagementDependencies = new ObjectList<>();
+    ObjectList<MavenArtifact> managedDependencies = new ObjectList<>();
 
     /** POM properties */
     PropertyMap properties = PropertyMap.create();
 
+    /** The resource containing this POM */
+    private Resource resource;
+
+    public Pom(Resource resource)
+    {
+        this.resource = resource;
+    }
+
+    /**
+     * @return The dependencies declared in this POM file
+     */
     @KivaKitIncludeProperty
     public ObjectList<MavenArtifact> dependencies()
     {
         return dependencies;
     }
 
-    @KivaKitIncludeProperty
-    public ObjectList<MavenArtifact> dependencyManagementDependencies()
-    {
-        return dependencyManagementDependencies;
-    }
-
     /**
-     * Modifies this {@link Pom}'s unresolved dependencies so they inherit any version information from the
-     * dependencyManagement section of the given parent {@link Pom}.
+     * @return True if there is no unresolved (version-less) dependency in this POM
      */
-    public void inheritFrom(Pom parentPom)
-    {
-        var inherited = new ObjectList<MavenArtifact>();
-
-        for (var at : dependencies)
-        {
-            if (!at.isResolved())
-            {
-                var dependencyManagementDependency = parentPom.dependencyManagementDependency(at);
-                if (dependencyManagementDependency != null)
-                {
-                    at = at.withVersion(dependencyManagementDependency.version());
-                }
-            }
-            inherited.add(at);
-        }
-
-        dependencies = inherited;
-    }
-
     @KivaKitIncludeProperty
     public boolean isResolved()
     {
         for (var at : dependencies)
         {
-            if (!at.isResolved())
+            if (!at.isVersionResolved())
             {
                 return false;
             }
@@ -75,59 +60,96 @@ public class Pom extends BaseComponent
         return true;
     }
 
+    /**
+     * @return The managed dependencies in this POM (but not any inherited from parent POMs)
+     */
+    @KivaKitIncludeProperty
+    public ObjectList<MavenArtifact> managedDependencies()
+    {
+        return managedDependencies;
+    }
+
+    /**
+     * @return The parent POM of this POM
+     */
     @KivaKitIncludeProperty
     public Pom parent()
     {
         return parent;
     }
 
+    /**
+     * @return The properties declared in this POM
+     */
     @KivaKitIncludeProperty
     public PropertyMap properties()
     {
         return properties;
     }
 
+    /**
+     * Resolves the versions of all dependencies in this POM
+     */
     public void resolveDependencyVersions()
     {
         // For each dependency,
         for (var dependency : dependencies)
         {
-            ensure(dependency.isResolved(), "Dependency version is unresolved: $", dependency);
+            // If the dependency has no version,
+            if (!dependency.isVersionResolved())
+            {
+                // go through all managed dependencies,
+                for (var at : inheritedManagedDependencies())
+                {
+                    // and if the dependency matches,
+                    if (at.withoutVersion().matches(dependency))
+                    {
+                        // copy its version.
+                        dependency = dependency.withVersion(at.version());
+                        break;
+                    }
+                }
+            }
 
-            // if its version needs to be expanded,
+            ensure(dependency.isVersionResolved(), "Dependency version is unresolved: $", dependency);
+
+            // If the dependency version needs to be expanded,
             if (dependency.version().contains("${"))
             {
                 // then expand it.
-                dependency.resolveVersion(properties.expand(dependency.version()));
+                dependency.resolveVersion(properties().expand(dependency.version()));
             }
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString()
     {
         var lines = new StringList();
-        lines.add("parent: " + (parent == null ? "null" : parent.toString()));
-        lines.add("properties: " + properties.toString());
-        lines.add("dependencies: " + dependencies.join(", "));
-        lines.add("managed: " + dependencyManagementDependencies.join(""));
+        lines.add("resource: $", resource.path());
+        lines.add("parent: " + (parent == null ? "none" : parent.resource.toString()));
+        lines.add("dependencies: " + dependencies.bracketed(4));
+        lines.add("managed dependencies: " + managedDependencies.bracketed(4));
+        lines.add("properties:" + properties.asStringList().bracketed(4));
         return lines.join("\n");
     }
 
     /**
-     * @return Any dependency in the dependencyManagement section of this {@link Pom} that matches the given artifact
-     * (which is unresolved and lacks a version)
+     * @return The list of all dependency-management dependencies in this POM and all ancestor POMs
      */
-    private MavenArtifact dependencyManagementDependency(MavenArtifact artifact)
+    private ObjectList<MavenArtifact> inheritedManagedDependencies()
     {
-        for (var at : dependencyManagementDependencies())
+        var inherited = new ObjectList<MavenArtifact>();
+
+        // Walk up the POM hierarchy,
+        for (var pom = this; pom != null; pom = pom.parent())
         {
-            if (at.matches(artifact))
-            {
-                return at;
-            }
+            inherited.addAll(pom.managedDependencies());
         }
 
-        return null;
+        return inherited;
     }
 }

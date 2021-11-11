@@ -7,6 +7,7 @@ import com.telenav.fiasco.runtime.tools.compiler.JavaCompiler;
 import com.telenav.fiasco.runtime.tools.repository.Librarian;
 import com.telenav.kivakit.kernel.interfaces.lifecycle.Initializable;
 import com.telenav.kivakit.kernel.language.mixin.Mixin;
+import com.telenav.kivakit.kernel.messaging.messages.MessageException;
 
 /**
  * <b>Not public API</b>
@@ -39,14 +40,14 @@ public interface CompilationPhaseMixin extends
 
     default void compileSources()
     {
-        tryFinally(this::initialize, this::nextStep);
-        tryFinally(this::resolveArtifacts, this::nextStep);
-        tryFinally(this::generate, this::nextStep);
-        tryFinally(this::preprocess, this::nextStep);
-        tryFinally(this::compile, this::nextStep);
-        tryFinally(this::postprocess, this::nextStep);
-        tryFinally(this::compileDocumentation, this::nextStep);
-        tryFinally(this::verify, this::nextStep);
+        tryFinallyThrow(this::initialize, this::nextStep);
+        tryFinallyThrow(this::resolveDependencies, this::nextStep);
+        tryFinallyThrow(this::generate, this::nextStep);
+        tryFinallyThrow(this::preprocess, this::nextStep);
+        tryFinallyThrow(this::compile, this::nextStep);
+        tryFinallyThrow(this::postprocess, this::nextStep);
+        tryFinallyThrow(this::compileDocumentation, this::nextStep);
+        tryFinallyThrow(this::verify, this::nextStep);
     }
 
     default void generate()
@@ -102,9 +103,9 @@ public interface CompilationPhaseMixin extends
     {
     }
 
-    default void onResolveArtifacts()
+    default void onResolveDependencies()
     {
-        listenTo(librarian()).resolveTransitive(this);
+        librarian().resolveTransitiveDependencies(this);
     }
 
     default void onVerify()
@@ -121,9 +122,20 @@ public interface CompilationPhaseMixin extends
         onPreprocess();
     }
 
-    default void resolveArtifacts()
+    default void resolveDependencies()
     {
-        onResolveArtifacts();
+        try
+        {
+            onResolveDependencies();
+        }
+        catch (MessageException e)
+        {
+            transmit(e.messageObject().cause(null));
+        }
+        catch (Exception e)
+        {
+            problem(e, "Unable to resolve dependencies");
+        }
     }
 
     default void verify()

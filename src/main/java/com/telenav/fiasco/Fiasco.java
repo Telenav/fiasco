@@ -163,7 +163,7 @@ public class Fiasco extends Application
         }
 
         // Register a librarian to resolve artifacts
-        register(new Librarian(this, get(DOWNLOAD_THREADS)));
+        register(listenTo(new Librarian(this, get(DOWNLOAD_THREADS))));
 
         // If there are no arguments,
         if (argumentList().isEmpty())

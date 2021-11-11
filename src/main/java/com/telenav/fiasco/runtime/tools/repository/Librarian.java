@@ -32,10 +32,10 @@ import com.telenav.kivakit.kernel.messaging.Listener;
 
 /**
  * Locates and installs dependencies from a list of repositories designated by calls to {@link
- * #addRepository(MavenRepository)}. When {@link #resolveTransitive(Dependency)} is called, the transitive dependencies
- * of the given dependency are resolved using an {@link DependencyResolver}. Dependent artifacts are realized into the
- * local repository if they are not already installed there. If the librarian cannot find any of the dependent artifacts
- * in any repository, an exception is thrown.
+ * #addRepository(MavenRepository)}. When {@link #resolveTransitiveDependencies(Dependency)} is called, the transitive
+ * dependencies of the given dependency are resolved using an {@link DependencyResolver}. Dependent artifacts are
+ * realized into the local repository if they are not already installed there. If the librarian cannot find any of the
+ * dependent artifacts in any repository, an exception is thrown.
  *
  * @author shibo
  * @see ArtifactRepository
@@ -76,8 +76,8 @@ public class Librarian extends BaseComponent implements DependencyResolver
      */
     @Override
     @SuppressWarnings("ClassEscapesDefinedScope")
-    public ObjectList<ResolvedArtifact> resolveTransitive(Dependency dependency)
+    public ObjectList<ResolvedArtifact> resolveTransitiveDependencies(Dependency dependency)
     {
-        return resolver.resolveTransitive(dependency);
+        return resolver.resolveTransitiveDependencies(dependency);
     }
 }

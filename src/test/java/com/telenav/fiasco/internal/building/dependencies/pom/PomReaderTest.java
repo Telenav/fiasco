@@ -12,14 +12,14 @@ public class PomReaderTest extends UnitTest
     {
         var resource = PackageResource.packageResource(this, getClass(), "no-parent-pom.xml");
 
-        var pom = new PomReader().read(resource);
+        var pom = listenTo(new PomReader()).read(resource);
         ensure(pom.parent() == null);
         ensure(pom.dependencies().size() == 4);
         ensure(has(pom, "com.telenav.kivakit:kivakit-test"));
         ensure(has(pom, "com.telenav.kivakit:kivakit-application"));
         ensure(has(pom, "com.telenav.kivakit:kivakit-data-formats-xml"));
         ensure(has(pom, "com.telenav.kivakit:kivakit-network-http"));
-        ensure(pom.dependencyManagementDependencies().size() == 0);
+        ensure(pom.managedDependencies().size() == 0);
         ensure(pom.properties().get("project.build.sourceEncoding").equals("UTF-8"));
     }
 
@@ -27,14 +27,14 @@ public class PomReaderTest extends UnitTest
     public void testProperties()
     {
         var resource = PackageResource.packageResource(this, getClass(), "properties-pom.xml");
-        var pom = new PomReader().read(resource);
+        var pom = listenTo(new PomReader()).read(resource);
         ensure(pom.parent() == null);
         ensure(pom.dependencies().size() == 4);
         ensure(pom.dependencies().contains(MavenArtifact.parse(this, "com.telenav.kivakit:kivakit-test")));
         ensure(pom.dependencies().contains(MavenArtifact.parse(this, "com.telenav.kivakit:kivakit-application")));
         ensure(pom.dependencies().contains(MavenArtifact.parse(this, "com.telenav.kivakit:kivakit-data-formats-xml")));
         ensure(pom.dependencies().contains(MavenArtifact.parse(this, "com.telenav.kivakit:kivakit-network-http")));
-        ensure(pom.dependencyManagementDependencies().size() == 0);
+        ensure(pom.managedDependencies().size() == 0);
         ensure(pom.properties().get("project.build.sourceEncoding").equals("UTF-8"));
     }
 

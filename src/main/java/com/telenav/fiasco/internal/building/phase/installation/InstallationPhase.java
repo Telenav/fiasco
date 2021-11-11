@@ -28,10 +28,8 @@ public class InstallationPhase extends BasePhase
 
     public void installPackages()
     {
-        tryFinally(this::packageInstall, this::nextStep);
-        tryFinally(this::packageDeploy, () ->
-        {
-        });
+        tryFinallyThrow(this::packageInstall, this::nextStep);
+        tryFinallyThrow(this::packageDeploy, this::finished);
     }
 
     public void onPackageDeploy()
@@ -52,5 +50,12 @@ public class InstallationPhase extends BasePhase
     public final void packageInstall()
     {
         onPackageInstall();
+    }
+
+    /**
+     * The installation phase is finished and so is the entire build
+     */
+    void finished()
+    {
     }
 }

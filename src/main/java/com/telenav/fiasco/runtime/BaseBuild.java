@@ -255,9 +255,9 @@ public class BaseBuild extends BaseDependency implements
      */
     @Override
     @SuppressWarnings("ClassEscapesDefinedScope")
-    public ObjectList<ResolvedArtifact> resolveTransitive(Dependency dependency)
+    public ObjectList<ResolvedArtifact> resolveTransitiveDependencies(Dependency dependency)
     {
-        return librarian().resolveTransitive(dependency);
+        return librarian().resolveTransitiveDependencies(dependency);
     }
 
     /**

@@ -39,7 +39,7 @@ import static com.telenav.kivakit.resource.CopyMode.OVERWRITE;
  *     <li>Artifacts that are not yet in the local repository are resolved by scanning a list of repositories added with
  *     {@link #addRepository(MavenRepository)}. If the artifact is found in a (usually remote) repository, it
  *     is installed from that repository into the local repository, at which point it is resolved.</li>
- *     <li>The resolution of artifacts with {@link #resolveTransitive(Dependency)} implies the resolution of all
+ *     <li>The resolution of artifacts with {@link #resolveTransitiveDependencies(Dependency)} implies the resolution of all
  *     transitive artifact dependencies.</li>
  * </ol>
  *
@@ -56,12 +56,16 @@ public class MavenDependencyResolver extends BaseComponent implements Dependency
     /** The repositories for artifacts that are already resolved */
     private final Map<Artifact, ResolvedArtifact> resolved = new ConcurrentHashMap<>();
 
+    /** The reader of POM files */
+    private final PomReader pomReader;
+
     /**
      * @param threads The number of threads to use when downloading artifacts
      */
     public MavenDependencyResolver(Count threads)
     {
         downloader = listenTo(Downloader.get(threads));
+        pomReader = listenTo(new PomReader());
     }
 
     /**
@@ -87,7 +91,7 @@ public class MavenDependencyResolver extends BaseComponent implements Dependency
      * {@inheritDoc}
      */
     @Override
-    public ObjectList<ResolvedArtifact> resolveTransitive(Dependency dependency)
+    public ObjectList<ResolvedArtifact> resolveTransitiveDependencies(Dependency dependency)
     {
         var resolved = new ObjectList<ResolvedArtifact>();
         resolveTransitive(dependency, resolved, 0);
@@ -130,6 +134,7 @@ public class MavenDependencyResolver extends BaseComponent implements Dependency
                 switch (download.status())
                 {
                     case DOWNLOADED:
+                        narrate("Downloaded $ [$]", artifact, source);
                         break;
 
                     case FAILED:
@@ -198,7 +203,6 @@ public class MavenDependencyResolver extends BaseComponent implements Dependency
             {
                 // resolve it,
                 resolved = resolve(local, artifact);
-                information(indentation + "$ [$]", artifact, local);
             }
             else
             {
@@ -210,7 +214,6 @@ public class MavenDependencyResolver extends BaseComponent implements Dependency
                     {
                         // resolve it.
                         resolved = resolve(repository, artifact);
-                        information(indentation + "$ [$]", artifact, repository);
                         break;
                     }
                 }
@@ -247,9 +250,10 @@ public class MavenDependencyResolver extends BaseComponent implements Dependency
             materialize(repository, artifact);
 
             // read the artifact's POM,
-            var pom = ensureNotNull(new PomReader().read(repository, artifact));
+            var pom = ensureNotNull(pomReader.read(repository, artifact));
 
             // and cache the resolved artifact.
+            information("Resolved $ [$]", artifact, repository);
             resolved.put(artifact, new ResolvedArtifact(repository, artifact, pom));
         }
 

@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -119,7 +118,7 @@ public class Downloader extends BaseComponent
         {
             if (object instanceof Download)
             {
-                Download that = (Download) object;
+                var that = (Download) object;
                 return equalPairs(source, that.source, destination, that.destination);
             }
             return false;
@@ -148,11 +147,8 @@ public class Downloader extends BaseComponent
         }
     }
 
-    /** The executor for downloading in parallel */
-    private final Executor executor;
-
     /** The completion service that manages which downloads finish */
-    private final ExecutorCompletionService<Download> downloader;
+    private final ExecutorCompletionService<Download> downloads;
 
     /** The downloads that have already been completed */
     private final ObjectSet<Download> completed = new ObjectSet<>();
@@ -162,8 +158,7 @@ public class Downloader extends BaseComponent
 
     private Downloader(Count threads)
     {
-        executor = Executors.newFixedThreadPool(threads.asInt());
-        downloader = new ExecutorCompletionService<>(executor);
+        downloads = new ExecutorCompletionService<>(Executors.newFixedThreadPool(threads.asInt()));
     }
 
     /**
@@ -192,7 +187,7 @@ public class Downloader extends BaseComponent
         }
 
         // Submit the download and add it to the downloads in progress
-        var submitted = downloader.submit(download);
+        var submitted = downloads.submit(download);
         downloading.put(download, submitted);
         return submitted;
     }
@@ -204,7 +199,7 @@ public class Downloader extends BaseComponent
     {
         try
         {
-            var completed = downloader.take().get();
+            var completed = downloads.take().get();
             this.completed.add(completed);
             return completed;
         }

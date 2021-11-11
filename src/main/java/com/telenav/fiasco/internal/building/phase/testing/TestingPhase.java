@@ -33,12 +33,13 @@ public class TestingPhase extends BasePhase
 
     public void buildTestSources()
     {
-        tryFinally(this::testInitialize, this::nextStep);
-        tryFinally(this::testGenerate, this::nextStep);
-        tryFinally(this::testPreprocess, this::nextStep);
-        tryFinally(this::testCompile, this::nextStep);
-        tryFinally(this::testPostprocess, this::nextStep);
-        tryFinally(this::testVerify, this::nextStep);
+        tryFinallyThrow(this::testInitialize, this::nextStep);
+        tryFinallyThrow(this::testResolveDependencies, this::nextStep);
+        tryFinallyThrow(this::testGenerate, this::nextStep);
+        tryFinallyThrow(this::testPreprocess, this::nextStep);
+        tryFinallyThrow(this::testCompile, this::nextStep);
+        tryFinallyThrow(this::testPostprocess, this::nextStep);
+        tryFinallyThrow(this::testVerify, this::nextStep);
     }
 
     public void onTestCompile()
@@ -62,6 +63,10 @@ public class TestingPhase extends BasePhase
     public void onTestPreprocess()
     {
 
+    }
+
+    public void onTestResolveDependencies()
+    {
     }
 
     public void onTestVerify()
@@ -97,6 +102,11 @@ public class TestingPhase extends BasePhase
     public final void testPreprocess()
     {
         onTestPreprocess();
+    }
+
+    public void testResolveDependencies()
+    {
+        onTestResolveDependencies();
     }
 
     public final TestResult testRunTests()

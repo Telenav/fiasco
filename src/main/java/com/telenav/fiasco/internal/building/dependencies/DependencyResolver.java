@@ -26,8 +26,8 @@ import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
  * <p><b>Transitive Dependencies</b></p>
  *
  * <p>
- * The {@link #resolveTransitive(Dependency)} method resolves all transitive dependencies starting from the given root
- * dependency. The root {@link Dependency} may be:
+ * The {@link #resolveTransitiveDependencies(Dependency)} method resolves all transitive dependencies starting from the
+ * given root dependency. The root {@link Dependency} may be:
  * <ul>
  *     <li>Artifact - An artifact with dependent artifacts</li>
  *     <li>Library - A library with dependent artifacts</li>
@@ -72,5 +72,5 @@ public interface DependencyResolver
      * @return The transitively resolved artifacts
      * @throws RuntimeException A runtime exception is thrown if all artifacts cannot be resolved
      */
-    ObjectList<ResolvedArtifact> resolveTransitive(Dependency dependency);
+    ObjectList<ResolvedArtifact> resolveTransitiveDependencies(Dependency dependency);
 }

@@ -31,11 +31,11 @@ public class PackagingPhase extends BasePhase
 
     public void buildPackages()
     {
-        tryFinally(this::packageInitialize, this::nextStep);
-        tryFinally(this::packagePreprocess, this::nextStep);
-        tryFinally(this::packageCompile, this::nextStep);
-        tryFinally(this::packagePostprocess, this::nextStep);
-        tryFinally(this::packageVerify, this::nextStep);
+        tryFinallyThrow(this::packageInitialize, this::nextStep);
+        tryFinallyThrow(this::packagePreprocess, this::nextStep);
+        tryFinallyThrow(this::packageCompile, this::nextStep);
+        tryFinallyThrow(this::packagePostprocess, this::nextStep);
+        tryFinallyThrow(this::packageVerify, this::nextStep);
     }
 
     public void onPackageCompile()
