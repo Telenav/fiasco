@@ -19,10 +19,9 @@
 package com.telenav.fiasco.runtime.tools.repository;
 
 import com.telenav.fiasco.internal.building.dependencies.DependencyResolver;
-import com.telenav.fiasco.internal.building.dependencies.repository.ResolvedArtifact;
+import com.telenav.fiasco.internal.building.dependencies.ResolvedDependency;
 import com.telenav.fiasco.internal.building.dependencies.repository.maven.MavenDependencyResolver;
 import com.telenav.fiasco.runtime.Dependency;
-import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactRepository;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenRepository;
 import com.telenav.kivakit.component.BaseComponent;
@@ -66,9 +65,9 @@ public class Librarian extends BaseComponent implements DependencyResolver
      */
     @Override
     @SuppressWarnings("ClassEscapesDefinedScope")
-    public ResolvedArtifact resolve(Artifact artifact)
+    public ResolvedDependency resolve(Dependency dependency)
     {
-        return resolver.resolve(artifact);
+        return resolver.resolve(dependency);
     }
 
     /**
@@ -76,7 +75,7 @@ public class Librarian extends BaseComponent implements DependencyResolver
      */
     @Override
     @SuppressWarnings("ClassEscapesDefinedScope")
-    public ObjectList<ResolvedArtifact> resolveTransitiveDependencies(Dependency dependency)
+    public ObjectList<ResolvedDependency> resolveTransitiveDependencies(Dependency dependency)
     {
         return resolver.resolveTransitiveDependencies(dependency);
     }

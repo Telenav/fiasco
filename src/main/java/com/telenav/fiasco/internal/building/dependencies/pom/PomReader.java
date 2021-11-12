@@ -2,6 +2,7 @@ package com.telenav.fiasco.internal.building.dependencies.pom;
 
 import com.telenav.fiasco.internal.building.dependencies.DependencyResolver;
 import com.telenav.fiasco.internal.building.dependencies.pom.Pom.Packaging;
+import com.telenav.fiasco.runtime.Dependency;
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenRepository;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifact;
@@ -9,7 +10,6 @@ import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenAr
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.data.formats.xml.stax.StaxPath;
 import com.telenav.kivakit.data.formats.xml.stax.StaxReader;
-import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.resource.Resource;
 import com.telenav.kivakit.resource.resources.other.PropertyMap;
 
@@ -49,9 +49,9 @@ public class PomReader extends BaseComponent
 
     private final StaxPath PROPERTIES_PATH = parseXmlPath("project/properties");
 
-    private final StaxPath DEPENDENCIES_PATH = parseXmlPath("project/dependencies");
+    private final StaxPath DEPENDENCY_PATH = parseXmlPath("project/dependencies/dependency");
 
-    private final StaxPath DEPENDENCY_MANAGEMENT_DEPENDENCIES_PATH = parseXmlPath("project/dependencyManagement/dependencies");
+    private final StaxPath DEPENDENCY_MANAGEMENT_DEPENDENCY_PATH = parseXmlPath("project/dependencyManagement/dependencies/dependency");
 
     /** Cached {@link Pom} models to prevent re-reading of POMs */
     private final Map<Resource, Pom> poms = new HashMap<>();
@@ -95,7 +95,7 @@ public class PomReader extends BaseComponent
     {
         if (poms.get(resource) == null)
         {
-            narrate("Reading $", resource);
+            trace("Reading $", resource);
             try (var reader = StaxReader.open(resource))
             {
                 var pom = new Pom(resource);
@@ -104,14 +104,14 @@ public class PomReader extends BaseComponent
                 {
                     if (reader.isAt(PACKAGING_PATH))
                     {
-                        pom.packaging = Packaging.valueOf(reader.enclosedText());
+                        pom.packaging = Packaging.valueOf(reader.enclosedText().toUpperCase());
                     }
 
                     if (reader.isAt(PARENT_PATH))
                     {
                         var parentArtifact = readDependency(reader);
                         require(DependencyResolver.class).resolve(parentArtifact);
-                        pom.parent = read(repository, parentArtifact);
+                        pom.parent = read(repository, (MavenArtifact) parentArtifact);
                     }
 
                     if (reader.isAt(PROPERTIES_PATH))
@@ -119,55 +119,27 @@ public class PomReader extends BaseComponent
                         pom.properties = readProperties(reader);
                     }
 
-                    if (reader.isAt(DEPENDENCIES_PATH))
+                    if (reader.isAt(DEPENDENCY_PATH))
                     {
-                        pom.dependencies = readDependencies(reader);
+                        pom.dependencies.add(readDependency(reader));
                     }
 
-                    if (reader.isAt(DEPENDENCY_MANAGEMENT_DEPENDENCIES_PATH))
+                    if (reader.isAt(DEPENDENCY_MANAGEMENT_DEPENDENCY_PATH))
                     {
-                        pom.managedDependencies = readDependencies(reader);
+                        pom.managedDependencies.add(readDependency(reader));
                     }
                 }
 
                 pom.resolveDependencyVersions();
                 poms.put(resource, pom);
             }
-        }
-
-        return poms.get(resource);
-    }
-
-    /**
-     * Reads a list of dependencies from the given {@link StaxReader}. The reader must be at a &lt;dependencies&gt; open
-     * tag when this method is called.
-     *
-     * @return List of dependent {@link MavenArtifact}s
-     */
-    private ObjectList<MavenArtifact> readDependencies(StaxReader reader)
-    {
-        ensure(reader.isAtOpenTag("dependencies"));
-
-        var dependencies = new ObjectList<MavenArtifact>();
-
-        // Get the path we're at,
-        var scope = reader.path();
-
-        // skip past <dependencies> open tag,
-        reader.next();
-
-        // and while we haven't left the scope of the dependencies tag,
-        for (; !reader.isOutside(scope); reader.next())
-        {
-            // if we hit a <dependency> tag,
-            if (reader.isAtOpenTag("dependency"))
+            catch (Exception e)
             {
-                // then read and add the dependency.
-                dependencies.add(readDependency(reader));
+                throw problem(e, "Could not read POM: $", resource).asException();
             }
         }
 
-        return dependencies;
+        return poms.get(resource);
     }
 
     /**
@@ -178,7 +150,7 @@ public class PomReader extends BaseComponent
      * @return The dependency
      */
     @SuppressWarnings("ConstantConditions")
-    private MavenArtifact readDependency(StaxReader reader)
+    private Dependency readDependency(StaxReader reader)
     {
         ensure(reader.isAtOpenTag("dependency") || reader.isAtOpenTag("parent"));
 
@@ -196,19 +168,19 @@ public class PomReader extends BaseComponent
         for (; !reader.isOutside(scope); reader.next())
         {
             // populate any group id,
-            if (reader.isAtOpenTag("groupId"))
+            if (reader.isAt(scope.withChild("groupId")))
             {
                 artifactGroup = MavenArtifactGroup.parse(this, reader.enclosedText());
             }
 
             // any artifact id,
-            if (reader.isAtOpenTag("artifactId"))
+            if (reader.isAt(scope.withChild("artifactId")))
             {
                 artifactIdentifier = reader.enclosedText();
             }
 
             // and any version.
-            if (reader.isAtOpenTag("version"))
+            if (reader.isAt(scope.withChild("version")))
             {
                 version = reader.enclosedText();
             }

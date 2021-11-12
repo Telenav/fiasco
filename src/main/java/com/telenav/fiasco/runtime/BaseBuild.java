@@ -7,13 +7,12 @@ import com.telenav.fiasco.internal.building.Phase;
 import com.telenav.fiasco.internal.building.ProjectDependency;
 import com.telenav.fiasco.internal.building.ProjectFoldersTrait;
 import com.telenav.fiasco.internal.building.dependencies.BaseDependency;
-import com.telenav.fiasco.internal.building.dependencies.repository.ResolvedArtifact;
+import com.telenav.fiasco.internal.building.dependencies.ResolvedDependency;
 import com.telenav.fiasco.internal.building.phase.compilation.CompilationPhaseMixin;
 import com.telenav.fiasco.internal.building.phase.installation.InstallationPhase;
 import com.telenav.fiasco.internal.building.phase.packaging.PackagingPhase;
 import com.telenav.fiasco.internal.building.phase.testing.TestingPhase;
 import com.telenav.fiasco.internal.fiasco.FiascoCompiler;
-import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactDescriptor;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenRepository;
 import com.telenav.fiasco.runtime.tools.repository.Librarian;
@@ -283,11 +282,11 @@ public class BaseBuild extends BaseDependency implements
     /**
      * {@inheritDoc}
      */
-    @Override
     @SuppressWarnings("ClassEscapesDefinedScope")
-    public ResolvedArtifact resolve(Artifact artifact)
+    @Override
+    public ResolvedDependency resolve(Dependency dependency)
     {
-        return librarian().resolve(artifact);
+        return librarian().resolve(dependency);
     }
 
     /**
@@ -295,9 +294,15 @@ public class BaseBuild extends BaseDependency implements
      */
     @Override
     @SuppressWarnings("ClassEscapesDefinedScope")
-    public ObjectList<ResolvedArtifact> resolveTransitiveDependencies(Dependency dependency)
+    public ObjectList<ResolvedDependency> resolveTransitiveDependencies(Dependency dependency)
     {
         return librarian().resolveTransitiveDependencies(dependency);
+    }
+
+    @Override
+    public void resolveVersionTo(String version)
+    {
+
     }
 
     /**

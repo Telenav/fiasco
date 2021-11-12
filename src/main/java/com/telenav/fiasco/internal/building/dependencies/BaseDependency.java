@@ -44,6 +44,9 @@ import java.util.Objects;
  */
 public abstract class BaseDependency extends BaseComponent implements Dependency
 {
+    /** The parent of this dependency, if any */
+    private Dependency parent;
+
     /** The list of dependencies of this dependency */
     private final DependencySet dependencies;
 
@@ -110,6 +113,23 @@ public abstract class BaseDependency extends BaseComponent implements Dependency
     public int hashCode()
     {
         return Objects.hash(descriptor());
+    }
+
+    /**
+     * @param parent The new parent of this dependency
+     */
+    public void parent(Dependency parent)
+    {
+        this.parent = parent;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Dependency parent()
+    {
+        return parent;
     }
 
     /**

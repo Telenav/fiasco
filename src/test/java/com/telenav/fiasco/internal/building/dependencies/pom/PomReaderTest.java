@@ -1,9 +1,12 @@
 package com.telenav.fiasco.internal.building.dependencies.pom;
 
+import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifact;
 import com.telenav.kivakit.resource.resources.packaged.PackageResource;
 import com.telenav.kivakit.test.UnitTest;
 import org.junit.Test;
+
+import static com.telenav.fiasco.runtime.dependencies.repository.ArtifactDescriptor.MatchType.EXACT;
 
 public class PomReaderTest extends UnitTest
 {
@@ -40,6 +43,6 @@ public class PomReaderTest extends UnitTest
 
     private boolean has(Pom pom, String dependency)
     {
-        return pom.dependencies().matching(at -> at.matches(MavenArtifact.parse(this, dependency))).isNonEmpty();
+        return pom.dependencies().matching(at -> ((Artifact) at).matches(MavenArtifact.parse(this, dependency), EXACT)).isNonEmpty();
     }
 }

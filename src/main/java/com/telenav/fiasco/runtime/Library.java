@@ -116,6 +116,12 @@ public class Library extends BaseDependency
     }
 
     @Override
+    public void resolveVersionTo(String version)
+    {
+        artifact.resolveVersionTo(version);
+    }
+
+    @Override
     public Validator validator(ValidationType type)
     {
         return new BaseValidator()

@@ -18,6 +18,7 @@ import com.telenav.kivakit.resource.Resource;
 import com.telenav.kivakit.resource.path.Extension;
 import com.telenav.kivakit.resource.path.FilePath;
 
+import static com.telenav.fiasco.runtime.dependencies.repository.ArtifactDescriptor.MatchType.EXACT;
 import static com.telenav.kivakit.resource.path.Extension.JAR;
 import static com.telenav.kivakit.resource.path.Extension.MD5;
 import static com.telenav.kivakit.resource.path.Extension.POM;
@@ -89,7 +90,7 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
         if (object instanceof MavenArtifact)
         {
             var that = (MavenArtifact) object;
-            return descriptor.matches(that.descriptor);
+            return descriptor.matches(that.descriptor, EXACT);
         }
         return false;
     }
@@ -128,9 +129,10 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
     }
 
     /**
-     * @return True if this artifact's descriptor is complete
+     * @return True if this artifact's descriptor includes a version (that is not an unresolved property)
      */
-    public boolean isVersionResolved()
+    @Override
+    public boolean isResolved()
     {
         return descriptor.isResolved();
     }
@@ -157,7 +159,8 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
      * Sets this artifact version during POM property resolution
      * </p>
      */
-    public void resolveVersion(String version)
+    @Override
+    public void resolveVersionTo(String version)
     {
         descriptor = descriptor.withVersion(version);
     }
@@ -195,6 +198,9 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
         return descriptor.toString();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Validator validator(ValidationType type)
     {

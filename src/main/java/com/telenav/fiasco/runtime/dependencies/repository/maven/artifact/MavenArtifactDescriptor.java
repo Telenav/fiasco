@@ -8,6 +8,7 @@ import com.telenav.kivakit.kernel.data.validation.Validator;
 import com.telenav.kivakit.kernel.interfaces.naming.Named;
 import com.telenav.kivakit.kernel.messaging.Listener;
 import com.telenav.kivakit.resource.path.FilePath;
+import com.telenav.kivakit.resource.resources.other.PropertyMap;
 
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -148,19 +149,20 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
     }
 
     /**
-     * @return True if this descriptor is complete (has a version)
+     * @return True if this descriptor is complete (has a version that is not a variable)
      */
+    @Override
     public boolean isResolved()
     {
-        return version != null;
+        return group != null && isResolved(group.identifier()) && isResolved(identifier) && isResolved(version);
     }
 
     @Override
-    public boolean matches(ArtifactDescriptor that)
+    public boolean matches(ArtifactDescriptor that, MatchType type)
     {
         return group.equals(that.group())
                 && identifier.equals(that.identifier())
-                && (version == null || that.version() == null || version.equals(that.version()));
+                && (type == MatchType.EXCLUDING_VERSION || versionMatches(that));
     }
 
     /**
@@ -183,6 +185,19 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
                 .path()
                 .withChild(identifier())
                 .withChild(version);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public MavenArtifactDescriptor resolvePropertyReferences(PropertyMap properties)
+    {
+        if (!isResolved() && version != null)
+        {
+            version = properties.expand(version);
+        }
+        return this;
     }
 
     @Override
@@ -253,5 +268,18 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
     public MavenArtifactDescriptor withoutVersion()
     {
         return withVersion(null);
+    }
+
+    private boolean isResolved(String value)
+    {
+        return value != null && !value.contains("${");
+    }
+
+    /**
+     * @return True if this artifact descriptor's version and the given one's match (and both are not null)
+     */
+    private boolean versionMatches(ArtifactDescriptor that)
+    {
+        return version() != null && that.version() != null && version().equals(that.version());
     }
 }

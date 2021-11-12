@@ -8,6 +8,9 @@ import com.telenav.kivakit.kernel.data.validation.Validatable;
 import com.telenav.kivakit.kernel.interfaces.collection.Addable;
 import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
 import com.telenav.kivakit.kernel.interfaces.naming.Named;
+import com.telenav.kivakit.kernel.language.collections.list.StringList;
+import com.telenav.kivakit.kernel.language.paths.StringPath;
+import com.telenav.kivakit.resource.resources.other.PropertyMap;
 
 import java.util.Arrays;
 
@@ -73,4 +76,46 @@ public interface Dependency extends Validatable, Component, Addable<Dependency>,
     {
         return dependencies().isEmpty();
     }
+
+    /**
+     * @return True if this dependency's descriptor includes a version (that is not an unresolved property)
+     */
+    default boolean isResolved()
+    {
+        return descriptor().isResolved();
+    }
+
+    /**
+     * @return The parent of this dependency
+     */
+    Dependency parent();
+
+    /**
+     * @return The dependency path to this artifact (the parent chain)
+     */
+    default StringPath path()
+    {
+        var path = new StringList();
+        for (var at = this; at != null; at = at.parent())
+        {
+            path.append(at.descriptor().name());
+        }
+        return StringPath.stringPath(path.reversed());
+    }
+
+    /**
+     * Resolve the version of this dependency using the given properties if it contains any references of the form
+     * "${property-name}"
+     */
+    default void resolvePropertyReferences(PropertyMap properties)
+    {
+        descriptor().resolvePropertyReferences(properties);
+    }
+
+    /**
+     * Resolves the version of this dependency to the given version
+     *
+     * @param version The version that should be assigned to this dependency
+     */
+    void resolveVersionTo(String version);
 }

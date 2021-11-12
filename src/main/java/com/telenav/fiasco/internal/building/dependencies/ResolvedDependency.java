@@ -1,4 +1,4 @@
-package com.telenav.fiasco.internal.building.dependencies.repository;
+package com.telenav.fiasco.internal.building.dependencies;
 
 import com.telenav.fiasco.internal.building.dependencies.pom.Pom;
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
@@ -10,15 +10,19 @@ import com.telenav.kivakit.resource.path.Extension;
  * <b>Not public API</b>
  *
  * <p>
- * A resolved artifact and its repository, resources and {@link Pom}.
+ * A resolved dependency.
  * </p>
+ *
+ * <p>
+ * If the dependency is an artifact, contains the artifact repository where the dependency was found and its {@link Pom}
+ * if it is a Maven artifact.
  *
  * @author jonathanl (shibo)
  * @see ArtifactRepository
  * @see Artifact
  * @see Pom
  */
-public class ResolvedArtifact
+public class ResolvedDependency
 {
     /** The repository where the artifact was found */
     private final ArtifactRepository repository;
@@ -29,9 +33,9 @@ public class ResolvedArtifact
     /** The POM information for the artifact */
     private final Pom pom;
 
-    public ResolvedArtifact(ArtifactRepository repository,
-                            Artifact artifact,
-                            Pom pom)
+    public ResolvedDependency(ArtifactRepository repository,
+                              Artifact artifact,
+                              Pom pom)
     {
         this.repository = repository;
         this.artifact = artifact;

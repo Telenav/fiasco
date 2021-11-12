@@ -1,6 +1,7 @@
 package com.telenav.fiasco.runtime.dependencies.repository;
 
 import com.telenav.fiasco.runtime.Dependency;
+import com.telenav.fiasco.runtime.dependencies.repository.ArtifactDescriptor.MatchType;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifact;
 import com.telenav.kivakit.kernel.interfaces.naming.Named;
 import com.telenav.kivakit.kernel.language.values.version.Version;
@@ -35,14 +36,15 @@ public interface Artifact extends Named, Dependency
      * @return True if this artifact is matched by the given artifact. The two artifacts can be equal, or the given
      * artifact can be missing a version and match only the group and identifier.
      */
-    default boolean matches(Artifact that)
+    default boolean matches(Artifact that, MatchType type)
     {
-        return descriptor().matches(that.descriptor());
+        return descriptor().matches(that.descriptor(), type);
     }
 
     /**
      * @return This artifact's path relative to repository root
      */
+    @Override
     FilePath path();
 
     /**

@@ -1,11 +1,11 @@
 package com.telenav.fiasco.internal.building.dependencies.repository.maven;
 
 import com.telenav.fiasco.internal.building.dependencies.DependencyResolver;
+import com.telenav.fiasco.internal.building.dependencies.ResolvedDependency;
 import com.telenav.fiasco.internal.building.dependencies.download.Downloader;
 import com.telenav.fiasco.internal.building.dependencies.download.Downloader.Download;
 import com.telenav.fiasco.internal.building.dependencies.pom.Pom;
 import com.telenav.fiasco.internal.building.dependencies.pom.PomReader;
-import com.telenav.fiasco.internal.building.dependencies.repository.ResolvedArtifact;
 import com.telenav.fiasco.runtime.Dependency;
 import com.telenav.fiasco.runtime.Library;
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
@@ -22,6 +22,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
 import static com.telenav.fiasco.internal.building.dependencies.download.Downloader.DownloadStatus.FAILED;
+import static com.telenav.fiasco.internal.building.dependencies.pom.Pom.Packaging.BUNDLE;
+import static com.telenav.fiasco.internal.building.dependencies.pom.Pom.Packaging.JAR;
+import static com.telenav.fiasco.internal.building.dependencies.pom.Pom.Packaging.POM;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
 import static com.telenav.kivakit.resource.CopyMode.OVERWRITE;
 
@@ -35,8 +38,8 @@ import static com.telenav.kivakit.resource.CopyMode.OVERWRITE;
  * </p>
  *
  * <ol>
- *     <li>The method {@link #resolve(Artifact)} ensures that the given artifact is "resolved", meaning that its
- *     resources have been installed in the local repository</li>
+ *     <li>The method {@link #resolve(Dependency)} ensures that the given Maven artifact is "resolved", meaning that its
+ *     descriptor is resolved and its resources have been installed in the local repository</li>
  *     <li>Artifacts that are in the local repository are already resolved</li>
  *     <li>Artifacts that are not yet in the local repository are resolved by scanning a list of repositories added with
  *     {@link #addRepository(MavenRepository)}. If the artifact is found in a (usually remote) repository, it
@@ -52,7 +55,7 @@ import static com.telenav.kivakit.resource.CopyMode.OVERWRITE;
  * @see ArtifactRepository
  * @see MavenArtifact
  * @see MavenRepository
- * @see ResolvedArtifact
+ * @see ResolvedDependency
  */
 public class MavenDependencyResolver extends BaseComponent implements DependencyResolver
 {
@@ -63,7 +66,7 @@ public class MavenDependencyResolver extends BaseComponent implements Dependency
     private final ObjectList<MavenRepository> repositories = new ObjectList<>();
 
     /** The repositories for artifacts that are already resolved */
-    private final Map<Artifact, ResolvedArtifact> resolved = new ConcurrentHashMap<>();
+    private final Map<Dependency, ResolvedDependency> resolved = new ConcurrentHashMap<>();
 
     /** The reader of POM files */
     private final PomReader pomReader;
@@ -91,18 +94,18 @@ public class MavenDependencyResolver extends BaseComponent implements Dependency
      * {@inheritDoc}
      */
     @Override
-    public ResolvedArtifact resolve(Artifact artifact)
+    public ResolvedDependency resolve(Dependency dependency)
     {
-        return resolve((MavenArtifact) artifact, 0);
+        return resolve((MavenArtifact) dependency, 0);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public ObjectList<ResolvedArtifact> resolveTransitiveDependencies(Dependency dependency)
+    public ObjectList<ResolvedDependency> resolveTransitiveDependencies(Dependency dependency)
     {
-        var resolved = new ObjectList<ResolvedArtifact>();
+        var resolved = new ObjectList<ResolvedDependency>();
         resolveTransitive(dependency, resolved, 0);
         return resolved;
     }
@@ -113,12 +116,13 @@ public class MavenDependencyResolver extends BaseComponent implements Dependency
      * @param source The source repository
      * @param destination The destination repository
      * @param artifact The artifact to copy
+     * @param packaging The POM packaging, which implies the resources to copy
      * @return True if all of the artifact's resources were installed, false otherwise
      */
-    private boolean copyArtifact(ArtifactRepository source,
-                                 ArtifactRepository destination,
-                                 MavenArtifact artifact,
-                                 Pom.Packaging packaging)
+    private boolean copyArtifactResources(ArtifactRepository source,
+                                          ArtifactRepository destination,
+                                          MavenArtifact artifact,
+                                          Pom.Packaging packaging)
     {
         try
         {
@@ -174,18 +178,18 @@ public class MavenDependencyResolver extends BaseComponent implements Dependency
         var local = MavenRepository.local(this);
         if (!local.contains(artifact))
         {
-            // copy the pom for the artifact to the local repository
-            copyArtifact(repository, local, artifact, Pom.Packaging.POM);
+            // copy the pom resources for the artifact to the local repository
+            copyArtifactResources(repository, local, artifact, POM);
 
             // then read the pom,
             var reader = listenTo(new PomReader());
             var pom = reader.read(local, artifact);
 
             // and if it has jar packaging,
-            if (pom.packaging() == Pom.Packaging.JAR)
+            if (pom.packaging() == JAR || pom.packaging() == BUNDLE)
             {
                 // download the jar resources
-                copyArtifact(repository, local, artifact, Pom.Packaging.JAR);
+                copyArtifactResources(repository, local, artifact, JAR);
             }
         }
 
@@ -200,7 +204,7 @@ public class MavenDependencyResolver extends BaseComponent implements Dependency
      * @param level The indentation of any output message, to allow the artifact hierarchy to be visualized
      * @return The repository in which the artifact was found
      */
-    private ResolvedArtifact resolve(MavenArtifact artifact, int level)
+    private ResolvedDependency resolve(MavenArtifact artifact, int level)
     {
         var indentation = AsciiArt.repeat(level, ' ');
 
@@ -245,14 +249,14 @@ public class MavenDependencyResolver extends BaseComponent implements Dependency
     /**
      * If the given artifact in the given repository has not yet been fully resolved (including reading its POM file),
      * resolves it. First, materializes the artifact into the local repository. Then reads the POM for the artifact from
-     * the local repository, and finally records the artifact as a {@link ResolvedArtifact} with the POM information and
-     * the repository where the artifact was found.
+     * the local repository, and finally records the artifact as a {@link ResolvedDependency} with the POM information
+     * and the repository where the artifact was found.
      *
      * @param repository The repository where the artifact was found
      * @param artifact The artifact
      * @return The resolved artifact
      */
-    private ResolvedArtifact resolve(MavenRepository repository, MavenArtifact artifact)
+    private ResolvedDependency resolve(MavenRepository repository, MavenArtifact artifact)
     {
         // If the artifact hasn't already been resolved,
         if (!isResolved(artifact))
@@ -265,7 +269,7 @@ public class MavenDependencyResolver extends BaseComponent implements Dependency
 
             // and cache the resolved artifact.
             information("Resolved $ [$]", artifact, repository);
-            resolved.put(artifact, new ResolvedArtifact(repository, artifact, pom));
+            resolved.put(artifact, new ResolvedDependency(repository, artifact, pom));
         }
 
         // Return the resolved artifact.
@@ -279,7 +283,7 @@ public class MavenDependencyResolver extends BaseComponent implements Dependency
      * @param artifacts The artifacts that have been resolved so far
      * @param level The level of recursion
      */
-    private void resolveTransitive(Dependency dependency, ObjectList<ResolvedArtifact> artifacts, int level)
+    private void resolveTransitive(Dependency dependency, ObjectList<ResolvedDependency> artifacts, int level)
     {
         // If the dependency is an artifact,
         if (dependency instanceof Artifact)

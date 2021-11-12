@@ -1,5 +1,6 @@
 package com.telenav.fiasco.internal.building.dependencies.pom;
 
+import com.telenav.fiasco.runtime.Dependency;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifact;
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
@@ -8,6 +9,7 @@ import com.telenav.kivakit.kernel.language.reflection.property.KivaKitIncludePro
 import com.telenav.kivakit.resource.Resource;
 import com.telenav.kivakit.resource.resources.other.PropertyMap;
 
+import static com.telenav.fiasco.runtime.dependencies.repository.ArtifactDescriptor.MatchType.EXCLUDING_VERSION;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
 
 /**
@@ -35,7 +37,8 @@ public class Pom extends BaseComponent
     public enum Packaging
     {
         POM,
-        JAR
+        JAR,
+        BUNDLE
     }
 
     /** The parent artifact */
@@ -45,10 +48,10 @@ public class Pom extends BaseComponent
     Packaging packaging;
 
     /** List of dependencies */
-    ObjectList<MavenArtifact> dependencies = new ObjectList<>();
+    ObjectList<Dependency> dependencies = new ObjectList<>();
 
     /** List of "managed" Maven dependencies */
-    ObjectList<MavenArtifact> managedDependencies = new ObjectList<>();
+    ObjectList<Dependency> managedDependencies = new ObjectList<>();
 
     /** POM properties */
     PropertyMap properties = PropertyMap.create();
@@ -62,28 +65,55 @@ public class Pom extends BaseComponent
     }
 
     /**
-     * @return The dependencies declared in this POM file
+     * @return The dependencies declared in this POM file, with versions resolved from parent POM properties and
+     * dependency management declarations
      */
     @KivaKitIncludeProperty
-    public ObjectList<MavenArtifact> dependencies()
+    public ObjectList<Dependency> dependencies()
     {
-        return dependencies;
+        return resolvePropertyReferences(dependencies);
     }
 
     /**
      * @return The list of all dependency-management dependencies in this POM and all ancestor POMs
      */
-    public ObjectList<MavenArtifact> inheritedManagedDependencies()
+    public ObjectList<Dependency> inheritedManagedDependencies()
     {
-        var inherited = new ObjectList<MavenArtifact>();
+        var inherited = new ObjectList<Dependency>();
 
-        // Walk up the POM hierarchy,
-        for (var pom = this; pom != null; pom = pom.parent())
+        // If this POM has a parent,
+        if (parent() != null)
         {
-            inherited.addAll(pom.managedDependencies());
+            // add all of its inherited managed dependencies,
+            inherited.addAll(parent().inheritedManagedDependencies());
         }
 
+        // then add all of our own managed dependencies.
+        inherited.addAll(managedDependencies());
+
         return inherited;
+    }
+
+    /**
+     * @return The map of all properties in this POM and all ancestor POMs. Properties containing references to other
+     * properties are expanded to create a constant value. Resolution starts from the root of the POM inheritance path.
+     */
+    public PropertyMap inheritedProperties()
+    {
+        var inherited = new PropertyMap();
+
+        // If this POM has a parent,
+        if (parent() != null)
+        {
+            // add all of its inherited properties to our map,
+            inherited.addAll(parent().inheritedProperties());
+        }
+
+        // then add all of our own properties
+        inherited.addAll(properties());
+
+        // and return the "expanded" properties, where all property references of the form ${property-name} have been resolved.
+        return inherited.expanded();
     }
 
     /**
@@ -94,7 +124,7 @@ public class Pom extends BaseComponent
     {
         for (var at : dependencies)
         {
-            if (!at.isVersionResolved())
+            if (!at.isResolved())
             {
                 return false;
             }
@@ -106,9 +136,9 @@ public class Pom extends BaseComponent
      * @return The managed dependencies in this POM (but not any inherited from parent POMs)
      */
     @KivaKitIncludeProperty
-    public ObjectList<MavenArtifact> managedDependencies()
+    public ObjectList<Dependency> managedDependencies()
     {
-        return managedDependencies;
+        return resolvePropertyReferences(managedDependencies);
     }
 
     /**
@@ -129,7 +159,7 @@ public class Pom extends BaseComponent
     }
 
     /**
-     * @return The properties declared in this POM
+     * @return The raw properties directly declared in this POM (unexpanded and not inheriting from ancestor POMs)
      */
     @KivaKitIncludeProperty
     public PropertyMap properties()
@@ -142,33 +172,27 @@ public class Pom extends BaseComponent
      */
     public void resolveDependencyVersions()
     {
-        // For each dependency,
-        for (var dependency : dependencies)
+        // For each dependency (with property references of the form "${property-name}" resolved),
+        for (var dependency : dependencies())
         {
-            // If the dependency has no version,
-            if (!dependency.isVersionResolved())
+            // if the dependency is not fully resolved,
+            if (!dependency.isResolved())
             {
-                // go through all managed dependencies,
+                // go through all the inherited managed dependencies of this POM,
                 for (var at : inheritedManagedDependencies())
                 {
-                    // and if the dependency matches,
-                    if (at.withoutVersion().matches(dependency))
+                    // and if the dependency matches (except for the version),
+                    var descriptor = at.descriptor();
+                    if (descriptor.matches(dependency.descriptor(), EXCLUDING_VERSION))
                     {
                         // copy its version.
-                        dependency = dependency.withVersion(at.version());
+                        dependency.resolveVersionTo(at.descriptor().version());
                         break;
                     }
                 }
             }
 
-            ensure(dependency.isVersionResolved(), "Dependency version is unresolved: $", dependency);
-
-            // If the dependency version needs to be expanded,
-            if (dependency.version().contains("${"))
-            {
-                // then expand it.
-                dependency.resolveVersion(properties().expand(dependency.version()));
-            }
+            ensure(dependency.isResolved(), "Dependency is unresolved: $", dependency);
         }
     }
 
@@ -180,10 +204,24 @@ public class Pom extends BaseComponent
     {
         var lines = new StringList();
         lines.add("resource: $", resource.path());
-        lines.add("parent: " + (parent == null ? "none" : parent.resource.toString()));
-        lines.add("dependencies: " + dependencies.bracketed(4));
-        lines.add("managed dependencies: " + managedDependencies.bracketed(4));
-        lines.add("properties:" + properties.asStringList().bracketed(4));
+        lines.add("parent: " + (parent() == null ? "none" : parent().resource.toString()));
+        lines.add("dependencies: " + dependencies().bracketed(4));
+        lines.add("managed dependencies: " + managedDependencies().bracketed(4));
+        lines.add("properties:" + properties().asStringList().bracketed(4));
         return lines.join("\n");
+    }
+
+    /**
+     * Resolves each dependency by expanding any property references of the form "${variable}" using the properties
+     * contained in {@link #properties()}
+     */
+    private ObjectList<Dependency> resolvePropertyReferences(ObjectList<Dependency> dependencies)
+    {
+        for (var at : dependencies)
+        {
+            at.resolvePropertyReferences(inheritedProperties());
+        }
+
+        return dependencies;
     }
 }
