@@ -19,6 +19,6 @@ public interface TelenavArtifacts extends MavenPopularArtifacts
 
     default KivaKit kivakit()
     {
-        return telenav().kivakit().defaultVersion("1.1.0-SNAPSHOT");
+        return telenav().kivakit().defaultVersion("1.1.1");
     }
 }

@@ -1,6 +1,7 @@
 package com.telenav.fiasco.internal.building.dependencies.pom;
 
 import com.telenav.fiasco.internal.building.dependencies.DependencyResolver;
+import com.telenav.fiasco.internal.building.dependencies.pom.Pom.Packaging;
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenRepository;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifact;
@@ -43,6 +44,8 @@ import static com.telenav.kivakit.resource.path.Extension.POM;
 public class PomReader extends BaseComponent
 {
     private final StaxPath PARENT_PATH = parseXmlPath("project/parent");
+
+    private final StaxPath PACKAGING_PATH = parseXmlPath("project/packaging");
 
     private final StaxPath PROPERTIES_PATH = parseXmlPath("project/properties");
 
@@ -99,6 +102,11 @@ public class PomReader extends BaseComponent
 
                 for (reader.next(); reader.hasNext(); reader.next())
                 {
+                    if (reader.isAt(PACKAGING_PATH))
+                    {
+                        pom.packaging = Packaging.valueOf(reader.enclosedText());
+                    }
+
                     if (reader.isAt(PARENT_PATH))
                     {
                         var parentArtifact = readDependency(reader);

@@ -1,6 +1,7 @@
 package com.telenav.fiasco.runtime.dependencies.repository.maven.artifact;
 
 import com.telenav.fiasco.internal.building.dependencies.BaseDependency;
+import com.telenav.fiasco.internal.building.dependencies.pom.Pom;
 import com.telenav.fiasco.runtime.Dependency;
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactDescriptor;
@@ -26,8 +27,7 @@ import static com.telenav.kivakit.resource.path.Extension.SHA1;
  * A Maven artifact with an identifier (artifactId), stored in a {@link MavenRepository} and belonging to a {@link
  * MavenArtifactGroup}. A Maven artifact has other artifacts as {@link #dependencies()}. An artifact can be created from
  * a descriptor with {@link #parse(Listener, String)}, where the descriptor is of the form
- * [group-identifier]:[artifact-identifier]:[version]. An artifact can be created from an existing descriptor with
- * {@link MavenArtifactDescriptor#asArtifact()}.
+ * [group-identifier]:[artifact-identifier]:[version].
  *
  * <p><b>Properties</b></p>
  * <ul>
@@ -166,21 +166,25 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
      * {@inheritDoc}
      */
     @Override
-    public Resource resource(FilePath repositoryRoot, Extension extension)
+    public Resource resource(Listener listener, FilePath artifactRoot, Extension extension)
     {
-        return Resource.resolve(this, repositoryRoot.withChild(identifier() + "-" + version() + extension));
+        return Resource.resolve(listener, artifactRoot.withChild(identifier() + "-" + version() + extension));
     }
 
     /**
-     * {@inheritDoc}
+     * <b>Not public API</b>
+     *
+     * <p>
+     * Get the resources for this artifact associated with the given packaging under the given artifact root
+     * </p>
      */
-    @Override
-    public ObjectList<Resource> resources(FilePath path)
+    @SuppressWarnings("ClassEscapesDefinedScope")
+    public ObjectList<Resource> resources(Listener listener, FilePath artifactRoot, Pom.Packaging packaging)
     {
         var resources = new ObjectList<Resource>();
-        for (var extension : extensions())
+        for (var extension : extensions(packaging))
         {
-            resources.add(resource(path, extension));
+            resources.add(resource(listener, artifactRoot, extension));
         }
         return resources;
     }
@@ -253,15 +257,23 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
         return copy;
     }
 
-    private Extension[] extensions()
+    private Extension[] extensions(Pom.Packaging packaging)
     {
-        return new Extension[] {
-                JAR,
-                JAR.withExtension(MD5),
-                JAR.withExtension(SHA1),
-                POM,
-                POM.withExtension(MD5),
-                POM.withExtension(SHA1)
-        };
+        if (packaging == Pom.Packaging.POM)
+        {
+            return new Extension[] {
+                    POM,
+                    POM.withExtension(MD5),
+                    POM.withExtension(SHA1)
+            };
+        }
+        else
+        {
+            return new Extension[] {
+                    JAR,
+                    JAR.withExtension(MD5),
+                    JAR.withExtension(SHA1),
+            };
+        }
     }
 }

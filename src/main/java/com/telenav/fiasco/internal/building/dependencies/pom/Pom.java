@@ -32,8 +32,17 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
  */
 public class Pom extends BaseComponent
 {
+    public enum Packaging
+    {
+        POM,
+        JAR
+    }
+
     /** The parent artifact */
     Pom parent;
+
+    /** The POM packaging (jar or pom) */
+    Packaging packaging;
 
     /** List of dependencies */
     ObjectList<MavenArtifact> dependencies = new ObjectList<>();
@@ -100,6 +109,14 @@ public class Pom extends BaseComponent
     public ObjectList<MavenArtifact> managedDependencies()
     {
         return managedDependencies;
+    }
+
+    /**
+     * @return The packaging (jar or pom) for this POM
+     */
+    public Packaging packaging()
+    {
+        return packaging;
     }
 
     /**

@@ -3,7 +3,6 @@ package com.telenav.fiasco.runtime.dependencies.repository;
 import com.telenav.fiasco.runtime.Dependency;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifact;
 import com.telenav.kivakit.kernel.interfaces.naming.Named;
-import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
 import com.telenav.kivakit.kernel.language.values.version.Version;
 import com.telenav.kivakit.kernel.messaging.Listener;
 import com.telenav.kivakit.resource.Resource;
@@ -47,14 +46,9 @@ public interface Artifact extends Named, Dependency
     FilePath path();
 
     /**
-     * @return This artifact's resource with the given extensions at the given repository root path
+     * @return This artifact's resource with the given extensions at the given artifact root path
      */
-    Resource resource(FilePath repositoryRoot, Extension extension);
-
-    /**
-     * @return The expected artifact resources at the given path
-     */
-    ObjectList<Resource> resources(FilePath path);
+    Resource resource(Listener listener, FilePath artifactRoot, Extension extension);
 
     /**
      * @return The version of this artifact

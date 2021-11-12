@@ -92,6 +92,7 @@ public class FiascoProjectStore extends BaseComponent
     {
         if (projects == null)
         {
+            projects = new ObjectList<>();
             try
             {
                 for (var path : rememberedProjectFoldersNode().keys())

@@ -105,14 +105,6 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
     }
 
     /**
-     * @return This descriptor as a {@link MavenArtifact}
-     */
-    public MavenArtifact asArtifact()
-    {
-        return new MavenArtifact(this);
-    }
-
-    /**
      * @return A deep copy of this descriptor
      */
     public MavenArtifactDescriptor copy()

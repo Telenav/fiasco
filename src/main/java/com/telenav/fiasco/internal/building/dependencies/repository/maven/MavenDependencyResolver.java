@@ -3,6 +3,7 @@ package com.telenav.fiasco.internal.building.dependencies.repository.maven;
 import com.telenav.fiasco.internal.building.dependencies.DependencyResolver;
 import com.telenav.fiasco.internal.building.dependencies.download.Downloader;
 import com.telenav.fiasco.internal.building.dependencies.download.Downloader.Download;
+import com.telenav.fiasco.internal.building.dependencies.pom.Pom;
 import com.telenav.fiasco.internal.building.dependencies.pom.PomReader;
 import com.telenav.fiasco.internal.building.dependencies.repository.ResolvedArtifact;
 import com.telenav.fiasco.runtime.Dependency;
@@ -20,8 +21,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
+import static com.telenav.fiasco.internal.building.dependencies.download.Downloader.DownloadStatus.FAILED;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
 import static com.telenav.kivakit.resource.CopyMode.OVERWRITE;
 
 /**
@@ -92,7 +93,7 @@ public class MavenDependencyResolver extends BaseComponent implements Dependency
     @Override
     public ResolvedArtifact resolve(Artifact artifact)
     {
-        return resolve(artifact, 0);
+        return resolve((MavenArtifact) artifact, 0);
     }
 
     /**
@@ -116,7 +117,8 @@ public class MavenDependencyResolver extends BaseComponent implements Dependency
      */
     private boolean copyArtifact(ArtifactRepository source,
                                  ArtifactRepository destination,
-                                 Artifact artifact)
+                                 MavenArtifact artifact,
+                                 Pom.Packaging packaging)
     {
         try
         {
@@ -125,7 +127,7 @@ public class MavenDependencyResolver extends BaseComponent implements Dependency
 
             // and then for each resource in the set of artifact resources to be downloaded,
             var futureDownloads = new ObjectList<Future<Download>>();
-            for (var resource : artifact.resources(artifactFolder))
+            for (var resource : artifact.resources(this, artifactFolder, packaging))
             {
                 // submit a job to copy the resource into this repository in the background.
                 var download = new Download(resource, destination.folder(artifact).mkdirs(), OVERWRITE);
@@ -139,23 +141,13 @@ public class MavenDependencyResolver extends BaseComponent implements Dependency
                 var download = futureDownload.get();
 
                 // and check the status.
-                switch (download.status())
+                if (download.status() == FAILED)
                 {
-                    case DOWNLOADED:
-                        narrate("Downloaded $ [$]", artifact, source);
-                        break;
-
-                    case FAILED:
-                        return false;
-
-                    case WAITING:
-                    case DOWNLOADING:
-                    default:
-                        fail("Internal error: download completed in state: $", download.status());
-                        break;
+                    return false;
                 }
             }
 
+            narrate("Downloaded $ [$]", artifact, source);
             return true;
         }
         catch (Exception e)
@@ -176,14 +168,25 @@ public class MavenDependencyResolver extends BaseComponent implements Dependency
     /**
      * Ensures that the given repository's artifact is installed in the local repository
      */
-    private boolean materialize(ArtifactRepository repository, Artifact artifact)
+    private boolean materialize(ArtifactRepository repository, MavenArtifact artifact)
     {
         // If the artifact is not already installed,
         var local = MavenRepository.local(this);
         if (!local.contains(artifact))
         {
-            // then copy it into the local repository
-            return copyArtifact(repository, local, artifact);
+            // copy the pom for the artifact to the local repository
+            copyArtifact(repository, local, artifact, Pom.Packaging.POM);
+
+            // then read the pom,
+            var reader = listenTo(new PomReader());
+            var pom = reader.read(local, artifact);
+
+            // and if it has jar packaging,
+            if (pom.packaging() == Pom.Packaging.JAR)
+            {
+                // download the jar resources
+                copyArtifact(repository, local, artifact, Pom.Packaging.JAR);
+            }
         }
 
         // The artifact is already installed
@@ -197,7 +200,7 @@ public class MavenDependencyResolver extends BaseComponent implements Dependency
      * @param level The indentation of any output message, to allow the artifact hierarchy to be visualized
      * @return The repository in which the artifact was found
      */
-    private ResolvedArtifact resolve(Artifact artifact, int level)
+    private ResolvedArtifact resolve(MavenArtifact artifact, int level)
     {
         var indentation = AsciiArt.repeat(level, ' ');
 
@@ -249,7 +252,7 @@ public class MavenDependencyResolver extends BaseComponent implements Dependency
      * @param artifact The artifact
      * @return The resolved artifact
      */
-    private ResolvedArtifact resolve(MavenRepository repository, Artifact artifact)
+    private ResolvedArtifact resolve(MavenRepository repository, MavenArtifact artifact)
     {
         // If the artifact hasn't already been resolved,
         if (!isResolved(artifact))
@@ -282,14 +285,15 @@ public class MavenDependencyResolver extends BaseComponent implements Dependency
         if (dependency instanceof Artifact)
         {
             // resolve it as one,
-            artifacts.add(resolve((Artifact) dependency, level));
+            artifacts.add(resolve((MavenArtifact) dependency, level));
         }
 
         // and if the dependency is a library,
         if (dependency instanceof Library)
         {
             // resolve the library's artifact,
-            artifacts.add(resolve(((Library) dependency).artifact(), level));
+            var library = (Library) dependency;
+            artifacts.add(resolve((MavenArtifact) library.artifact(), level));
         }
 
         // then, resolve all the child dependencies.

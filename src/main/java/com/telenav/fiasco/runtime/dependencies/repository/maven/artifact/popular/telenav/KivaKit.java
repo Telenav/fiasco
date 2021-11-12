@@ -65,12 +65,12 @@ public class KivaKit extends MavenArtifactGroup
 
     public Artifact networkEmail()
     {
-        return artifact("kivakit-network-http");
+        return artifact("kivakit-network-email");
     }
 
     public Artifact networkFtp()
     {
-        return artifact("kivakit-network-http");
+        return artifact("kivakit-network-ftp");
     }
 
     public Artifact networkHttp()

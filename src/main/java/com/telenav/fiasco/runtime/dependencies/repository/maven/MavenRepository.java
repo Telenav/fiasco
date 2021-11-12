@@ -77,7 +77,7 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
     public boolean contains(Artifact artifact)
     {
         return folder(artifact)
-                .file(artifact.identifier() + "-" + artifact.version() + ".jar")
+                .file(artifact.identifier() + "-" + artifact.version() + ".pom")
                 .exists();
     }
 
@@ -111,7 +111,7 @@ public class MavenRepository extends BaseComponent implements ArtifactRepository
     @Override
     public Resource resource(Artifact artifact, Extension extension)
     {
-        return artifact.resource(pathTo(artifact), extension);
+        return artifact.resource(this, pathTo(artifact), extension);
     }
 
     @Override
