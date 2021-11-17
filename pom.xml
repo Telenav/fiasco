@@ -2,12 +2,13 @@
 <project xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance"
          xmlns = "http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation = "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.telenav.fiasco</groupId>
     <artifactId>fiasco</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>Fiasco</name>
+    <name>fiasco</name>
 
     <description>Fiasco is an all-Java build system that makes defining builds easier and more modular</description>
 
