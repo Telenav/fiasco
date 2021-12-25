@@ -18,10 +18,10 @@ public class PomReaderTest extends UnitTest
         var pom = listenTo(new PomReader()).read(resource);
         ensure(pom.parent() == null);
         ensure(pom.dependencies().size() == 4);
-        ensure(has(pom, "com.telenav.kivakit:kivakit-test"));
-        ensure(has(pom, "com.telenav.kivakit:kivakit-application"));
-        ensure(has(pom, "com.telenav.kivakit:kivakit-data-formats-xml"));
-        ensure(has(pom, "com.telenav.kivakit:kivakit-network-http"));
+        ensure(has(pom, "com.telenav.kivakit:kivakit-test:1.0.0"));
+        ensure(has(pom, "com.telenav.kivakit:kivakit-application:1.0.0"));
+        ensure(has(pom, "com.telenav.kivakit:kivakit-data-formats-xml:1.0.0"));
+        ensure(has(pom, "com.telenav.kivakit:kivakit-network-http:1.0.0"));
         ensure(pom.managedDependencies().size() == 0);
         ensure(pom.properties().get("project.build.sourceEncoding").equals("UTF-8"));
     }
@@ -33,10 +33,10 @@ public class PomReaderTest extends UnitTest
         var pom = listenTo(new PomReader()).read(resource);
         ensure(pom.parent() == null);
         ensure(pom.dependencies().size() == 4);
-        ensure(pom.dependencies().contains(MavenArtifact.parse(this, "com.telenav.kivakit:kivakit-test")));
-        ensure(pom.dependencies().contains(MavenArtifact.parse(this, "com.telenav.kivakit:kivakit-application")));
-        ensure(pom.dependencies().contains(MavenArtifact.parse(this, "com.telenav.kivakit:kivakit-data-formats-xml")));
-        ensure(pom.dependencies().contains(MavenArtifact.parse(this, "com.telenav.kivakit:kivakit-network-http")));
+        ensure(pom.dependencies().contains(MavenArtifact.parse(this, "com.telenav.kivakit:kivakit-test:1.1.0-SNAPSHOT")));
+        ensure(pom.dependencies().contains(MavenArtifact.parse(this, "com.telenav.kivakit:kivakit-application:1.1.0-SNAPSHOT")));
+        ensure(pom.dependencies().contains(MavenArtifact.parse(this, "com.telenav.kivakit:kivakit-data-formats-xml:1.1.0-SNAPSHOT")));
+        ensure(pom.dependencies().contains(MavenArtifact.parse(this, "com.telenav.kivakit:kivakit-network-http:1.1.0-SNAPSHOT")));
         ensure(pom.managedDependencies().size() == 0);
         ensure(pom.properties().get("project.build.sourceEncoding").equals("UTF-8"));
     }

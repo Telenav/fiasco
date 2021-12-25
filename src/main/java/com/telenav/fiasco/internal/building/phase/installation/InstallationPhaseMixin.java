@@ -21,7 +21,7 @@ public interface InstallationPhaseMixin extends Phase, Mixin
 
     default InstallationPhase installationPhase()
     {
-        return state(InstallationPhaseMixin.class, () -> new InstallationPhase(parentBuild()));
+        return mixin(InstallationPhaseMixin.class, () -> new InstallationPhase(parentBuild()));
     }
 
     default void onPackageDeploy()

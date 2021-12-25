@@ -3,17 +3,22 @@ package com.telenav.fiasco.internal.building.dependencies;
 import com.telenav.fiasco.runtime.BaseBuild;
 import com.telenav.fiasco.runtime.Dependency;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifact;
+import com.telenav.fiasco.runtime.tools.repository.Librarian;
+import com.telenav.kivakit.configuration.lookup.RegistryTrait;
 import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
+import com.telenav.kivakit.kernel.language.values.count.Count;
 import com.telenav.kivakit.test.UnitTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
-@SuppressWarnings("SuspiciousMethodCalls") public class DependencyGraphTest extends UnitTest
+@SuppressWarnings("SuspiciousMethodCalls")
+public class DependencyGraphTest extends UnitTest implements RegistryTrait
 {
     @Test
     public void testBuildGroups()
     {
+        register(new Librarian(this, Count._2));
         var commandLine = build().artifactDescriptor(commandLine().descriptor());
         var configuration = build().artifactDescriptor(configuration().descriptor());
         var resource = build().artifactDescriptor(resource().descriptor());

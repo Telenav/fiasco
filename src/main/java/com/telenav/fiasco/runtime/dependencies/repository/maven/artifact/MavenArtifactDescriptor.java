@@ -51,7 +51,7 @@ public class MavenArtifactDescriptor implements ArtifactDescriptor, Validatable,
             + ":"
             + "(?<identifier>[A-Za-z-.]+)"
             + "(:"
-            + "(?<version>[\\d.]+(-(snapshot|alpha|beta|rc|final))?)"
+            + "(?<version>[\\d.]+(-(?i)(snapshot|alpha|beta|rc|final))?)"
             + ")?");
 
     /**

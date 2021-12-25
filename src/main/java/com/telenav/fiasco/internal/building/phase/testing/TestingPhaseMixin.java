@@ -54,6 +54,6 @@ public interface TestingPhaseMixin extends Phase, Mixin
 
     default TestingPhase testingPhase()
     {
-        return state(TestingPhaseMixin.class, () -> new TestingPhase(parentBuild()));
+        return mixin(TestingPhaseMixin.class, () -> new TestingPhase(parentBuild()));
     }
 }
