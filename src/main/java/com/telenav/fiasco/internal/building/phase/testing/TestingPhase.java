@@ -13,13 +13,13 @@ import com.telenav.fiasco.runtime.Build;
  * </p>
  *
  * <ol>
- *     <li>TEST_INITIALIZE</li>
- *     <li>TEST_GENERATE</li>
- *     <li>TEST_PREPROCESS</li>
- *     <li>TEST_COMPILE</li>
- *     <li>TEST_POSTPROCESS</li>
- *     <li>TEST_VERIFY</li>
- *     <li>TEST_RUN_TESTS</li>
+ *     <li>{@link BuildStep#TEST_INITIALIZE}</li>
+ *     <li>{@link BuildStep#TEST_GENERATE_SOURCES}</li>
+ *     <li>{@link BuildStep#TEST_PREPROCESS}</li>
+ *     <li>{@link BuildStep#TEST_COMPILE}</li>
+ *     <li>{@link BuildStep#TEST_POSTPROCESS}</li>
+ *     <li>{@link BuildStep#TEST_VERIFY}</li>
+ *     <li>{@link BuildStep#TEST_RUN_TESTS}</li>
  * </ol>
  *
  * @author jonathanl (shibo)
@@ -33,24 +33,12 @@ public class TestingPhase extends BasePhase
         super(build);
     }
 
-    public void buildTestSources()
-    {
-        tryFinallyThrow(this::testInitialize, this::nextStep);
-        tryFinallyThrow(this::testResolveDependencies, this::nextStep);
-        tryFinallyThrow(this::testGenerate, this::nextStep);
-        tryFinallyThrow(this::testPreprocess, this::nextStep);
-        tryFinallyThrow(this::testCompile, this::nextStep);
-        tryFinallyThrow(this::testPostprocess, this::nextStep);
-        tryFinallyThrow(this::testVerify, this::nextStep);
-    }
-
-    public void onTestCompile()
+    public void onTestCompileSources()
     {
     }
 
-    public void onTestGenerate()
+    public void onTestGenerateSources()
     {
-
     }
 
     public void onTestInitialize()
@@ -71,24 +59,34 @@ public class TestingPhase extends BasePhase
     {
     }
 
+    public TestResult onTestRunTests()
+    {
+        return null;
+    }
+
     public void onTestVerify()
     {
-
     }
 
-    public TestResult runTests()
+    public void testBuildArtifacts()
     {
-        return tryFinallyReturn(this::testRunTests, this::nextStep);
+        tryFinallyThrow(this::testInitialize, this::nextStep);
+        tryFinallyThrow(this::testResolveDependencies, this::nextStep);
+        tryFinallyThrow(this::testGenerateSources, this::nextStep);
+        tryFinallyThrow(this::testPreprocess, this::nextStep);
+        tryFinallyThrow(this::testCompileSources, this::nextStep);
+        tryFinallyThrow(this::testPostprocess, this::nextStep);
+        tryFinallyThrow(this::testVerify, this::nextStep);
     }
 
-    public final void testCompile()
+    public final void testCompileSources()
     {
-        onTestCompile();
+        onTestCompileSources();
     }
 
-    public final void testGenerate()
+    public final void testGenerateSources()
     {
-        onTestGenerate();
+        onTestGenerateSources();
     }
 
     public final void testInitialize()
@@ -113,16 +111,11 @@ public class TestingPhase extends BasePhase
 
     public final TestResult testRunTests()
     {
-        onTestRunTests();
-        return null;
+        return tryFinallyReturn(this::onTestRunTests, this::nextStep);
     }
 
     public final void testVerify()
     {
         onTestVerify();
-    }
-
-    protected void onTestRunTests()
-    {
     }
 }

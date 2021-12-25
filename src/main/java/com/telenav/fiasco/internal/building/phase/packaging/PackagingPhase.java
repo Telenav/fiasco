@@ -13,11 +13,11 @@ import com.telenav.fiasco.runtime.Build;
  * </p>
  *
  * <ol>
- *     <li>PACKAGE_INITIALIZE</li>
- *     <li>PACKAGE_PREPROCESS</li>
- *     <li>PACKAGE_COMPILE</li>
- *     <li>PACKAGE_POSTPROCESS</li>
- *     <li>PACKAGE_VERIFY</li>
+ *     <li>{@link BuildStep#PACKAGE_INITIALIZE}</li>
+ *     <li>{@link BuildStep#PACKAGE_PREPROCESS}</li>
+ *     <li>{@link BuildStep#PACKAGE_BUILD}</li>
+ *     <li>{@link BuildStep#PACKAGE_POSTPROCESS}</li>
+ *     <li>{@link BuildStep#PACKAGE_VERIFY}</li>
  * </ol>
  *
  * @author jonathanl (shibo)
@@ -35,12 +35,12 @@ public class PackagingPhase extends BasePhase
     {
         tryFinallyThrow(this::packageInitialize, this::nextStep);
         tryFinallyThrow(this::packagePreprocess, this::nextStep);
-        tryFinallyThrow(this::packageCompile, this::nextStep);
+        tryFinallyThrow(this::packageBuild, this::nextStep);
         tryFinallyThrow(this::packagePostprocess, this::nextStep);
         tryFinallyThrow(this::packageVerify, this::nextStep);
     }
 
-    public void onPackageCompile()
+    public void onPackageBuild()
     {
     }
 
@@ -68,9 +68,9 @@ public class PackagingPhase extends BasePhase
 
     }
 
-    public final void packageCompile()
+    public final void packageBuild()
     {
-        onPackageCompile();
+        onPackageBuild();
     }
 
     public final void packageInitialize()

@@ -14,23 +14,28 @@ import com.telenav.kivakit.kernel.language.mixin.Mixin;
  */
 public interface InstallationPhaseMixin extends Phase, Mixin
 {
-    default void installPackages()
+    default void artifactsDeploy()
     {
-        installationPhase().installPackages();
+        mixin().artifactsDeploy();
     }
 
-    default InstallationPhase installationPhase()
+    default void artifactsInstall()
+    {
+        mixin().artifactsInstall();
+    }
+
+    default InstallationPhase mixin()
     {
         return mixin(InstallationPhaseMixin.class, () -> new InstallationPhase(parentBuild()));
     }
 
-    default void onPackageDeploy()
+    default void onArtifactsDeploy()
     {
-        installationPhase().onPackageDeploy();
+        mixin().onArtifactsDeploy();
     }
 
-    default void onPackageInstall()
+    default void onArtifactsInstall()
     {
-        installationPhase().onPackageInstall();
+        mixin().onArtifactsInstall();
     }
 }

@@ -24,7 +24,6 @@ import com.telenav.kivakit.kernel.language.values.count.Count;
 import com.telenav.kivakit.kernel.language.vm.JavaVirtualMachine;
 import com.telenav.kivakit.kernel.messaging.Message;
 import com.telenav.kivakit.kernel.messaging.messages.status.Announcement;
-import com.telenav.kivakit.kernel.project.Project;
 
 import java.util.List;
 
@@ -148,7 +147,7 @@ public class Fiasco extends Application
     /** Project-related utilities */
     private final FiascoCompiler compiler = listenTo(new FiascoCompiler());
 
-    public Fiasco(Project... projects)
+    public Fiasco()
     {
         super(new FiascoProject());
     }

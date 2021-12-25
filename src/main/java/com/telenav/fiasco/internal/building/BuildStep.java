@@ -44,7 +44,7 @@ public enum BuildStep
     // Package output files
     PACKAGE_INITIALIZE,
     PACKAGE_PREPROCESS,
-    PACKAGE_COMPILE,
+    PACKAGE_BUILD,
     PACKAGE_POSTPROCESS,
     PACKAGE_VERIFY,
 

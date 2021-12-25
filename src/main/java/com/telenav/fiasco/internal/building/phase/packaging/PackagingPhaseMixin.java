@@ -21,7 +21,7 @@ public interface PackagingPhaseMixin extends Phase, Mixin
 
     default void onPackageCompile()
     {
-        packagingPhase().onPackageCompile();
+        packagingPhase().onPackageBuild();
     }
 
     default void onPackageInitialize()

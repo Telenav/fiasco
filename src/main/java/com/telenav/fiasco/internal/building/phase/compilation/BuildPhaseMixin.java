@@ -1,10 +1,8 @@
 package com.telenav.fiasco.internal.building.phase.compilation;
 
 import com.telenav.fiasco.internal.building.Phase;
-import com.telenav.fiasco.internal.building.ProjectFoldersTrait;
+import com.telenav.fiasco.internal.building.ProjectTrait;
 import com.telenav.fiasco.runtime.Dependency;
-import com.telenav.fiasco.runtime.tools.compiler.JavaCompiler;
-import com.telenav.fiasco.runtime.tools.repository.Librarian;
 import com.telenav.kivakit.kernel.interfaces.lifecycle.Initializable;
 import com.telenav.kivakit.kernel.language.mixin.Mixin;
 import com.telenav.kivakit.kernel.messaging.messages.MessageException;
@@ -13,21 +11,39 @@ import com.telenav.kivakit.kernel.messaging.messages.MessageException;
  * <b>Not public API</b>
  *
  * <p>
- * {@link Mixin} for {@link CompilationPhase}
+ * {@link Mixin} for {@link BuildPhase}
  * </p>
  *
  * @author jonathanl (shibo)
  */
-public interface CompilationPhaseMixin extends
+public interface BuildPhaseMixin extends
         Initializable,
-        Phase,
         Mixin,
+        Phase,
         Dependency,
-        ProjectFoldersTrait
+        ProjectTrait,
+        ToolsMixin
 {
-    default CompilationPhase compilationPhase()
+    default void buildArtifacts()
     {
-        return mixin(CompilationPhaseMixin.class, () -> listenTo(new CompilationPhase(parentBuild())));
+        tryFinallyThrow(this::initialize, this::nextStep);
+        tryFinallyThrow(this::resolveDependencies, this::nextStep);
+        tryFinallyThrow(this::generateSources, this::nextStep);
+        tryFinallyThrow(this::preprocess, this::nextStep);
+        tryFinallyThrow(this::compile, this::nextStep);
+        tryFinallyThrow(this::postprocess, this::nextStep);
+        tryFinallyThrow(this::buildDocumentation, this::nextStep);
+        tryFinallyThrow(this::verify, this::nextStep);
+    }
+
+    default void buildDocumentation()
+    {
+        onBuildDocumentation();
+    }
+
+    default BuildPhase buildPhase()
+    {
+        return mixin(BuildPhaseMixin.class, () -> listenTo(new BuildPhase(parentBuild())));
     }
 
     default void compile()
@@ -35,26 +51,9 @@ public interface CompilationPhaseMixin extends
         onCompile();
     }
 
-    default void compileDocumentation()
+    default void generateSources()
     {
-        onCompileDocumentation();
-    }
-
-    default void compileSources()
-    {
-        tryFinallyThrow(this::initialize, this::nextStep);
-        tryFinallyThrow(this::resolveDependencies, this::nextStep);
-        tryFinallyThrow(this::generate, this::nextStep);
-        tryFinallyThrow(this::preprocess, this::nextStep);
-        tryFinallyThrow(this::compile, this::nextStep);
-        tryFinallyThrow(this::postprocess, this::nextStep);
-        tryFinallyThrow(this::compileDocumentation, this::nextStep);
-        tryFinallyThrow(this::verify, this::nextStep);
-    }
-
-    default void generate()
-    {
-        onGenerate();
+        onGenerateSources();
     }
 
     @Override
@@ -63,20 +62,14 @@ public interface CompilationPhaseMixin extends
         onInitialize();
     }
 
-    default JavaCompiler javaCompiler()
-    {
-        return compilationPhase().javaCompiler();
-    }
-
-    default Librarian librarian()
-    {
-        return require(Librarian.class);
-    }
-
     @Override
     default void nextStep()
     {
-        compilationPhase().nextStep();
+        buildPhase().nextStep();
+    }
+
+    default void onBuildDocumentation()
+    {
     }
 
     default void onCompile()
@@ -84,11 +77,7 @@ public interface CompilationPhaseMixin extends
         javaCompiler().compile(sourceFolder());
     }
 
-    default void onCompileDocumentation()
-    {
-    }
-
-    default void onGenerate()
+    default void onGenerateSources()
     {
     }
 

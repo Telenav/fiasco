@@ -13,12 +13,12 @@ public interface TestingPhaseMixin extends Phase, Mixin
 {
     default void buildTestSources()
     {
-        testingPhase().buildTestSources();
+        testingPhase().testBuildArtifacts();
     }
 
     default void onTestCompile()
     {
-        testingPhase().onTestCompile();
+        testingPhase().onTestCompileSources();
     }
 
     default void onTestInitialize()
@@ -49,7 +49,7 @@ public interface TestingPhaseMixin extends Phase, Mixin
 
     default void runTests()
     {
-        testingPhase().runTests();
+        testingPhase().testRunTests();
     }
 
     default TestingPhase testingPhase()

@@ -14,7 +14,7 @@ import com.telenav.kivakit.filesystem.Folder;
  * @see Folder
  * @see Build
  */
-public interface ProjectFoldersTrait
+public interface ProjectTrait
 {
     /**
      * @return Location of Java source code tree
