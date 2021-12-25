@@ -14,37 +14,62 @@ import com.telenav.kivakit.kernel.language.mixin.Mixin;
  */
 public interface PackagingPhaseMixin extends Phase, Mixin
 {
-    default void buildPackages()
+    default void onPackageBuild()
     {
-        packagingPhase().buildPackages();
-    }
-
-    default void onPackageCompile()
-    {
-        packagingPhase().onPackageBuild();
+        packagingPhaseMixin().onPackageBuild();
     }
 
     default void onPackageInitialize()
     {
-        packagingPhase().onPackageInitialize();
+        packagingPhaseMixin().onPackageInitialize();
     }
 
     default void onPackagePostprocess()
     {
-        packagingPhase().onPackagePostprocess();
+        packagingPhaseMixin().onPackagePostprocess();
     }
 
     default void onPackagePreprocess()
     {
-        packagingPhase().onPackagePreprocess();
+        packagingPhaseMixin().onPackagePreprocess();
     }
 
     default void onPackageVerify()
     {
-        packagingPhase().onPackageVerify();
+        packagingPhaseMixin().onPackageVerify();
     }
 
-    default PackagingPhase packagingPhase()
+    default void packageInitialize()
+    {
+        packagingPhaseMixin().packageInitialize();
+    }
+
+    default void packagePostprocess()
+    {
+        packagingPhaseMixin().packagePostprocess();
+    }
+
+    default void packagePreprocess()
+    {
+        packagingPhaseMixin().packagePreprocess();
+    }
+
+    default void packageVerify()
+    {
+        packagingPhaseMixin().packageVerify();
+    }
+
+    default void packagingBuild()
+    {
+        packagingPhaseMixin().packageBuild();
+    }
+
+    default void packagingPhase()
+    {
+        packagingPhaseMixin().packagingPhase();
+    }
+
+    default PackagingPhase packagingPhaseMixin()
     {
         return mixin(PackagingPhaseMixin.class, () -> new PackagingPhase(parentBuild()));
     }

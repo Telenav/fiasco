@@ -1,4 +1,4 @@
-package com.telenav.fiasco.internal.building.phase.compilation;
+package com.telenav.fiasco.internal.building.phase.building;
 
 import com.telenav.fiasco.internal.building.BuildStep;
 import com.telenav.fiasco.internal.building.Phase;
@@ -13,12 +13,13 @@ import java.io.StringWriter;
  * Executes the steps in the compilation phase of a build:
  *
  * <ol>
- *     <li>{@link BuildStep#INITIALIZE}</li>
- *     <li>{@link BuildStep#GENERATE_SOURCES}</li>
- *     <li>{@link BuildStep#PREPROCESS}</li>
- *     <li>{@link BuildStep#COMPILE}</li>
- *     <li>{@link BuildStep#POSTPROCESS}</li>
- *     <li>{@link BuildStep#VERIFY}</li>
+ *     <li>{@link BuildStep#BUILDING_INITIALIZE}</li>
+ *     <li>{@link BuildStep#BUILDING_GENERATE_SOURCES}</li>
+ *     <li>{@link BuildStep#BUILDING_PREPROCESS}</li>
+ *     <li>{@link BuildStep#BUILDING_COMPILE}</li>
+ *     <li>{@link BuildStep#BUILDING_POSTPROCESS}</li>
+ *     <li>{@link BuildStep#BUILDING_BUILD_DOCUMENTATION}</li>
+ *     <li>{@link BuildStep#BUILDING_VERIFY}</li>
  * </ol>
  *
  * @author jonathanl (shibo)
@@ -26,14 +27,14 @@ import java.io.StringWriter;
  * @see BuildStep
  * @see Phase
  */
-public class BuildPhase extends BasePhase
+public class BuildingPhase extends BasePhase
 {
     private final StringWriter output = new StringWriter();
 
     /**
      * @param build The build to which this compilation phase belongs
      */
-    public BuildPhase(Build build)
+    public BuildingPhase(Build build)
     {
         super(build);
     }

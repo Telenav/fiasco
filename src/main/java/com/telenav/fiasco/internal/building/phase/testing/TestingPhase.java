@@ -13,13 +13,13 @@ import com.telenav.fiasco.runtime.Build;
  * </p>
  *
  * <ol>
- *     <li>{@link BuildStep#TEST_INITIALIZE}</li>
- *     <li>{@link BuildStep#TEST_GENERATE_SOURCES}</li>
- *     <li>{@link BuildStep#TEST_PREPROCESS}</li>
- *     <li>{@link BuildStep#TEST_COMPILE}</li>
- *     <li>{@link BuildStep#TEST_POSTPROCESS}</li>
- *     <li>{@link BuildStep#TEST_VERIFY}</li>
- *     <li>{@link BuildStep#TEST_RUN_TESTS}</li>
+ *     <li>{@link BuildStep#TESTING_INITIALIZE}</li>
+ *     <li>{@link BuildStep#TESTING_GENERATE_SOURCES}</li>
+ *     <li>{@link BuildStep#TESTING_PREPROCESS}</li>
+ *     <li>{@link BuildStep#TESTING_COMPILE}</li>
+ *     <li>{@link BuildStep#TESTING_POSTPROCESS}</li>
+ *     <li>{@link BuildStep#TESTING_VERIFY}</li>
+ *     <li>{@link BuildStep#TESTING_RUN_TESTS}</li>
  * </ol>
  *
  * @author jonathanl (shibo)
@@ -68,17 +68,6 @@ public class TestingPhase extends BasePhase
     {
     }
 
-    public void testBuildArtifacts()
-    {
-        tryFinallyThrow(this::testInitialize, this::nextStep);
-        tryFinallyThrow(this::testResolveDependencies, this::nextStep);
-        tryFinallyThrow(this::testGenerateSources, this::nextStep);
-        tryFinallyThrow(this::testPreprocess, this::nextStep);
-        tryFinallyThrow(this::testCompileSources, this::nextStep);
-        tryFinallyThrow(this::testPostprocess, this::nextStep);
-        tryFinallyThrow(this::testVerify, this::nextStep);
-    }
-
     public final void testCompileSources()
     {
         onTestCompileSources();
@@ -111,11 +100,23 @@ public class TestingPhase extends BasePhase
 
     public final TestResult testRunTests()
     {
-        return tryFinallyReturn(this::onTestRunTests, this::nextStep);
+        return onTestRunTests();
     }
 
     public final void testVerify()
     {
         onTestVerify();
+    }
+
+    public TestResult testingPhase()
+    {
+        tryFinallyThrow(this::testInitialize, this::nextStep);
+        tryFinallyThrow(this::testResolveDependencies, this::nextStep);
+        tryFinallyThrow(this::testGenerateSources, this::nextStep);
+        tryFinallyThrow(this::testPreprocess, this::nextStep);
+        tryFinallyThrow(this::testCompileSources, this::nextStep);
+        tryFinallyThrow(this::testPostprocess, this::nextStep);
+        tryFinallyThrow(this::testVerify, this::nextStep);
+        return tryFinallyReturn(this::testRunTests, this::nextStep);
     }
 }

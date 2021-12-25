@@ -4,8 +4,8 @@ import com.telenav.fiasco.internal.building.Buildable;
 import com.telenav.fiasco.internal.building.ProjectDependency;
 import com.telenav.fiasco.internal.building.ProjectTrait;
 import com.telenav.fiasco.internal.building.dependencies.DependencyResolver;
-import com.telenav.fiasco.internal.building.phase.compilation.BuildPhase;
-import com.telenav.fiasco.internal.building.phase.compilation.BuildPhaseMixin;
+import com.telenav.fiasco.internal.building.phase.building.BuildingPhase;
+import com.telenav.fiasco.internal.building.phase.building.BuildingPhaseMixin;
 import com.telenav.fiasco.internal.building.phase.installation.InstallationPhase;
 import com.telenav.fiasco.internal.building.phase.installation.InstallationPhaseMixin;
 import com.telenav.fiasco.internal.building.phase.packaging.PackagingPhase;
@@ -25,7 +25,7 @@ import com.telenav.kivakit.kernel.interfaces.lifecycle.Initializable;
  * that have been split up into independent mixins to reduce code complexity:
  *
  * <ul>
- *      <li>{@link BuildPhaseMixin}</li>
+ *      <li>{@link BuildingPhaseMixin}</li>
  *      <li>{@link TestingPhaseMixin}</li>
  *      <li>{@link PackagingPhaseMixin}</li>
  *      <li>{@link InstallationPhaseMixin}</li>
@@ -35,8 +35,8 @@ import com.telenav.kivakit.kernel.interfaces.lifecycle.Initializable;
  * @see Initializable
  * @see Buildable
  * @see ProjectDependency
- * @see BuildPhaseMixin
- * @see BuildPhase
+ * @see BuildingPhaseMixin
+ * @see BuildingPhase
  * @see TestingPhaseMixin
  * @see TestingPhase
  * @see PackagingPhaseMixin
@@ -52,7 +52,7 @@ public interface Build extends
         Buildable,              // Allows the build to be executed
         ProjectTrait,           // Defines the build layout
         ProjectDependency,      // Makes the build a project dependency
-        BuildPhaseMixin,        // Compiles sources into target folder
+        BuildingPhaseMixin,        // Compiles sources into target folder
         TestingPhaseMixin,      // Runs unit and integration tests
         PackagingPhaseMixin,    // Creates packages from built sources
         InstallationPhaseMixin, // Installs and deploys packages

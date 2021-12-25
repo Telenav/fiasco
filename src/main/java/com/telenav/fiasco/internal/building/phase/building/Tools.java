@@ -1,4 +1,4 @@
-package com.telenav.fiasco.internal.building.phase.compilation;
+package com.telenav.fiasco.internal.building.phase.building;
 
 import com.telenav.fiasco.runtime.Build;
 import com.telenav.fiasco.runtime.tools.compiler.JavaCompiler;

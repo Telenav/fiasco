@@ -11,48 +11,83 @@ import com.telenav.kivakit.kernel.language.mixin.Mixin;
  */
 public interface TestingPhaseMixin extends Phase, Mixin
 {
-    default void buildTestSources()
+    default void onTestCompileSources()
     {
-        testingPhase().testBuildArtifacts();
-    }
-
-    default void onTestCompile()
-    {
-        testingPhase().onTestCompileSources();
+        testingPhaseMixin().onTestCompileSources();
     }
 
     default void onTestInitialize()
     {
-        testingPhase().onTestInitialize();
+        testingPhaseMixin().onTestInitialize();
     }
 
     default void onTestPostprocess()
     {
-        testingPhase().onTestPostprocess();
+        testingPhaseMixin().onTestPostprocess();
     }
 
     default void onTestPreprocess()
     {
-        testingPhase().onTestPreprocess();
+        testingPhaseMixin().onTestPreprocess();
     }
 
     default void onTestVerify()
     {
-        testingPhase().onTestVerify();
+        testingPhaseMixin().onTestVerify();
     }
 
     @Override
     default Build parentBuild()
     {
-        return testingPhase().parentBuild();
+        return testingPhaseMixin().parentBuild();
     }
 
-    default void runTests()
+    default void testCompileSources()
     {
-        testingPhase().testRunTests();
+        testingPhaseMixin().testCompileSources();
     }
 
-    default TestingPhase testingPhase()
+    default void testGenerateSources()
+    {
+        testingPhaseMixin().testGenerateSources();
+    }
+
+    default void testInitialize()
+    {
+        testingPhaseMixin().testInitialize();
+    }
+
+    default void testPostprocess()
+    {
+        testingPhaseMixin().testPostprocess();
+    }
+
+    default void testPreprocess()
+    {
+        testingPhaseMixin().testPreprocess();
+    }
+
+    default void testResolveDependencies()
+    {
+        testingPhaseMixin().testResolveDependencies();
+    }
+
+    default void testRunTests()
+    {
+        testingPhaseMixin().testRunTests();
+    }
+
+    default void testVerify()
+    {
+        testingPhaseMixin().testVerify();
+    }
+
+    default void testingPhase()
+    {
+        testingPhaseMixin().testingPhase();
+    }
+
+    default TestingPhase testingPhaseMixin()
     {
         return mixin(TestingPhaseMixin.class, () -> new TestingPhase(parentBuild()));
     }

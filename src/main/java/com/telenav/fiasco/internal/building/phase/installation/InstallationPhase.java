@@ -11,8 +11,8 @@ import com.telenav.fiasco.runtime.Build;
  * Executes the steps in the installation phase of a build:
  *
  * <ol>
- *     <li>{@link BuildStep#PACKAGE_INSTALL}</li>
- *     <li>{@link BuildStep#PACKAGE_DEPLOY}</li>
+ *     <li>{@link BuildStep#INSTALLATION_INSTALL}</li>
+ *     <li>{@link BuildStep#INSTALLATION_DEPLOY}</li>
  * </ol>
  *
  * @author jonathanl (shibo)
@@ -26,22 +26,27 @@ public class InstallationPhase extends BasePhase
         super(build);
     }
 
-    public void artifactsDeploy()
+    public void installationDeploy()
     {
-        tryFinallyThrow(this::artifactsInstall, this::nextStep);
-        tryFinallyThrow(this::onArtifactsDeploy, this::finished);
+        onInstallationDeploy();
     }
 
-    public final void artifactsInstall()
+    public void installationInstall()
     {
-        onArtifactsInstall();
+        onInstallationInstall();
     }
 
-    public void onArtifactsDeploy()
+    public void installationPhase()
+    {
+        tryFinallyThrow(this::installationInstall, this::nextStep);
+        tryFinallyThrow(this::installationDeploy, this::finished);
+    }
+
+    public void onInstallationDeploy()
     {
     }
 
-    public void onArtifactsInstall()
+    public void onInstallationInstall()
     {
     }
 

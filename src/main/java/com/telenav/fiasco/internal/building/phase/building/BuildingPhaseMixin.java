@@ -1,4 +1,4 @@
-package com.telenav.fiasco.internal.building.phase.compilation;
+package com.telenav.fiasco.internal.building.phase.building;
 
 import com.telenav.fiasco.internal.building.Phase;
 import com.telenav.fiasco.internal.building.ProjectTrait;
@@ -11,12 +11,12 @@ import com.telenav.kivakit.kernel.messaging.messages.MessageException;
  * <b>Not public API</b>
  *
  * <p>
- * {@link Mixin} for {@link BuildPhase}
+ * {@link Mixin} for {@link BuildingPhase}
  * </p>
  *
  * @author jonathanl (shibo)
  */
-public interface BuildPhaseMixin extends
+public interface BuildingPhaseMixin extends
         Initializable,
         Mixin,
         Phase,
@@ -24,7 +24,17 @@ public interface BuildPhaseMixin extends
         ProjectTrait,
         ToolsMixin
 {
-    default void buildArtifacts()
+    default void buildDocumentation()
+    {
+        onBuildDocumentation();
+    }
+
+    default BuildingPhase buildPhaseMixin()
+    {
+        return mixin(BuildingPhaseMixin.class, () -> listenTo(new BuildingPhase(parentBuild())));
+    }
+
+    default void buildingPhase()
     {
         tryFinallyThrow(this::initialize, this::nextStep);
         tryFinallyThrow(this::resolveDependencies, this::nextStep);
@@ -34,16 +44,6 @@ public interface BuildPhaseMixin extends
         tryFinallyThrow(this::postprocess, this::nextStep);
         tryFinallyThrow(this::buildDocumentation, this::nextStep);
         tryFinallyThrow(this::verify, this::nextStep);
-    }
-
-    default void buildDocumentation()
-    {
-        onBuildDocumentation();
-    }
-
-    default BuildPhase buildPhase()
-    {
-        return mixin(BuildPhaseMixin.class, () -> listenTo(new BuildPhase(parentBuild())));
     }
 
     default void compile()
@@ -65,7 +65,7 @@ public interface BuildPhaseMixin extends
     @Override
     default void nextStep()
     {
-        buildPhase().nextStep();
+        buildPhaseMixin().nextStep();
     }
 
     default void onBuildDocumentation()

@@ -13,11 +13,11 @@ import com.telenav.fiasco.runtime.Build;
  * </p>
  *
  * <ol>
- *     <li>{@link BuildStep#PACKAGE_INITIALIZE}</li>
- *     <li>{@link BuildStep#PACKAGE_PREPROCESS}</li>
- *     <li>{@link BuildStep#PACKAGE_BUILD}</li>
- *     <li>{@link BuildStep#PACKAGE_POSTPROCESS}</li>
- *     <li>{@link BuildStep#PACKAGE_VERIFY}</li>
+ *     <li>{@link BuildStep#PACKAGING_INITIALIZE}</li>
+ *     <li>{@link BuildStep#PACKAGING_PREPROCESS}</li>
+ *     <li>{@link BuildStep#PACKAGING_BUILD}</li>
+ *     <li>{@link BuildStep#PACKAGING_POSTPROCESS}</li>
+ *     <li>{@link BuildStep#PACKAGING_VERIFY}</li>
  * </ol>
  *
  * @author jonathanl (shibo)
@@ -31,22 +31,12 @@ public class PackagingPhase extends BasePhase
         super(build);
     }
 
-    public void buildPackages()
-    {
-        tryFinallyThrow(this::packageInitialize, this::nextStep);
-        tryFinallyThrow(this::packagePreprocess, this::nextStep);
-        tryFinallyThrow(this::packageBuild, this::nextStep);
-        tryFinallyThrow(this::packagePostprocess, this::nextStep);
-        tryFinallyThrow(this::packageVerify, this::nextStep);
-    }
-
     public void onPackageBuild()
     {
     }
 
     public void onPackageDeploy()
     {
-
     }
 
     public void onPackageInitialize()
@@ -55,17 +45,14 @@ public class PackagingPhase extends BasePhase
 
     public void onPackagePostprocess()
     {
-
     }
 
     public void onPackagePreprocess()
     {
-
     }
 
     public void onPackageVerify()
     {
-
     }
 
     public final void packageBuild()
@@ -91,5 +78,14 @@ public class PackagingPhase extends BasePhase
     public final void packageVerify()
     {
         onPackageVerify();
+    }
+
+    public void packagingPhase()
+    {
+        tryFinallyThrow(this::packageInitialize, this::nextStep);
+        tryFinallyThrow(this::packagePreprocess, this::nextStep);
+        tryFinallyThrow(this::packageBuild, this::nextStep);
+        tryFinallyThrow(this::packagePostprocess, this::nextStep);
+        tryFinallyThrow(this::packageVerify, this::nextStep);
     }
 }

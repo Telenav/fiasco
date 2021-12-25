@@ -8,10 +8,9 @@ import com.telenav.fiasco.internal.building.ProjectDependency;
 import com.telenav.fiasco.internal.building.ProjectTrait;
 import com.telenav.fiasco.internal.building.dependencies.BaseDependency;
 import com.telenav.fiasco.internal.building.dependencies.ResolvedDependency;
-import com.telenav.fiasco.internal.building.phase.compilation.BuildPhaseMixin;
-import com.telenav.fiasco.internal.building.phase.installation.InstallationPhase;
+import com.telenav.fiasco.internal.building.phase.building.BuildingPhaseMixin;
+import com.telenav.fiasco.internal.building.phase.installation.InstallationPhaseMixin;
 import com.telenav.fiasco.internal.building.phase.packaging.PackagingPhaseMixin;
-import com.telenav.fiasco.internal.building.phase.testing.TestingPhase;
 import com.telenav.fiasco.internal.building.phase.testing.TestingPhaseMixin;
 import com.telenav.fiasco.internal.fiasco.FiascoCompiler;
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactDescriptor;
@@ -30,12 +29,11 @@ import com.telenav.kivakit.kernel.language.strings.AsciiArt;
 import java.io.StringWriter;
 import java.util.List;
 
+import static com.telenav.fiasco.internal.building.BuildStep.BUILDING_INITIALIZE;
 import static com.telenav.fiasco.internal.building.BuildStep.FIASCO_STARTUP;
-import static com.telenav.fiasco.internal.building.BuildStep.INITIALIZE;
-import static com.telenav.fiasco.internal.building.BuildStep.PACKAGE_INITIALIZE;
-import static com.telenav.fiasco.internal.building.BuildStep.PACKAGE_INSTALL;
-import static com.telenav.fiasco.internal.building.BuildStep.TEST_INITIALIZE;
-import static com.telenav.fiasco.internal.building.BuildStep.TEST_RUN_TESTS;
+import static com.telenav.fiasco.internal.building.BuildStep.INSTALLATION_INSTALL;
+import static com.telenav.fiasco.internal.building.BuildStep.PACKAGING_INITIALIZE;
+import static com.telenav.fiasco.internal.building.BuildStep.TESTING_INITIALIZE;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
 import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
@@ -50,40 +48,40 @@ import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
  * </p>
  *
  * <ol>
- *     <li>{@link BuildPhaseMixin#buildArtifacts()} - Builds sources into output files with these steps:</li>
- *     <ol>
- *         <li>initialize - prepare to build</li>
- *         <li>resolveDependencies - resolve requisite artifacts</li>
- *         <li>generateSources - generate source code, or other artifacts</li>
- *         <li>preprocess - transform source code</li>
- *         <li>compile - build sources into target folder</li>
- *         <li>postprocess - perform post-processing on output</li>
- *         <li>buildDocumentation - build documentation, such as Javadoc</li>
- *         <li>verify - check for a valid build</li>
+ *     <li>{@link BuildingPhaseMixin#buildingPhase()} - Builds sources into output files with these steps:</li>
+ *     <ol type="a">
+ *         <li>{@link BuildingPhaseMixin#initialize()} - prepare to build</li>
+ *         <li>{@link BuildingPhaseMixin#resolveDependencies} - resolve artifacts in remote repositories</li>
+ *         <li>{@link BuildingPhaseMixin#generateSources} - generate source code, or other artifacts</li>
+ *         <li>{@link BuildingPhaseMixin#preprocess} - transform source code</li>
+ *         <li>{@link BuildingPhaseMixin#compile} - build sources into target folder</li>
+ *         <li>{@link BuildingPhaseMixin#postprocess} - perform post-processing on output</li>
+ *         <li>{@link BuildingPhaseMixin#buildDocumentation} - build documentation, such as Javadoc</li>
+ *         <li>{@link BuildingPhaseMixin#verify} - check for a valid build</li>
  *     </ol>
- *     <li>{@link TestingPhaseMixin#buildTestSources()} - Builds test sources with these steps: </li>
- *     <ol>
- *         <li>initialize - prepare to build</li>
- *         <li>resolveDependencies - resolve requisite artifacts</li>
- *         <li>generateSources - generate source code, or other artifacts</li>
- *         <li>preprocess - transform source code</li>
- *         <li>compile - build sources into target folder</li>
- *         <li>postprocess - perform post-processing on output</li>
- *         <li>verify - check for a valid build</li>
+ *     <li>{@link TestingPhaseMixin#testingPhase()} ()} - Builds test sources and executes them with these steps: </li>
+ *     <ol type="a">
+ *         <li>{@link TestingPhaseMixin#testInitialize()} - prepare to build</li>
+ *         <li>{@link TestingPhaseMixin#testResolveDependencies()} - resolve artifacts in remote repositories</li>
+ *         <li>{@link TestingPhaseMixin#testGenerateSources()} - generate source code, or other artifacts</li>
+ *         <li>{@link TestingPhaseMixin#testPreprocess()} - transform source code</li>
+ *         <li>{@link TestingPhaseMixin#testCompileSources()} - build sources into target folder</li>
+ *         <li>{@link TestingPhaseMixin#testPostprocess()} - perform post-processing on output</li>
+ *         <li>{@link TestingPhaseMixin#testVerify()} - check for a valid build</li>
+ *         <li>{@link TestingPhaseMixin#testRunTests()} - executes tests</li>
  *     </ol>
- *     <li>{@link TestingPhase#runTests()} ()} - Runs tests</li>
- *     <li>{@link PackagingPhaseMixin#buildPackages()} - Packages output files</li>
- *     <ol>
- *         <li>initialize - prepare to package artifacts</li>
- *         <li>preprocess - perform pre-processing on artifacts</li>
- *         <li>compile - builds artifacts into target artifact(s), normally archive(s)</li>
- *         <li>preprocess - perform post-processing of target artifacts</li>
- *         <li>verify - check consistency of target artifacts</li>
+ *     <li>{@link PackagingPhaseMixin#packagingPhase()} - Packages output files</li>
+ *     <ol type="a">
+ *         <li>{@link PackagingPhaseMixin#packageInitialize()}  - prepare to package artifacts</li>
+ *         <li>{@link PackagingPhaseMixin#packagePreprocess()} - perform pre-processing on artifacts</li>
+ *         <li>{@link PackagingPhaseMixin#packagingBuild()} - builds artifacts into packaged form</li>
+ *         <li>{@link PackagingPhaseMixin#packagePostprocess()} - perform post-processing of target artifacts</li>
+ *         <li>{@link PackagingPhaseMixin#packageVerify()} - check consistency of target artifacts</li>
  *     </ol>
- *     <li>{@link InstallationPhase#artifactsDeploy()} - Installs and deploys target artifacts</li>
- *     <ol>
- *         <li>install - installs target artifacts in local repository</li>
- *         <li>deploy - copies target artifacts to servers</li>
+ *     <li>{@link InstallationPhaseMixin#installationPhase()} ()} - Installs and deploys target artifacts</li>
+ *     <ol type="a">
+ *         <li>{@link InstallationPhaseMixin#installationInstall()} - installs target artifacts in local repository</li>
+ *         <li>{@link InstallationPhaseMixin#installationDeploy()} - copies target artifacts to servers</li>
  *     </ol>
  * </ol>
  *
@@ -156,24 +154,20 @@ public class BaseBuild extends BaseDependency implements
             result.start();
 
             // Build source code into artifacts,
-            step(INITIALIZE);
-            buildArtifacts();
+            step(BUILDING_INITIALIZE);
+            buildingPhase();
 
-            // build the test source code,
-            ensure(isAt(TEST_INITIALIZE));
-            buildTestSources();
+            // build the test source code and execute it,
+            ensure(isAt(TESTING_INITIALIZE));
+            testingPhase();
 
-            // run the tests,
-            ensure(isAt(TEST_RUN_TESTS));
-            runTests();
-
-            // package up the artifacts,
-            ensure(isAt(PACKAGE_INITIALIZE));
-            buildPackages();
+            // package up the built artifacts,
+            ensure(isAt(PACKAGING_INITIALIZE));
+            packagingPhase();
 
             // and install them.
-            ensure(isAt(PACKAGE_INSTALL));
-            artifactsInstall();
+            ensure(isAt(INSTALLATION_INSTALL));
+            installationPhase();
 
             return result;
         }
