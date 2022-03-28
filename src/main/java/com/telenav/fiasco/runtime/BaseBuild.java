@@ -1,8 +1,6 @@
 package com.telenav.fiasco.runtime;
 
-import com.telenav.fiasco.internal.building.BuildListener;
 import com.telenav.fiasco.internal.building.BuildStep;
-import com.telenav.fiasco.internal.building.Buildable;
 import com.telenav.fiasco.internal.building.Phase;
 import com.telenav.fiasco.internal.building.ProjectDependency;
 import com.telenav.fiasco.internal.building.ProjectTrait;
@@ -16,15 +14,18 @@ import com.telenav.fiasco.internal.fiasco.FiascoCompiler;
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactDescriptor;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenRepository;
 import com.telenav.fiasco.runtime.tools.repository.Librarian;
+import com.telenav.fiasco.spi.BuildListener;
+import com.telenav.fiasco.spi.BuildResult;
+import com.telenav.fiasco.spi.Buildable;
+import com.telenav.kivakit.core.data.validation.BaseValidator;
+import com.telenav.kivakit.core.data.validation.ValidationType;
+import com.telenav.kivakit.core.data.validation.Validator;
+import com.telenav.kivakit.core.interfaces.lifecycle.Initializable;
+import com.telenav.kivakit.core.interfaces.naming.Named;
+import com.telenav.kivakit.core.language.collections.list.ObjectList;
+import com.telenav.kivakit.core.language.reflection.Type;
+import com.telenav.kivakit.core.language.strings.AsciiArt;
 import com.telenav.kivakit.filesystem.Folder;
-import com.telenav.kivakit.kernel.data.validation.BaseValidator;
-import com.telenav.kivakit.kernel.data.validation.ValidationType;
-import com.telenav.kivakit.kernel.data.validation.Validator;
-import com.telenav.kivakit.kernel.interfaces.lifecycle.Initializable;
-import com.telenav.kivakit.kernel.interfaces.naming.Named;
-import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
-import com.telenav.kivakit.kernel.language.reflection.Type;
-import com.telenav.kivakit.kernel.language.strings.AsciiArt;
 
 import java.io.StringWriter;
 import java.util.List;
@@ -34,9 +35,9 @@ import static com.telenav.fiasco.internal.building.BuildStep.FIASCO_STARTUP;
 import static com.telenav.fiasco.internal.building.BuildStep.INSTALLATION_INSTALL;
 import static com.telenav.fiasco.internal.building.BuildStep.PACKAGING_INITIALIZE;
 import static com.telenav.fiasco.internal.building.BuildStep.TESTING_INITIALIZE;
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
+import static com.telenav.kivakit.core.data.validation.ensure.Ensure.ensure;
+import static com.telenav.kivakit.core.data.validation.ensure.Ensure.ensureNotNull;
+import static com.telenav.kivakit.core.data.validation.ensure.Ensure.fail;
 
 /**
  * Base class for Fiasco build definitions

@@ -18,7 +18,7 @@
 
 package com.telenav.fiasco.runtime.tools.test;
 
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.unimplemented;
+import static com.telenav.kivakit.core.data.validation.ensure.Ensure.unimplemented;
 
 /**
  * Runs unit tests

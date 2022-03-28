@@ -1,10 +1,10 @@
 package com.telenav.fiasco.internal.building.dependencies.download;
 
 import com.telenav.kivakit.component.BaseComponent;
+import com.telenav.kivakit.core.collections.set.ObjectSet;
+import com.telenav.kivakit.core.string.Formatter;
+import com.telenav.kivakit.core.value.count.Count;
 import com.telenav.kivakit.filesystem.Folder;
-import com.telenav.kivakit.kernel.language.collections.set.ObjectSet;
-import com.telenav.kivakit.kernel.language.values.count.Count;
-import com.telenav.kivakit.kernel.messaging.Message;
 import com.telenav.kivakit.resource.CopyMode;
 import com.telenav.kivakit.resource.Resource;
 
@@ -20,7 +20,7 @@ import static com.telenav.fiasco.internal.building.dependencies.download.Downloa
 import static com.telenav.fiasco.internal.building.dependencies.download.Downloader.DownloadStatus.DOWNLOADING;
 import static com.telenav.fiasco.internal.building.dependencies.download.Downloader.DownloadStatus.FAILED;
 import static com.telenav.fiasco.internal.building.dependencies.download.Downloader.DownloadStatus.WAITING;
-import static com.telenav.kivakit.kernel.language.objects.Objects.equalPairs;
+import static com.telenav.kivakit.core.language.Objects.equalPairs;
 
 /**
  * Downloads resources into folders concurrently.
@@ -58,14 +58,14 @@ public class Downloader extends BaseComponent
      */
     public static class Download implements Callable<Download>
     {
-        /** The resource to download */
-        private final Resource source;
-
         /** The folder to download to */
         private final Folder destination;
 
         /** What to do if the file already exists */
         private final CopyMode mode;
+
+        /** The resource to download */
+        private final Resource source;
 
         /** The status of this download */
         private DownloadStatus status = WAITING;
@@ -133,18 +133,18 @@ public class Downloader extends BaseComponent
         @Override
         public String toString()
         {
-            return Message.format("$: $ => $", status, source, destination);
+            return Formatter.format("$: $ => $", status, source, destination);
         }
     }
-
-    /** The completion service that manages which downloads finish */
-    private final ExecutorCompletionService<Download> downloads;
 
     /** The downloads that have already been completed */
     private final ObjectSet<Download> completed = new ObjectSet<>();
 
     /** The downloads that are in progress */
     private final Map<Download, Future<Download>> downloading = new ConcurrentHashMap<>();
+
+    /** The completion service that manages which downloads finish */
+    private final ExecutorCompletionService<Download> downloads;
 
     /**
      * @param threads The number of downloading threads

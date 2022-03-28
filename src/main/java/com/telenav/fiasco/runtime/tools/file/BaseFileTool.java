@@ -2,8 +2,8 @@ package com.telenav.fiasco.runtime.tools.file;
 
 import com.telenav.fiasco.runtime.tools.BaseTool;
 import com.telenav.kivakit.filesystem.FileGlobPattern;
-import com.telenav.kivakit.kernel.interfaces.numeric.Countable;
-import com.telenav.kivakit.kernel.language.progress.reporters.Progress;
+import com.telenav.kivakit.core.interfaces.numeric.Countable;
+import com.telenav.kivakit.core.language.progress.reporters.Progress;
 
 /**
  * Base class for file tools

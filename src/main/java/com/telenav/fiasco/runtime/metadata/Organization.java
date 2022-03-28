@@ -1,12 +1,12 @@
 package com.telenav.fiasco.runtime.metadata;
 
-import com.telenav.kivakit.kernel.language.values.name.Name;
-import com.telenav.kivakit.kernel.project.Project;
+import com.telenav.kivakit.core.language.values.name.Name;
+import com.telenav.kivakit.core.project.Project;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
+import static com.telenav.kivakit.core.data.validation.ensure.Ensure.fail;
 
 /**
  * An {@link Organization} to which contributors belong and which may originate {@link Project}s

@@ -4,13 +4,13 @@ import com.telenav.fiasco.internal.building.dependencies.DependencyGraph;
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactDescriptor;
 import com.telenav.kivakit.component.Component;
-import com.telenav.kivakit.kernel.data.validation.Validatable;
-import com.telenav.kivakit.kernel.interfaces.collection.Addable;
-import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
-import com.telenav.kivakit.kernel.interfaces.naming.Named;
-import com.telenav.kivakit.kernel.language.collections.list.StringList;
-import com.telenav.kivakit.kernel.language.paths.StringPath;
-import com.telenav.kivakit.resource.resources.other.PropertyMap;
+import com.telenav.kivakit.core.collections.list.StringList;
+import com.telenav.kivakit.core.path.StringPath;
+import com.telenav.kivakit.interfaces.collection.Addable;
+import com.telenav.kivakit.interfaces.comparison.Matcher;
+import com.telenav.kivakit.interfaces.naming.Named;
+import com.telenav.kivakit.resource.PropertyMap;
+import com.telenav.kivakit.validation.Validatable;
 
 import java.util.Arrays;
 
@@ -25,7 +25,11 @@ import java.util.Arrays;
  * @see Library
  * @see Artifact
  */
-public interface Dependency extends Validatable, Component, Addable<Dependency>, Named
+public interface Dependency extends
+        Validatable,
+        Addable<Dependency>,
+        Named,
+        Component
 {
     /**
      * @return A deep copy of this dependency

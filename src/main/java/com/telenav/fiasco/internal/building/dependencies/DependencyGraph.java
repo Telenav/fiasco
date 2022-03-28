@@ -1,18 +1,18 @@
 package com.telenav.fiasco.internal.building.dependencies;
 
-import com.telenav.fiasco.internal.building.Buildable;
 import com.telenav.fiasco.internal.building.planning.BuildPlan;
 import com.telenav.fiasco.internal.building.planning.BuildableGroup;
 import com.telenav.fiasco.runtime.Dependency;
-import com.telenav.kivakit.kernel.data.validation.ensure.Ensure;
-import com.telenav.kivakit.kernel.interfaces.function.BooleanFunction;
-import com.telenav.kivakit.kernel.language.collections.list.StringList;
-import com.telenav.kivakit.kernel.language.strings.AsciiArt;
+import com.telenav.fiasco.spi.Buildable;
+import com.telenav.kivakit.core.data.validation.ensure.Ensure;
+import com.telenav.kivakit.core.interfaces.function.BooleanFunction;
+import com.telenav.kivakit.core.language.collections.list.StringList;
+import com.telenav.kivakit.core.language.strings.AsciiArt;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
+import static com.telenav.kivakit.core.data.validation.ensure.Ensure.fail;
 
 /**
  * <b>Not public API</b>

@@ -4,7 +4,7 @@ import com.telenav.fiasco.runtime.Build;
 import com.telenav.fiasco.runtime.Dependency;
 import com.telenav.fiasco.runtime.Library;
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
-import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
+import com.telenav.kivakit.core.collections.list.ObjectList;
 
 /**
  * <b>Not public API</b>

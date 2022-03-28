@@ -13,9 +13,9 @@ import com.telenav.fiasco.runtime.dependencies.repository.ArtifactRepository;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenRepository;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifact;
 import com.telenav.kivakit.component.BaseComponent;
-import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
-import com.telenav.kivakit.kernel.language.strings.AsciiArt;
-import com.telenav.kivakit.kernel.language.values.count.Count;
+import com.telenav.kivakit.core.collections.list.ObjectList;
+import com.telenav.kivakit.core.string.AsciiArt;
+import com.telenav.kivakit.core.value.count.Count;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,7 +25,7 @@ import static com.telenav.fiasco.internal.building.dependencies.download.Downloa
 import static com.telenav.fiasco.internal.building.dependencies.pom.Pom.Packaging.BUNDLE;
 import static com.telenav.fiasco.internal.building.dependencies.pom.Pom.Packaging.JAR;
 import static com.telenav.fiasco.internal.building.dependencies.pom.Pom.Packaging.POM;
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
+import static com.telenav.kivakit.core.ensure.Ensure.ensureNotNull;
 import static com.telenav.kivakit.resource.CopyMode.OVERWRITE;
 
 /**
@@ -62,14 +62,14 @@ public class MavenDependencyResolver extends BaseComponent implements Dependency
     /** Parallel downloader to speed up artifact resource downloads */
     private final Downloader downloader;
 
+    /** The reader of POM files */
+    private final PomReader pomReader;
+
     /** List of repositories to search when artifacts are not in the local repository */
     private final ObjectList<MavenRepository> repositories = new ObjectList<>();
 
     /** The repositories for artifacts that are already resolved */
     private final Map<Dependency, ResolvedDependency> resolved = new ConcurrentHashMap<>();
-
-    /** The reader of POM files */
-    private final PomReader pomReader;
 
     /**
      * @param threads The number of threads to use when downloading artifacts

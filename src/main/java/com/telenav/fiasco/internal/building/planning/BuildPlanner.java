@@ -1,8 +1,8 @@
 package com.telenav.fiasco.internal.building.planning;
 
-import com.telenav.fiasco.internal.building.Buildable;
 import com.telenav.fiasco.internal.building.dependencies.DependencyGraph;
 import com.telenav.fiasco.runtime.Build;
+import com.telenav.fiasco.spi.Buildable;
 
 /**
  * <b>Not public API</b>

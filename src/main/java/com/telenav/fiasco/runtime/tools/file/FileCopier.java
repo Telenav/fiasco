@@ -20,7 +20,7 @@ package com.telenav.fiasco.runtime.tools.file;
 
 import com.telenav.kivakit.filesystem.FileList;
 import com.telenav.kivakit.filesystem.Folder;
-import com.telenav.kivakit.kernel.language.progress.ProgressReporter;
+import com.telenav.kivakit.core.language.progress.ProgressReporter;
 import com.telenav.kivakit.resource.CopyMode;
 
 /**

@@ -3,9 +3,9 @@ package com.telenav.fiasco.internal.building.phase.building;
 import com.telenav.fiasco.internal.building.Phase;
 import com.telenav.fiasco.internal.building.ProjectTrait;
 import com.telenav.fiasco.runtime.Dependency;
-import com.telenav.kivakit.kernel.interfaces.lifecycle.Initializable;
-import com.telenav.kivakit.kernel.language.mixin.Mixin;
-import com.telenav.kivakit.kernel.messaging.messages.MessageException;
+import com.telenav.kivakit.core.interfaces.lifecycle.Initializable;
+import com.telenav.kivakit.core.language.mixin.Mixin;
+import com.telenav.kivakit.core.messaging.messages.MessageException;
 
 /**
  * <b>Not public API</b>

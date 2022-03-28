@@ -4,17 +4,17 @@ import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.filesystem.File;
 import com.telenav.kivakit.filesystem.FileList;
 import com.telenav.kivakit.filesystem.Folder;
-import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
-import com.telenav.kivakit.kernel.language.collections.list.StringList;
-import com.telenav.kivakit.kernel.messaging.Listener;
+import com.telenav.kivakit.core.language.collections.list.ObjectList;
+import com.telenav.kivakit.core.language.collections.list.StringList;
+import com.telenav.kivakit.core.messaging.Listener;
 import com.telenav.kivakit.resource.resources.other.PropertyMap;
 
 import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.ToolProvider;
 import java.io.Writer;
 
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
+import static com.telenav.kivakit.core.data.validation.ensure.Ensure.ensure;
+import static com.telenav.kivakit.core.data.validation.ensure.Ensure.ensureNotNull;
 import static com.telenav.kivakit.resource.path.Extension.JAR;
 import static com.telenav.kivakit.resource.path.Extension.JAVA;
 

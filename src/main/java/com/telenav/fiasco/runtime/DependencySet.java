@@ -1,21 +1,21 @@
 package com.telenav.fiasco.runtime;
 
-import com.telenav.kivakit.collections.set.ConcurrentHashSet;
-import com.telenav.kivakit.kernel.interfaces.code.Callback;
-import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
-import com.telenav.kivakit.kernel.language.collections.set.ObjectSet;
-import com.telenav.kivakit.kernel.language.threading.Threads;
-import com.telenav.kivakit.kernel.language.threading.locks.Monitor;
-import com.telenav.kivakit.kernel.language.values.count.Count;
-import com.telenav.kivakit.kernel.messaging.Listener;
-import com.telenav.kivakit.kernel.messaging.listeners.MessageList;
+import com.telenav.kivakit.core.collections.set.ConcurrentHashSet;
+import com.telenav.kivakit.core.collections.set.ObjectSet;
+import com.telenav.kivakit.core.messaging.Listener;
+import com.telenav.kivakit.core.messaging.listeners.MessageList;
+import com.telenav.kivakit.core.thread.Monitor;
+import com.telenav.kivakit.core.thread.Threads;
+import com.telenav.kivakit.core.value.count.Count;
+import com.telenav.kivakit.interfaces.code.Callback;
+import com.telenav.kivakit.interfaces.comparison.Matcher;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
+import static com.telenav.kivakit.core.ensure.Ensure.fail;
 
 /**
  * An ordered list of {@link Dependency} objects. The objects in the list can be processed with {@link

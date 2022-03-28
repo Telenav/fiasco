@@ -1,6 +1,4 @@
-package com.telenav.fiasco.internal.building;
-
-import com.telenav.fiasco.runtime.BuildResult;
+package com.telenav.fiasco.spi;
 
 /**
  * <b>Not public API</b>

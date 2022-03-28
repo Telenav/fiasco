@@ -7,8 +7,8 @@ import com.telenav.fiasco.runtime.dependencies.repository.ArtifactDescriptor;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifact;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifactDescriptor;
 import com.telenav.kivakit.component.BaseComponent;
-import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
-import com.telenav.kivakit.kernel.interfaces.comparison.MatcherSet;
+import com.telenav.kivakit.core.interfaces.comparison.Matcher;
+import com.telenav.kivakit.core.interfaces.comparison.MatcherSet;
 
 import java.util.Arrays;
 import java.util.Objects;

@@ -2,7 +2,7 @@ package com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.popula
 
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifactGroup;
-import com.telenav.kivakit.kernel.language.values.version.Version;
+import com.telenav.kivakit.core.language.values.version.Version;
 
 public class ApacheCommons extends MavenArtifactGroup
 {

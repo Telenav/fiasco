@@ -1,6 +1,6 @@
 package com.telenav.fiasco.internal.building.builders;
 
-import com.telenav.fiasco.internal.building.Builder;
+import com.telenav.fiasco.spi.Builder;
 import com.telenav.kivakit.component.BaseComponent;
 
 /**

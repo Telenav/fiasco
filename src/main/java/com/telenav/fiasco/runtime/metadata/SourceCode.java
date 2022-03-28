@@ -3,7 +3,7 @@ package com.telenav.fiasco.runtime.metadata;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
+import static com.telenav.kivakit.core.data.validation.ensure.Ensure.fail;
 
 /**
  * Information about project source code
@@ -16,8 +16,6 @@ public class SourceCode
     {
         return new SourceCode();
     }
-
-    public URL repository;
 
     protected SourceCode()
     {
@@ -46,4 +44,6 @@ public class SourceCode
             return fail(e, "Bad URL: $", repository);
         }
     }
+
+    public URL repository;
 }

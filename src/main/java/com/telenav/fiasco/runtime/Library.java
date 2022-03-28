@@ -21,11 +21,11 @@ package com.telenav.fiasco.runtime;
 import com.telenav.fiasco.internal.building.dependencies.BaseDependency;
 import com.telenav.fiasco.runtime.dependencies.repository.Artifact;
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactDescriptor;
-import com.telenav.kivakit.kernel.data.validation.BaseValidator;
-import com.telenav.kivakit.kernel.data.validation.ValidationType;
-import com.telenav.kivakit.kernel.data.validation.Validator;
-import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
-import com.telenav.kivakit.kernel.language.values.version.Version;
+import com.telenav.kivakit.core.data.validation.BaseValidator;
+import com.telenav.kivakit.core.data.validation.ValidationType;
+import com.telenav.kivakit.core.data.validation.Validator;
+import com.telenav.kivakit.core.interfaces.comparison.Matcher;
+import com.telenav.kivakit.core.language.values.version.Version;
 
 import java.util.Objects;
 

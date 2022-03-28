@@ -1,9 +1,8 @@
-package com.telenav.fiasco.internal.building;
+package com.telenav.fiasco.spi;
 
 import com.telenav.fiasco.internal.building.planning.BuildableGroup;
-import com.telenav.fiasco.runtime.BuildResult;
 import com.telenav.kivakit.component.Component;
-import com.telenav.kivakit.kernel.language.time.Duration;
+import com.telenav.kivakit.core.time.Duration;
 
 /**
  * <b>Not public API</b>

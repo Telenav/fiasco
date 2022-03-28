@@ -2,11 +2,11 @@ package com.telenav.fiasco.runtime.tools.java;
 
 import com.telenav.kivakit.filesystem.File;
 import com.telenav.kivakit.filesystem.Folder;
-import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
-import com.telenav.kivakit.kernel.language.collections.list.StringList;
+import com.telenav.kivakit.core.language.collections.list.ObjectList;
+import com.telenav.kivakit.core.language.collections.list.StringList;
 import com.telenav.kivakit.resource.resources.other.PropertyMap;
 
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
+import static com.telenav.kivakit.core.data.validation.ensure.Ensure.ensure;
 import static com.telenav.kivakit.resource.path.Extension.JAR;
 
 public class Java

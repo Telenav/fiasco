@@ -1,13 +1,13 @@
 package com.telenav.fiasco.internal.building.builders;
 
-import com.telenav.fiasco.internal.building.BuildListener;
-import com.telenav.fiasco.internal.building.Buildable;
 import com.telenav.fiasco.internal.building.planning.BuildPlan;
 import com.telenav.fiasco.internal.building.planning.BuildPlanner;
 import com.telenav.fiasco.internal.building.planning.BuildableGroup;
-import com.telenav.fiasco.runtime.BuildResult;
-import com.telenav.kivakit.kernel.language.time.Duration;
-import com.telenav.kivakit.kernel.language.values.count.Count;
+import com.telenav.fiasco.spi.BuildListener;
+import com.telenav.fiasco.spi.BuildResult;
+import com.telenav.fiasco.spi.Buildable;
+import com.telenav.kivakit.core.time.Duration;
+import com.telenav.kivakit.core.value.count.Count;
 
 import java.util.IdentityHashMap;
 import java.util.concurrent.Callable;
@@ -17,10 +17,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static com.telenav.kivakit.kernel.language.threading.status.WakeState.COMPLETED;
-import static com.telenav.kivakit.kernel.language.threading.status.WakeState.INTERRUPTED;
-import static com.telenav.kivakit.kernel.language.threading.status.WakeState.TERMINATED;
-import static com.telenav.kivakit.kernel.language.threading.status.WakeState.TIMED_OUT;
+import static com.telenav.kivakit.core.thread.WakeState.COMPLETED;
+import static com.telenav.kivakit.core.thread.WakeState.INTERRUPTED;
+import static com.telenav.kivakit.core.thread.WakeState.TERMINATED;
+import static com.telenav.kivakit.core.thread.WakeState.TIMED_OUT;
 
 /**
  * <b>Not public API</b>
@@ -97,7 +97,7 @@ public class ParallelBuilder extends BaseBuilder
                 future = completion.take();
 
                 // block until it's done building,
-                result = future.get(timeout.asMilliseconds(), TimeUnit.MILLISECONDS);
+                result = future.get(timeout.milliseconds(), TimeUnit.MILLISECONDS);
 
                 // and mark that it completed.
                 result.endedBecause(COMPLETED);

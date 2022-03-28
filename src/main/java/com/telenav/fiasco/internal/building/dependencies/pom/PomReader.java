@@ -17,8 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.telenav.kivakit.data.formats.xml.stax.StaxPath.parseXmlPath;
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
+import static com.telenav.kivakit.core.data.validation.ensure.Ensure.ensure;
+import static com.telenav.kivakit.core.data.validation.ensure.Ensure.ensureNotNull;
 import static com.telenav.kivakit.resource.path.Extension.POM;
 
 /**

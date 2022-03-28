@@ -1,20 +1,20 @@
 package com.telenav.fiasco.runtime.dependencies.repository.maven.artifact;
 
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactDescriptor;
-import com.telenav.kivakit.kernel.data.validation.BaseValidator;
-import com.telenav.kivakit.kernel.data.validation.Validatable;
-import com.telenav.kivakit.kernel.data.validation.ValidationType;
-import com.telenav.kivakit.kernel.data.validation.Validator;
-import com.telenav.kivakit.kernel.interfaces.naming.Named;
-import com.telenav.kivakit.kernel.messaging.Listener;
+import com.telenav.kivakit.core.data.validation.BaseValidator;
+import com.telenav.kivakit.core.data.validation.Validatable;
+import com.telenav.kivakit.core.data.validation.ValidationType;
+import com.telenav.kivakit.core.data.validation.Validator;
+import com.telenav.kivakit.core.interfaces.naming.Named;
+import com.telenav.kivakit.core.messaging.Listener;
 import com.telenav.kivakit.resource.path.FilePath;
 import com.telenav.kivakit.resource.resources.other.PropertyMap;
 
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensureNotNull;
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
+import static com.telenav.kivakit.core.data.validation.ensure.Ensure.ensureNotNull;
+import static com.telenav.kivakit.core.data.validation.ensure.Ensure.fail;
 
 /**
  * Model for a Maven artifact descriptor of the form: [group-identifier]:[artifact-identifier](:[version])?

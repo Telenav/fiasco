@@ -4,11 +4,11 @@ import com.telenav.fiasco.runtime.BaseBuild;
 import com.telenav.fiasco.runtime.Dependency;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifact;
 import com.telenav.fiasco.runtime.tools.repository.Librarian;
-import com.telenav.kivakit.configuration.lookup.RegistryTrait;
+import com.telenav.kivakit.core.collections.list.ObjectList;
+import com.telenav.kivakit.core.registry.RegistryTrait;
+import com.telenav.kivakit.core.test.UnitTest;
+import com.telenav.kivakit.core.value.count.Count;
 import com.telenav.kivakit.filesystem.Folder;
-import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
-import com.telenav.kivakit.kernel.language.values.count.Count;
-import com.telenav.kivakit.test.UnitTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 

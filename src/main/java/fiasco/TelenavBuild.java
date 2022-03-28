@@ -6,7 +6,7 @@ import com.telenav.fiasco.runtime.metadata.Contributor;
 import com.telenav.fiasco.runtime.metadata.Copyright;
 import com.telenav.fiasco.runtime.metadata.License;
 import com.telenav.fiasco.runtime.metadata.Organization;
-import com.telenav.kivakit.kernel.interfaces.string.StringSource;
+import com.telenav.kivakit.interfaces.string.StringSource;
 import com.telenav.kivakit.network.core.EmailAddress;
 
 /**
@@ -16,6 +16,7 @@ import com.telenav.kivakit.network.core.EmailAddress;
  */
 public abstract class TelenavBuild extends BaseBuild implements TelenavArtifacts
 {
+    @SuppressWarnings("SameParameterValue")
     protected Copyright copyright(int firstYear)
     {
         return new Copyright(StringSource.of("Copyright (C) " + firstYear + ", distributed under Apache License 2.0"));
@@ -24,7 +25,7 @@ public abstract class TelenavBuild extends BaseBuild implements TelenavArtifacts
     protected Contributor jonathan()
     {
         return new Contributor("Jonathan Locke")
-                .withEmail(EmailAddress.parse(this, "jonathanl@telenav.com"));
+                .withEmail(EmailAddress.parseEmail(this, "jonathanl@telenav.com"));
     }
 
     protected License license()

@@ -1,16 +1,16 @@
-package com.telenav.fiasco.runtime;
+package com.telenav.fiasco.spi;
 
-import com.telenav.fiasco.internal.building.Buildable;
-import com.telenav.kivakit.kernel.language.collections.list.StringList;
-import com.telenav.kivakit.kernel.language.strings.Strip;
-import com.telenav.kivakit.kernel.language.threading.status.WakeState;
-import com.telenav.kivakit.kernel.language.time.Duration;
-import com.telenav.kivakit.kernel.language.time.Time;
-import com.telenav.kivakit.kernel.messaging.Listener;
-import com.telenav.kivakit.kernel.messaging.Message;
-import com.telenav.kivakit.kernel.messaging.listeners.MessageList;
-import com.telenav.kivakit.kernel.messaging.messages.status.Problem;
-import com.telenav.kivakit.kernel.messaging.messages.status.Warning;
+import com.telenav.kivakit.core.collections.list.StringList;
+import com.telenav.kivakit.core.messaging.Listener;
+import com.telenav.kivakit.core.messaging.Message;
+import com.telenav.kivakit.core.messaging.listeners.MessageList;
+import com.telenav.kivakit.core.messaging.messages.status.Problem;
+import com.telenav.kivakit.core.messaging.messages.status.Warning;
+import com.telenav.kivakit.core.string.Formatter;
+import com.telenav.kivakit.core.string.Strip;
+import com.telenav.kivakit.core.thread.WakeState;
+import com.telenav.kivakit.core.time.Duration;
+import com.telenav.kivakit.core.time.Time;
 
 /**
  * <b>Not public API</b>
@@ -24,20 +24,20 @@ import com.telenav.kivakit.kernel.messaging.messages.status.Warning;
  */
 public class BuildResult implements Listener
 {
-    /** The time at which the build started */
-    private Time start;
+    /** The name of the build */
+    private final String buildName;
 
     /** The time at which the build ended */
     private Time end;
 
+    /** The reason that the build ended */
+    private WakeState endedBecause;
+
     /** Messages captured during the build */
     private final MessageList messages = new MessageList();
 
-    /** The name of the build */
-    private final String buildName;
-
-    /** The reason that the build ended */
-    private WakeState endedBecause;
+    /** The time at which the build started */
+    private Time start;
 
     /** The cause for termination if endedBecause is not COMPLETED */
     private Exception terminationCause;
@@ -92,14 +92,15 @@ public class BuildResult implements Listener
         start = Time.now();
     }
 
+    @SuppressWarnings("unchecked")
     public StringList statistics()
     {
-        return messages.statisticsByType(Problem.class, Warning.class);
+        return messages.statistics(Problem.class, Warning.class);
     }
 
     public StringList summary()
     {
-        return StringList.stringList(Message.format("Build \"$\" completed in $", buildName(), elapsed()));
+        return StringList.stringList(Formatter.format("Build \"$\" completed in $", buildName(), elapsed()));
     }
 
     public Exception terminationCause()

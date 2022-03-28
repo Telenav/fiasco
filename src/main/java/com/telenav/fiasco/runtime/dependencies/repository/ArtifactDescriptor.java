@@ -1,11 +1,11 @@
 package com.telenav.fiasco.runtime.dependencies.repository;
 
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifactDescriptor;
-import com.telenav.kivakit.kernel.interfaces.naming.Named;
-import com.telenav.kivakit.kernel.language.values.version.Version;
-import com.telenav.kivakit.kernel.messaging.Listener;
+import com.telenav.kivakit.core.messaging.Listener;
+import com.telenav.kivakit.core.version.Version;
+import com.telenav.kivakit.interfaces.naming.Named;
+import com.telenav.kivakit.resource.PropertyMap;
 import com.telenav.kivakit.resource.path.FilePath;
-import com.telenav.kivakit.resource.resources.other.PropertyMap;
 
 /**
  * Model for a Maven artifact descriptor of the form: [group-identifier]:[artifact-identifier](:[version])?
@@ -66,6 +66,7 @@ public interface ArtifactDescriptor extends Named
      * Resolve the version for this artifact descriptor using the given properties if it contains any references of the
      * form "${property-name}"
      */
+    @SuppressWarnings("UnusedReturnValue")
     MavenArtifactDescriptor resolvePropertyReferences(PropertyMap properties);
 
     /**
@@ -78,6 +79,6 @@ public interface ArtifactDescriptor extends Named
      */
     default Version version(Listener listener)
     {
-        return Version.parse(listener, version());
+        return Version.parseVersion(listener, version());
     }
 }

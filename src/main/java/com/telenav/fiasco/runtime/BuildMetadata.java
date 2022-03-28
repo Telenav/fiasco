@@ -5,7 +5,7 @@ import com.telenav.fiasco.runtime.metadata.Copyright;
 import com.telenav.fiasco.runtime.metadata.License;
 import com.telenav.fiasco.runtime.metadata.Organization;
 import com.telenav.fiasco.runtime.metadata.SourceCode;
-import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
+import com.telenav.kivakit.core.language.collections.list.ObjectList;
 
 /**
  * Data about a project, including:
@@ -26,20 +26,20 @@ public class BuildMetadata
         return new BuildMetadata();
     }
 
+    /** Project source code */
+    private SourceCode code;
+
     /** The list of contributors to this project */
     private ObjectList<Contributor> contributors = new ObjectList<>();
 
     /** The project copyright notice */
     private Copyright copyright;
 
-    /** The organization maintaining the project */
-    private Organization owner;
-
     /** The set of licenses under which the project is available for use */
     private ObjectList<License> licenses = new ObjectList<>();
 
-    /** Project source code */
-    private SourceCode code;
+    /** The organization maintaining the project */
+    private Organization owner;
 
     protected BuildMetadata()
     {

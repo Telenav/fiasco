@@ -1,8 +1,8 @@
 package com.telenav.fiasco.internal.building.planning;
 
-import com.telenav.fiasco.internal.building.Buildable;
 import com.telenav.fiasco.internal.building.dependencies.DependencyGraph;
-import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
+import com.telenav.fiasco.spi.Buildable;
+import com.telenav.kivakit.core.collections.list.ObjectList;
 
 /**
  * <b>Not public API</b>

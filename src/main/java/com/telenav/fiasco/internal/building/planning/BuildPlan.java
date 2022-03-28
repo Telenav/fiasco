@@ -1,11 +1,11 @@
 package com.telenav.fiasco.internal.building.planning;
 
-import com.telenav.fiasco.internal.building.BuildListener;
-import com.telenav.fiasco.internal.building.Buildable;
-import com.telenav.fiasco.internal.building.Builder;
 import com.telenav.fiasco.internal.building.builders.ParallelBuilder;
-import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
-import com.telenav.kivakit.kernel.language.time.Duration;
+import com.telenav.fiasco.spi.BuildListener;
+import com.telenav.fiasco.spi.Buildable;
+import com.telenav.fiasco.spi.Builder;
+import com.telenav.kivakit.core.collections.list.ObjectList;
+import com.telenav.kivakit.core.time.Duration;
 
 /**
  * <b>Not public API</b>
@@ -15,9 +15,9 @@ import com.telenav.kivakit.kernel.language.time.Duration;
  * </p>
  *
  * <p>
- * A build plan is executed by calling {@link #build(Builder, BuildListener)}. The {@link Builder} builds each {@link
- * BuildableGroup} in order. A {@link ParallelBuilder} builds each group in parallel due to the fact that a {@link
- * BuildableGroup} contains only {@link Buildable}s which have no dependencies that have not already been built.
+ * A build plan is executed by calling {@link #build(Builder, BuildListener, Duration)}. The {@link Builder} builds each
+ * {@link BuildableGroup} in order. A {@link ParallelBuilder} builds each group in parallel due to the fact that a
+ * {@link BuildableGroup} contains only {@link Buildable}s which have no dependencies that have not already been built.
  * </p>
  *
  * @author jonathanl (shibo)

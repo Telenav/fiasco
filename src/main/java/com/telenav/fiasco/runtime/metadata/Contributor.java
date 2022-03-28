@@ -1,8 +1,8 @@
 package com.telenav.fiasco.runtime.metadata;
 
 import com.telenav.fiasco.runtime.Build;
-import com.telenav.kivakit.kernel.language.collections.set.ObjectSet;
-import com.telenav.kivakit.kernel.language.values.name.Name;
+import com.telenav.kivakit.core.language.collections.set.ObjectSet;
+import com.telenav.kivakit.core.language.values.name.Name;
 import com.telenav.kivakit.network.core.EmailAddress;
 
 import java.util.Arrays;

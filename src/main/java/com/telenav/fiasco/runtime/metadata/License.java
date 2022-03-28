@@ -1,7 +1,7 @@
 package com.telenav.fiasco.runtime.metadata;
 
 import com.telenav.fiasco.runtime.Build;
-import com.telenav.kivakit.kernel.interfaces.string.StringSource;
+import com.telenav.kivakit.interfaces.string.StringSource;
 import com.telenav.kivakit.resource.Resource;
 
 /**
@@ -16,11 +16,11 @@ public class License
         return new License();
     }
 
-    /** The license title */
-    private String title;
-
     /** The text of the license */
     private String body;
+
+    /** The license title */
+    private String title;
 
     protected License()
     {
@@ -47,7 +47,7 @@ public class License
      */
     public License withBody(StringSource body)
     {
-        this.body = body.string();
+        this.body = body.asString();
         return this;
     }
 

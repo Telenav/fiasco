@@ -2,7 +2,7 @@ package com.telenav.fiasco.runtime.dependencies.repository;
 
 import com.telenav.kivakit.component.Component;
 import com.telenav.kivakit.filesystem.Folder;
-import com.telenav.kivakit.kernel.interfaces.naming.Named;
+import com.telenav.kivakit.core.interfaces.naming.Named;
 import com.telenav.kivakit.resource.Resource;
 import com.telenav.kivakit.resource.path.Extension;
 import com.telenav.kivakit.resource.path.FilePath;

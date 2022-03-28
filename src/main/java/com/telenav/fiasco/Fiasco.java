@@ -1,8 +1,5 @@
 package com.telenav.fiasco;
 
-import com.telenav.fiasco.internal.building.BuildListener;
-import com.telenav.fiasco.internal.building.Buildable;
-import com.telenav.fiasco.internal.building.Builder;
 import com.telenav.fiasco.internal.building.builders.ParallelBuilder;
 import com.telenav.fiasco.internal.building.planning.BuildPlan;
 import com.telenav.fiasco.internal.building.planning.BuildPlanner;
@@ -10,25 +7,29 @@ import com.telenav.fiasco.internal.fiasco.FiascoCache;
 import com.telenav.fiasco.internal.fiasco.FiascoCompiler;
 import com.telenav.fiasco.internal.fiasco.FiascoProjectStore;
 import com.telenav.fiasco.runtime.Build;
-import com.telenav.fiasco.runtime.BuildResult;
 import com.telenav.fiasco.runtime.tools.repository.Librarian;
+import com.telenav.fiasco.spi.BuildListener;
+import com.telenav.fiasco.spi.BuildResult;
+import com.telenav.fiasco.spi.Buildable;
+import com.telenav.fiasco.spi.Builder;
 import com.telenav.kivakit.application.Application;
 import com.telenav.kivakit.commandline.ArgumentParser;
 import com.telenav.kivakit.commandline.SwitchParser;
+import com.telenav.kivakit.commandline.SwitchParsers;
+import com.telenav.kivakit.core.collections.list.ObjectList;
+import com.telenav.kivakit.core.collections.set.ObjectSet;
+import com.telenav.kivakit.core.messaging.Message;
+import com.telenav.kivakit.core.messaging.messages.status.Announcement;
+import com.telenav.kivakit.core.time.Duration;
+import com.telenav.kivakit.core.value.count.Count;
+import com.telenav.kivakit.core.vm.JavaVirtualMachine;
 import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.filesystem.FolderGlobPattern;
-import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
-import com.telenav.kivakit.kernel.language.collections.set.ObjectSet;
-import com.telenav.kivakit.kernel.language.time.Duration;
-import com.telenav.kivakit.kernel.language.values.count.Count;
-import com.telenav.kivakit.kernel.language.vm.JavaVirtualMachine;
-import com.telenav.kivakit.kernel.messaging.Message;
-import com.telenav.kivakit.kernel.messaging.messages.status.Announcement;
 
 import java.util.List;
 
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.ensure;
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.unsupported;
+import static com.telenav.kivakit.core.data.validation.ensure.Ensure.unsupported;
+import static com.telenav.kivakit.core.ensure.Ensure.ensure;
 
 /**
  * Fiasco build tool. <a href="https://en.wikipedia.org/wiki/Fiasco_(novel)"><i>Fiasco</i></a> is a science fiction
@@ -98,37 +99,32 @@ public class Fiasco extends Application
         TEXT
     }
 
-    /** Switch to add a build folder to Fiasco */
-    private final SwitchParser<Folder> REMEMBER = Folder.folderSwitchParser(this, "remember", "Adds a project root folder to Fiasco")
-            .optional()
-            .build();
-
-    /** Switch to configure the number of threads to use when downloading artifacts */
-    private final SwitchParser<Count> DOWNLOAD_THREADS = SwitchParser.countSwitchParser(this, "download-threads", "The number of threads used by the Librarian to download artifact resources")
-            .optional()
-            .defaultValue(Count._8)
-            .build();
-
     /** Switch to configure the number of threads to use for building */
-    private final SwitchParser<Count> BUILD_THREADS = SwitchParser.countSwitchParser(this, "build-threads", "The number of build threads to use")
+    private final SwitchParser<Count> BUILD_THREADS = SwitchParsers.countSwitchParser(this, "build-threads", "The number of build threads to use")
             .optional()
             .defaultValue(JavaVirtualMachine.local().processors().times(2))
             .build();
 
     /** Switch to configure the maximum amount of time to wait for a possibly hung build */
-    private final SwitchParser<Duration> BUILD_TIMEOUT = SwitchParser.durationSwitchParser(this, "build-timeout", "The maximum amount of time to wait for a build")
+    private final SwitchParser<Duration> BUILD_TIMEOUT = SwitchParsers.durationSwitchParser(this, "build-timeout", "The maximum amount of time to wait for a build")
             .optional()
             .defaultValue(Duration.minutes(5))
             .build();
 
     /** Switch to show dependency graphs for the given projects */
-    private final SwitchParser<DependencyTreeOutput> DEPENDENCY_GRAPH = SwitchParser.enumSwitchParser(this, "dependency-graph", "Outputs dependency information for the given builds", DependencyTreeOutput.class)
+    private final SwitchParser<DependencyTreeOutput> DEPENDENCY_GRAPH = SwitchParsers.enumSwitchParser(this, "dependency-graph", "Outputs dependency information for the given builds", DependencyTreeOutput.class)
             .optional()
             .defaultValue(DependencyTreeOutput.NONE)
             .build();
 
+    /** Switch to configure the number of threads to use when downloading artifacts */
+    private final SwitchParser<Count> DOWNLOAD_THREADS = SwitchParsers.countSwitchParser(this, "download-threads", "The number of threads used by the Librarian to download artifact resources")
+            .optional()
+            .defaultValue(Count._8)
+            .build();
+
     /** Switch to remove a build folder to Fiasco */
-    private final SwitchParser<String> FORGET = SwitchParser.stringSwitchParser(this, "forget", "Removes one or more project root folders from Fiasco by glob pattern")
+    private final SwitchParser<String> FORGET = SwitchParsers.stringSwitchParser(this, "forget", "Removes one or more project root folders from Fiasco by glob pattern")
             .optional()
             .build();
 
@@ -138,19 +134,19 @@ public class Fiasco extends Application
             .zeroOrMore()
             .build();
 
+    /** Switch to add a build folder to Fiasco */
+    private final SwitchParser<Folder> REMEMBER = Folder.folderSwitchParser(this, "remember", "Adds a project root folder to Fiasco")
+            .optional()
+            .build();
+
+    /** Project-related utilities */
+    private final FiascoCompiler compiler = listenTo(new FiascoCompiler());
+
     /** Java preferences settings for Fiasco */
     private final FiascoProjectStore projects = listenTo(register(new FiascoProjectStore()));
 
     /** Locations of fiasco resources */
     private final FiascoCache resources = listenTo(register(new FiascoCache()));
-
-    /** Project-related utilities */
-    private final FiascoCompiler compiler = listenTo(new FiascoCompiler());
-
-    public Fiasco()
-    {
-        super(new FiascoProject());
-    }
 
     @Override
     protected List<ArgumentParser<?>> argumentParsers()

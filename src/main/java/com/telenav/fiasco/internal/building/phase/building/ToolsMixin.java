@@ -3,7 +3,7 @@ package com.telenav.fiasco.internal.building.phase.building;
 import com.telenav.fiasco.internal.building.Phase;
 import com.telenav.fiasco.runtime.tools.compiler.JavaCompiler;
 import com.telenav.fiasco.runtime.tools.repository.Librarian;
-import com.telenav.kivakit.kernel.language.mixin.Mixin;
+import com.telenav.kivakit.core.language.mixin.Mixin;
 
 public interface ToolsMixin extends Mixin, Phase
 {

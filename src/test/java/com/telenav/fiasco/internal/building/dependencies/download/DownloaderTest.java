@@ -2,7 +2,7 @@ package com.telenav.fiasco.internal.building.dependencies.download;
 
 import com.telenav.fiasco.internal.building.dependencies.download.Downloader.Download;
 import com.telenav.kivakit.filesystem.Folder;
-import com.telenav.kivakit.kernel.language.values.count.Count;
+import com.telenav.kivakit.core.language.values.count.Count;
 import com.telenav.kivakit.network.http.HttpNetworkLocation;
 import com.telenav.kivakit.resource.path.Extension;
 import com.telenav.kivakit.test.UnitTest;

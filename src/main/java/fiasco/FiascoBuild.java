@@ -34,8 +34,8 @@ public class FiascoBuild extends TelenavBuild
         require(apacheWicket().core(),
                 apacheWicket().util(),
                 apacheCommons().lang3(),
-                kivakit().application(),
-                kivakit().networkHttp());
+                kivakitProject().application(),
+                kivakitProject().networkHttp());
     }
 
     @Override

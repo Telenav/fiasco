@@ -1,14 +1,14 @@
 package com.telenav.fiasco.internal.fiasco;
 
 import com.telenav.kivakit.component.BaseComponent;
+import com.telenav.kivakit.core.collections.list.ObjectList;
 import com.telenav.kivakit.filesystem.Folder;
-import com.telenav.kivakit.kernel.interfaces.comparison.Matcher;
-import com.telenav.kivakit.kernel.language.collections.list.ObjectList;
+import com.telenav.kivakit.interfaces.comparison.Matcher;
 
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
+import static com.telenav.kivakit.core.ensure.Ensure.fail;
 
 /**
  * <b>Not public API</b>

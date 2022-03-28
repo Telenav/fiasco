@@ -1,7 +1,7 @@
 package com.telenav.fiasco;
 
-import com.telenav.kivakit.kernel.language.collections.set.ObjectSet;
-import com.telenav.kivakit.kernel.project.Project;
+import com.telenav.kivakit.core.language.collections.set.ObjectSet;
+import com.telenav.kivakit.core.project.Project;
 import com.telenav.kivakit.resource.ResourceProject;
 
 /**

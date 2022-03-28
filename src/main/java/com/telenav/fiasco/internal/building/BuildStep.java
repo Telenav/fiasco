@@ -2,7 +2,7 @@ package com.telenav.fiasco.internal.building;
 
 import com.telenav.fiasco.runtime.Build;
 
-import static com.telenav.kivakit.kernel.data.validation.ensure.Ensure.fail;
+import static com.telenav.kivakit.core.data.validation.ensure.Ensure.fail;
 
 /**
  * <b>Not public API</b>

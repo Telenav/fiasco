@@ -2,7 +2,7 @@ package com.telenav.fiasco.runtime.metadata;
 
 import com.telenav.fiasco.runtime.Build;
 import com.telenav.kivakit.filesystem.File;
-import com.telenav.kivakit.kernel.interfaces.string.StringSource;
+import com.telenav.kivakit.interfaces.string.StringSource;
 import com.telenav.kivakit.resource.Resource;
 
 /**
@@ -21,7 +21,7 @@ public class Copyright
      */
     public Copyright(StringSource copyright)
     {
-        this.copyright = copyright.string();
+        this.copyright = copyright.asString();
     }
 
     @Override
