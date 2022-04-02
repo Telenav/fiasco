@@ -10,15 +10,15 @@ import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenAr
 import com.telenav.kivakit.component.BaseComponent;
 import com.telenav.kivakit.data.formats.xml.stax.StaxPath;
 import com.telenav.kivakit.data.formats.xml.stax.StaxReader;
+import com.telenav.kivakit.resource.PropertyMap;
 import com.telenav.kivakit.resource.Resource;
-import com.telenav.kivakit.resource.resources.other.PropertyMap;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.telenav.kivakit.core.ensure.Ensure.ensure;
+import static com.telenav.kivakit.core.ensure.Ensure.ensureNotNull;
 import static com.telenav.kivakit.data.formats.xml.stax.StaxPath.parseXmlPath;
-import static com.telenav.kivakit.core.data.validation.ensure.Ensure.ensure;
-import static com.telenav.kivakit.core.data.validation.ensure.Ensure.ensureNotNull;
 import static com.telenav.kivakit.resource.path.Extension.POM;
 
 /**
@@ -41,6 +41,7 @@ import static com.telenav.kivakit.resource.path.Extension.POM;
  * @see StaxReader
  * @see StaxPath
  */
+@SuppressWarnings("unused")
 public class PomReader extends BaseComponent
 {
     private final StaxPath PARENT_PATH = parseXmlPath("project/parent");
@@ -85,13 +86,13 @@ public class PomReader extends BaseComponent
     }
 
     /**
-     * Reads the given pom resource
+     * Reads the given pom resource from the given repository
      *
-     * @param repository The repository where the resource was found
+     * @param repository The repository where the resource was found, and from which parent POM resource should be read
      * @param resource The resource to read
      * @return The POM
      */
-    private Pom read(MavenRepository repository, Resource resource)
+    public Pom read(MavenRepository repository, Resource resource)
     {
         if (poms.get(resource) == null)
         {
@@ -107,7 +108,7 @@ public class PomReader extends BaseComponent
                         pom.packaging = Packaging.valueOf(reader.enclosedText().toUpperCase());
                     }
 
-                    if (reader.isAt(PARENT_PATH))
+                    if (reader.isAt(PARENT_PATH) && repository != null)
                     {
                         var parentArtifact = readDependency(reader);
                         require(DependencyResolver.class).resolve(parentArtifact);

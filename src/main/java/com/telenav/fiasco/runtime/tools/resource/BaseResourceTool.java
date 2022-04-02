@@ -1,19 +1,20 @@
-package com.telenav.fiasco.runtime.tools.file;
+package com.telenav.fiasco.runtime.tools.resource;
 
 import com.telenav.fiasco.runtime.tools.BaseTool;
+import com.telenav.kivakit.core.progress.ProgressReporter;
+import com.telenav.kivakit.core.progress.reporters.BroadcastingProgressReporter;
+import com.telenav.kivakit.core.value.count.Countable;
 import com.telenav.kivakit.filesystem.FileGlobPattern;
-import com.telenav.kivakit.core.interfaces.numeric.Countable;
-import com.telenav.kivakit.core.language.progress.reporters.Progress;
 
 /**
  * Base class for file tools
  *
  * @author jonathanl (shibo)
  */
-public abstract class BaseFileTool extends BaseTool
+public abstract class BaseResourceTool extends BaseTool
 {
     /** progress in performing an action on a set of files */
-    private Progress progress;
+    private ProgressReporter progress;
 
     /**
      * @return A {@link FileGlobPattern} for the given glob pattern
@@ -24,13 +25,13 @@ public abstract class BaseFileTool extends BaseTool
     }
 
     /**
-     * @return A configured {@link Progress} object
+     * @return A configured {@link ProgressReporter} object
      */
-    protected Progress progress(String action, Countable count)
+    protected ProgressReporter progress(String action, Countable count)
     {
         if (progress == null)
         {
-            progress = Progress.create(this, "files");
+            progress = BroadcastingProgressReporter.create(this, "files");
             progress.steps(count.count());
             progress.start(action + " " + count.count() + " files");
         }

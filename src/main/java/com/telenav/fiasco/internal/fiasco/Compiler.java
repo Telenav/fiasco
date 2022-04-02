@@ -3,9 +3,9 @@ package com.telenav.fiasco.internal.fiasco;
 import com.telenav.fiasco.runtime.Build;
 import com.telenav.fiasco.runtime.tools.compiler.JavaCompiler;
 import com.telenav.kivakit.component.BaseComponent;
+import com.telenav.kivakit.core.language.reflection.Type;
 import com.telenav.kivakit.filesystem.File;
 import com.telenav.kivakit.filesystem.Folder;
-import com.telenav.kivakit.core.language.reflection.Type;
 import com.telenav.kivakit.resource.path.Extension;
 
 import java.io.StringWriter;
@@ -35,7 +35,7 @@ import static java.lang.reflect.Modifier.isAbstract;
  * @see Folder
  * @see File
  */
-public class FiascoCompiler extends BaseComponent
+public class Compiler extends BaseComponent
 {
     /**
      * <b>Not public API</b>

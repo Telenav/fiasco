@@ -1,7 +1,7 @@
 package com.telenav.fiasco.runtime.tools.jar;
 
-import com.telenav.fiasco.runtime.tools.file.FileTool;
+import com.telenav.fiasco.runtime.tools.resource.ResourceTool;
 
-public interface JarTool extends FileTool
+public interface JarTool extends ResourceTool
 {
 }

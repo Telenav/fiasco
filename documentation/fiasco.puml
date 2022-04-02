@@ -1,0 +1,61 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+!include lexakai.theme
+
+title "Fiasco"
+
+top to bottom direction
+
+package fiasco.tools
+{
+    interface Tool
+}
+
+package fiasco.module
+{
+    class Module
+
+    Module -r-|> Dependency
+    Tool "*" o-d-- "1" Module : "builds with"
+    Module "1" o-- "*" Module : "depends on"
+}
+
+package fiasco.build
+{
+    interface Builder
+    interface Buildable
+    interface BuildListener
+
+    class Build
+    class BuildPlanner
+
+    Builder --|> Tool
+    Module -u--|> Buildable
+    Build -r-> Builder : "                               builds with      "
+    Build "1" o-u- "*" Project : "    finds modules in"
+    Build o-- BuildPlanner : "   plans build with"
+    BuildPlanner --> DependencyGraph : "creates"
+
+    Builder "1" o-d- "*" Buildable : "    builds    "
+    Build --> BuildListener : "notifies"
+}
+
+package fiasco.build.builders
+{
+    class ParallelBuilder
+    class RemoteBuilder
+
+    ParallelBuilder -l-|> Builder
+    RemoteBuilder -u-|> Builder
+}
+
+package fiasco
+{
+    class Fiasco
+
+    Build "1" o-u- "*" Fiasco
+}
+
+@enduml
+

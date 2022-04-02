@@ -1,8 +1,8 @@
 package com.telenav.fiasco;
 
-import com.telenav.kivakit.core.language.collections.set.ObjectSet;
-import com.telenav.kivakit.core.project.Project;
-import com.telenav.kivakit.resource.ResourceProject;
+import com.telenav.fiasco.internal.fiasco.Project;
+import com.telenav.fiasco.runtime.DependencySet;
+import com.telenav.kivakit.filesystem.Folder;
 
 /**
  * KivaKit {@link Project} definition for Fiasco
@@ -11,9 +11,19 @@ import com.telenav.kivakit.resource.ResourceProject;
  */
 public class FiascoProject extends Project
 {
-    @Override
-    public ObjectSet<Project> dependencies()
+    /**
+     * <b>Not public API</b>
+     *
+     * @param root The root folder of this project
+     */
+    public FiascoProject(final Folder root)
     {
-        return ObjectSet.objectSet(ResourceProject.get());
+        super(root);
+    }
+
+    @Override
+    public DependencySet dependencies()
+    {
+        return DependencySet.of();
     }
 }

@@ -1,0 +1,34 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+!include lexakai.theme
+
+title "Network Tools"
+
+top to bottom direction
+
+package fiasco.tools
+{
+    interface Tool
+}
+
+package fiasco.tools.resource
+{
+    interface ResourceTool
+    ResourceTool -u-|> Tool
+}
+
+package fiasco.tools.network
+{
+    interface NetworkTool
+    NetworkTool  -u--|> ResourceTool
+
+    class Publisher
+    class Deployer
+
+    Deployer     -u-|> NetworkTool
+    Publisher    -u-|> NetworkTool
+}
+
+@enduml
+

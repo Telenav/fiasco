@@ -1,9 +1,9 @@
 package com.telenav.fiasco.internal.fiasco;
 
 import com.telenav.kivakit.component.BaseComponent;
+import com.telenav.kivakit.core.string.Formatter;
 import com.telenav.kivakit.filesystem.File;
 import com.telenav.kivakit.filesystem.Folder;
-import com.telenav.kivakit.core.messaging.Message;
 
 /**
  * <b>Not public API</b>
@@ -27,7 +27,7 @@ import com.telenav.kivakit.core.messaging.Message;
  * @see File
  * @see FiascoCache
  */
-public class FiascoProject extends BaseComponent
+public class Project extends BaseComponent
 {
     /** The root folder of this project */
     private final Folder root;
@@ -37,7 +37,7 @@ public class FiascoProject extends BaseComponent
      *
      * @param root The root folder of this project
      */
-    public FiascoProject(Folder root)
+    public Project(Folder root)
     {
         this.root = root;
     }
@@ -87,6 +87,6 @@ public class FiascoProject extends BaseComponent
     @Override
     public String toString()
     {
-        return Message.format("\"$\" ($)", name(), rootFolder());
+        return Formatter.format("\"$\" ($)", name(), rootFolder());
     }
 }

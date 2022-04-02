@@ -1,0 +1,33 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+!include lexakai.theme
+
+title "Tools"
+
+top to bottom direction
+
+package fiasco.tools
+{
+    interface Tool
+
+    interface NetworkTool
+    NetworkTool  -l-|> ResourceTool
+
+    interface TestTool
+    TestTool -l-> Tool
+    interface ResourceTool
+    ResourceTool -u-|> Tool
+
+    interface JarTool
+    JarTool -u-|> ResourceTool
+
+    interface RepositoryTool
+    RepositoryTool -u-|> ResourceTool
+
+    interface Compiler
+    Compiler -u-|> ResourceTool
+}
+
+@enduml
+

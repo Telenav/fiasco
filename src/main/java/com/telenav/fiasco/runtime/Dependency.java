@@ -25,6 +25,7 @@ import java.util.Arrays;
  * @see Library
  * @see Artifact
  */
+@SuppressWarnings("unused")
 public interface Dependency extends
         Validatable,
         Addable<Dependency>,

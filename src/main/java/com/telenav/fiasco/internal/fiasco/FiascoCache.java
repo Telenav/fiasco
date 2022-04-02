@@ -2,11 +2,11 @@ package com.telenav.fiasco.internal.fiasco;
 
 import com.telenav.fiasco.Fiasco;
 import com.telenav.kivakit.component.BaseComponent;
+import com.telenav.kivakit.core.string.Formatter;
 import com.telenav.kivakit.filesystem.File;
 import com.telenav.kivakit.filesystem.Folder;
-import com.telenav.kivakit.core.messaging.Message;
 
-import static com.telenav.kivakit.core.data.validation.ensure.Ensure.fail;
+import static com.telenav.kivakit.core.ensure.Ensure.fail;
 
 /**
  * <b>Not public API</b>
@@ -36,7 +36,7 @@ public class FiascoCache extends BaseComponent
         var version = require(Fiasco.class).version();
         if (version != null)
         {
-            var path = Message.format("$/.fiasco/$", System.getProperty("user.home"), version);
+            var path = Formatter.format("$/.fiasco/$", System.getProperty("user.home"), version);
             var cache = Folder.parse(this, path);
             if (cache != null)
             {

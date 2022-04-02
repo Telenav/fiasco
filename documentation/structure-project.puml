@@ -1,0 +1,45 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+!include lexakai.theme
+
+title "Project Structure"
+
+top to bottom direction
+
+package fiasco.dependencies
+{
+    interface Dependency
+
+    DependencySet "*" o--> "1" "Dependency" : "    contains    "
+    Dependency -r-> DependencySet : "    depends on    "
+}
+
+package fiasco.project.metadata
+{
+    interface ProjectMetadata
+
+    class Copyright
+    class WebSite
+    class License
+    class Organization
+    class Contributor
+
+    Contributor "1" o-r- "*" Organization : " belongs to "
+    ProjectMetadata o-- Copyright
+    ProjectMetadata "1" o-l- "*" WebSite : "  documented on  "
+    ProjectMetadata "1" o-- "*" Contributor : "developed by"
+    ProjectMetadata o-r- Organization : "originated by"
+    ProjectMetadata "1" o-- "*" License : "distributed under"
+}
+
+package fiasco.project
+{
+    interface Project
+
+    Project o--- ProjectMetadata : "     described by    "
+    Project --> DependencySet : "    depends on    "
+}
+
+@enduml
+

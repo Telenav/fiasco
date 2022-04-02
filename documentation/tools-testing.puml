@@ -1,0 +1,26 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+!include lexakai.theme
+
+title "Testing Tools"
+
+top to bottom direction
+
+package fiasco.tools
+{
+    interface Tool
+}
+
+package fiasco.tools.test
+{
+    interface TestTool
+    TestTool -l-|> Tool
+
+    class JUnit
+
+    JUnit -u-|> TestTool
+}
+
+@enduml
+

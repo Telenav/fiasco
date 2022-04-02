@@ -3,9 +3,9 @@ package com.telenav.fiasco;
 import com.telenav.fiasco.internal.building.builders.ParallelBuilder;
 import com.telenav.fiasco.internal.building.planning.BuildPlan;
 import com.telenav.fiasco.internal.building.planning.BuildPlanner;
+import com.telenav.fiasco.internal.fiasco.Compiler;
 import com.telenav.fiasco.internal.fiasco.FiascoCache;
-import com.telenav.fiasco.internal.fiasco.FiascoCompiler;
-import com.telenav.fiasco.internal.fiasco.FiascoProjectStore;
+import com.telenav.fiasco.internal.fiasco.ProjectStore;
 import com.telenav.fiasco.runtime.Build;
 import com.telenav.fiasco.runtime.tools.repository.Librarian;
 import com.telenav.fiasco.spi.BuildListener;
@@ -140,10 +140,10 @@ public class Fiasco extends Application
             .build();
 
     /** Project-related utilities */
-    private final FiascoCompiler compiler = listenTo(new FiascoCompiler());
+    private final Compiler compiler = listenTo(new Compiler());
 
     /** Java preferences settings for Fiasco */
-    private final FiascoProjectStore projects = listenTo(register(new FiascoProjectStore()));
+    private final ProjectStore projects = listenTo(register(new ProjectStore()));
 
     /** Locations of fiasco resources */
     private final FiascoCache resources = listenTo(register(new FiascoCache()));

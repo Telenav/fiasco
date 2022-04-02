@@ -10,7 +10,7 @@ import com.telenav.fiasco.internal.building.phase.building.BuildingPhaseMixin;
 import com.telenav.fiasco.internal.building.phase.installation.InstallationPhaseMixin;
 import com.telenav.fiasco.internal.building.phase.packaging.PackagingPhaseMixin;
 import com.telenav.fiasco.internal.building.phase.testing.TestingPhaseMixin;
-import com.telenav.fiasco.internal.fiasco.FiascoCompiler;
+import com.telenav.fiasco.internal.fiasco.Compiler;
 import com.telenav.fiasco.runtime.dependencies.repository.ArtifactDescriptor;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.MavenRepository;
 import com.telenav.fiasco.runtime.tools.repository.Librarian;
@@ -263,7 +263,7 @@ public class BaseBuild extends BaseDependency implements
 
         // create a compiler
         var output = new StringWriter();
-        var compiler = require(FiascoCompiler.class).compiler(targetFolder(), output);
+        var compiler = require(Compiler.class).compiler(targetFolder(), output);
 
         // and if we can compile the source files,
         if (compiler.compile(fiasco))
@@ -272,13 +272,13 @@ public class BaseBuild extends BaseDependency implements
             var classes = compiler.targetFolder().folder("fiasco");
 
             // and try loading each class file ending in Project,
-            var bootstrap = listenTo(new FiascoCompiler());
+            var bootstrap = listenTo(new Compiler());
             for (var classFile : classes.files(file -> file.fileName().endsWith("Project.class")))
             {
                 dependencies().addIfNotNull(bootstrap.loadBuild(classFile));
             }
 
-            ensure(dependencies().size() > 0, "Could not find any '*Project.java' files implementing FiascoProject in: $", fiasco);
+            ensure(dependencies().size() > 0, "Could not find any '*Project.java' files implementing Project in: $", fiasco);
         }
         else
         {

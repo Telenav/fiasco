@@ -16,11 +16,11 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-package com.telenav.fiasco.runtime.tools.file;
+package com.telenav.fiasco.runtime.tools.resource;
 
+import com.telenav.kivakit.core.progress.ProgressReporter;
 import com.telenav.kivakit.filesystem.FileList;
 import com.telenav.kivakit.filesystem.Folder;
-import com.telenav.kivakit.core.language.progress.ProgressReporter;
 import com.telenav.kivakit.resource.CopyMode;
 
 /**
@@ -28,7 +28,8 @@ import com.telenav.kivakit.resource.CopyMode;
  *
  * @author shibo
  */
-public class FileCopier extends BaseFileTool
+@SuppressWarnings("unused")
+public class Copier extends BaseResourceTool
 {
     /** Copying mode */
     private CopyMode copyMode = CopyMode.OVERWRITE;
@@ -36,7 +37,7 @@ public class FileCopier extends BaseFileTool
     /**
      * Copies the given files relative to the "from" folder to the "to" folder
      */
-    public FileCopier copy(Folder from, Folder to, FileList files)
+    public Copier copy(Folder from, Folder to, FileList files)
     {
         // For each source file that matches,
         var progress = progress("Copying", files);
@@ -52,14 +53,14 @@ public class FileCopier extends BaseFileTool
             destination.parent().mkdirs();
 
             // and copy the source file to the destination location
-            source.safeCopyTo(destination, copyMode, ProgressReporter.NULL);
+            source.safeCopyTo(destination, copyMode, ProgressReporter.none());
             progress.next();
         }
         progress.end(files.count() + " files copied");
         return this;
     }
 
-    public FileCopier copyMode(CopyMode mode)
+    public Copier copyMode(CopyMode mode)
     {
         copyMode = mode;
         return this;

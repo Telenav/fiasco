@@ -1,4 +1,4 @@
-package com.telenav.fiasco.runtime.tools.file;
+package com.telenav.fiasco.runtime.tools.resource;
 
 import com.telenav.kivakit.filesystem.FileList;
 
@@ -15,9 +15,10 @@ import com.telenav.kivakit.filesystem.FileList;
  *
  * @author jonathanl (shibo)
  */
-public class FileRemover extends BaseFileTool
+@SuppressWarnings("unused")
+public class Deleter extends BaseResourceTool
 {
-    public FileRemover remove(FileList files)
+    public Deleter delete(FileList files)
     {
         files.forEach(file ->
         {

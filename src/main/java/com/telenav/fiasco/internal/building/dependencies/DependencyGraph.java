@@ -4,15 +4,15 @@ import com.telenav.fiasco.internal.building.planning.BuildPlan;
 import com.telenav.fiasco.internal.building.planning.BuildableGroup;
 import com.telenav.fiasco.runtime.Dependency;
 import com.telenav.fiasco.spi.Buildable;
-import com.telenav.kivakit.core.data.validation.ensure.Ensure;
-import com.telenav.kivakit.core.interfaces.function.BooleanFunction;
-import com.telenav.kivakit.core.language.collections.list.StringList;
-import com.telenav.kivakit.core.language.strings.AsciiArt;
+import com.telenav.kivakit.core.collections.list.StringList;
+import com.telenav.kivakit.core.ensure.Ensure;
+import com.telenav.kivakit.core.string.AsciiArt;
+import com.telenav.kivakit.interfaces.function.BooleanFunction;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.telenav.kivakit.core.data.validation.ensure.Ensure.fail;
+import static com.telenav.kivakit.core.ensure.Ensure.fail;
 
 /**
  * <b>Not public API</b>
@@ -78,6 +78,7 @@ public class DependencyGraph
     /**
      * The state of a traversal in progress, including the recursion level and indent text
      */
+    @SuppressWarnings("unused")
     public static class Traversal
     {
         private int recursionLevel = 0;

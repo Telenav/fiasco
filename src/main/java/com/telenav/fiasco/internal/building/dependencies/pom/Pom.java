@@ -3,14 +3,14 @@ package com.telenav.fiasco.internal.building.dependencies.pom;
 import com.telenav.fiasco.runtime.Dependency;
 import com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.MavenArtifact;
 import com.telenav.kivakit.component.BaseComponent;
-import com.telenav.kivakit.core.language.collections.list.ObjectList;
-import com.telenav.kivakit.core.language.collections.list.StringList;
+import com.telenav.kivakit.core.collections.list.ObjectList;
+import com.telenav.kivakit.core.collections.list.StringList;
 import com.telenav.kivakit.core.language.reflection.property.KivaKitIncludeProperty;
+import com.telenav.kivakit.resource.PropertyMap;
 import com.telenav.kivakit.resource.Resource;
-import com.telenav.kivakit.resource.resources.other.PropertyMap;
 
 import static com.telenav.fiasco.runtime.dependencies.repository.ArtifactDescriptor.MatchType.EXCLUDING_VERSION;
-import static com.telenav.kivakit.core.data.validation.ensure.Ensure.ensure;
+import static com.telenav.kivakit.core.ensure.Ensure.ensure;
 
 /**
  * A model of an <a href="https://maven.apache.org">ApacheMaven</a> pom.xml (Project Object Model) file. {@link Pom}

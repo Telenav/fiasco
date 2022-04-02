@@ -1,0 +1,53 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+!include lexakai.theme
+
+title "Resource Tools"
+
+top to bottom direction
+
+package fiasco.tools
+{
+    interface Tool
+}
+
+package fiasco.tools.resource
+{
+    interface ResourceTool
+    ResourceTool -u-|> Tool
+
+    class Copier
+    class Deleter
+    class Packager
+    class BuildStamper
+
+    Copier        -d-|> ResourceTool
+    Deleter       -d-|> ResourceTool
+    BuildStamper  -r--|> ResourceTool
+    Packager      -l--|> ResourceTool
+}
+
+package fiasco.tools.compiler
+{
+    interface Compiler
+
+    Compiler -u-|> ResourceTool
+}
+
+
+package fiasco.tools.jar
+{
+    interface JarTool
+
+    JarTool -u-|> ResourceTool
+}
+
+package fiasco.tools.repository
+{
+    interface RepositoryTool
+    RepositoryTool -u-|> ResourceTool
+}
+
+@enduml
+

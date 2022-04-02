@@ -14,7 +14,7 @@ import static com.telenav.kivakit.core.ensure.Ensure.fail;
  * <b>Not public API</b>
  *
  * <p>
- * Stores information about {@link FiascoProject}s and their locations in Java preferences
+ * Stores information about {@link Project}s and their locations in Java preferences
  * </p>
  *
  * <p><b>Methods</b></p>
@@ -22,20 +22,20 @@ import static com.telenav.kivakit.core.ensure.Ensure.fail;
  * <ul>
  *     <li>{@link #rememberProject(Folder)} - Remembers the Fiasco project in the given folder</li>
  *     <li>{@link #forgetProject(Matcher)} - Forgets all projects matching the given {@link Folder} matcher</li>
- *     <li>{@link #projects()} - The list of remembered {@link FiascoProject}s</li>
- *     <li>{@link #project(String)} - The remembered {@link FiascoProject} with the given name</li>
- *     <li>{@link #isProjectName(String)} - True if the given name is the name of a remembered {@link FiascoProject}</li>
+ *     <li>{@link #projects()} - The list of remembered {@link Project}s</li>
+ *     <li>{@link #project(String)} - The remembered {@link Project} with the given name</li>
+ *     <li>{@link #isProjectName(String)} - True if the given name is the name of a remembered {@link Project}</li>
  * </ul>
  *
  * @author jonathanl (shibo)
  * @see Preferences
- * @see FiascoProject
+ * @see Project
  * @see Folder
  */
-public class FiascoProjectStore extends BaseComponent
+public class ProjectStore extends BaseComponent
 {
     /** The Fiasco projects in this store */
-    private ObjectList<FiascoProject> projects;
+    private ObjectList<Project> projects;
 
     /**
      * <b>Not public API</b>
@@ -71,7 +71,7 @@ public class FiascoProjectStore extends BaseComponent
      *
      * @return The project of the given name
      */
-    public FiascoProject project(String name)
+    public Project project(String name)
     {
         for (var at : projects())
         {
@@ -88,7 +88,7 @@ public class FiascoProjectStore extends BaseComponent
      *
      * @return The list of project folders that Fiasco knows about
      */
-    public ObjectList<FiascoProject> projects()
+    public ObjectList<Project> projects()
     {
         if (projects == null)
         {
@@ -97,7 +97,7 @@ public class FiascoProjectStore extends BaseComponent
             {
                 for (var path : rememberedProjectFoldersNode().keys())
                 {
-                    projects.add(listenTo(new FiascoProject(Folder.parse(this, path))));
+                    projects.add(listenTo(new Project(Folder.parse(this, path))));
                 }
             }
             catch (BackingStoreException e)

@@ -1,0 +1,37 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+!include lexakai.theme
+
+title "Repository Structure"
+
+top to bottom direction
+
+package fiasco.repository
+{
+    interface Repository
+    interface Artifact
+    interface ArtifactGroup
+
+    class MavenRepository
+
+    MavenRepository -u-|> Repository
+    MavenRepository "1" o-- "*" MavenGroup : "    contains    "
+
+    '=============================================
+    ' Artifacts
+    '=============================================
+
+    class MavenArtifact
+    class MavenGroup
+    class Version
+
+    MavenGroup -u-|> ArtifactGroup
+    MavenArtifact -u---|> Artifact
+    MavenArtifact o-r- Version
+    Library "1" o-- "*" MavenArtifact : "    includes       "
+    Library "1" o-- "*" MavenArtifact : "    excludes       "
+    MavenGroup "1" o-- "*" MavenArtifact : "contains"
+}
+
+@enduml

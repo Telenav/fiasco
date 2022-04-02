@@ -64,7 +64,7 @@ public class MavenArtifact extends BaseDependency implements Artifact, Dependenc
         copyListeners(that);
     }
 
-    protected MavenArtifact(MavenArtifactDescriptor descriptor)
+    public MavenArtifact(MavenArtifactDescriptor descriptor)
     {
         this.descriptor = descriptor;
     }

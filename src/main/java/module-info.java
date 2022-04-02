@@ -21,7 +21,7 @@ open module com.telenav.fiasco
     exports com.telenav.fiasco.runtime.dependencies.repository.maven.artifact.popular.telenav;
     exports com.telenav.fiasco.runtime.metadata;
     exports com.telenav.fiasco.runtime.tools.compiler;
-    exports com.telenav.fiasco.runtime.tools.file;
+    exports com.telenav.fiasco.runtime.tools.resource;
     exports com.telenav.fiasco.runtime.tools.jar;
     exports com.telenav.fiasco.runtime.tools.network;
     exports com.telenav.fiasco.runtime.tools.repository;

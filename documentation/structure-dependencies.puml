@@ -1,0 +1,25 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+!include lexakai.theme
+
+title "Dependency Structure"
+
+top to bottom direction
+
+package fiasco.dependencies
+{
+    interface Dependency
+    class DependencyGraph
+    class Library
+
+    DependencyGraph -d-> Dependency : "    root    "
+    Dependency -u-> DependencyGraph : "    belongs to    "
+    Library -u-|> Dependency
+    Module -u-|> Dependency
+    DependencySet "*" o--> "1" "Dependency" : "    contains    "
+    Dependency -r-> DependencySet : "    depends on    "
+}
+
+@enduml
+

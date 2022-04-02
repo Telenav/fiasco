@@ -16,20 +16,18 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-package com.telenav.fiasco.runtime.tools.file;
-
-import com.telenav.cactus.build.metadata.BuildMetadataUpdater;
+package com.telenav.fiasco.runtime.tools.resource;
 
 /**
  * Updates the build.properties file for a project
  *
  * @author shibo
  */
-public class BuildStamper extends BaseFileTool
+public class BuildStamper extends BaseResourceTool
 {
     public void save()
     {
-        BuildMetadataUpdater.main(new String[] { parentBuild()
+        com.telenav.cactus.build.metadata.BuildStamper.main(new String[] { parentBuild()
                 .projectRootFolder()
                 .absolute()
                 .path().toString() });
