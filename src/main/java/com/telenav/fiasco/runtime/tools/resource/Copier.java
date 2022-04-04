@@ -19,9 +19,9 @@
 package com.telenav.fiasco.runtime.tools.resource;
 
 import com.telenav.kivakit.core.progress.ProgressReporter;
-import com.telenav.kivakit.filesystem.FileList;
-import com.telenav.kivakit.filesystem.Folder;
 import com.telenav.kivakit.resource.CopyMode;
+import com.telenav.kivakit.resource.ResourceFolder;
+import com.telenav.kivakit.resource.ResourceList;
 
 /**
  * Copies selected files from one folder to another.
@@ -37,26 +37,26 @@ public class Copier extends BaseResourceTool
     /**
      * Copies the given files relative to the "from" folder to the "to" folder
      */
-    public Copier copy(Folder from, Folder to, FileList files)
+    public Copier copy(ResourceFolder<?> from, ResourceFolder<?> to, ResourceList resources)
     {
         // For each source file that matches,
-        var progress = progress("Copying", files);
-        for (var source : files)
+        var progress = progress("Copying", resources);
+        for (var resource : resources)
         {
-            // find the path relative to the root,
-            var relative = source.relativeTo(from);
+            // find the resource relative to the root,
+            var relative = resource.relativeTo(from);
 
-            // construct a file with the same path relative to the 'to' folder,
-            var destination = to.file(relative);
+            // construct a resource with the same path relative to the 'to' folder,
+            var destination = to.resource(relative.path()).asWritable();
 
             // create any parent folders that might be required
             destination.parent().mkdirs();
 
             // and copy the source file to the destination location
-            source.safeCopyTo(destination, copyMode, ProgressReporter.none());
+            resource.safeCopyTo(destination, copyMode, ProgressReporter.none());
             progress.next();
         }
-        progress.end(files.count() + " files copied");
+        progress.end(resources.count() + " files copied");
         return this;
     }
 

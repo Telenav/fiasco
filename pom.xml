@@ -45,7 +45,7 @@
 
         <!-- KivaKit -->
 
-        <kivakit.version>1.4.2</kivakit.version>
+        <kivakit.version>1.5.1-SNAPSHOT</kivakit.version>
 
         <!-- Cactus -->
 
