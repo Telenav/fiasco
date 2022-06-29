@@ -1,7 +1,8 @@
 package com.telenav.fiasco.project;
 
-import com.telenav.tdk.core.kernel.scalars.names.Name;
+import com.telenav.kivakit.core.value.name.Name;
 
+@SuppressWarnings("unused")
 public class Contributor extends Name
 {
     private String email;

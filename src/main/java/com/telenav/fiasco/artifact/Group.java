@@ -1,10 +1,11 @@
 package com.telenav.fiasco.artifact;
 
-import com.telenav.tdk.core.kernel.scalars.names.Name;
+import com.telenav.kivakit.core.value.name.Name;
 
 /**
  * @author jonathanl (shibo)
  */
+@SuppressWarnings("unused")
 public class Group extends Name
 {
     public Group(final String name)

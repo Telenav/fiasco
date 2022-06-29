@@ -7,11 +7,11 @@
 
 package com.telenav.fiasco;
 
-import com.telenav.tdk.core.kernel.messaging.*;
+import com.telenav.kivakit.core.messaging.Repeater;
 
 /**
  * Interface for executable tools.
  */
-public interface Tool extends Repeater<Message>, Runnable
+public interface Tool extends Repeater, Runnable
 {
 }

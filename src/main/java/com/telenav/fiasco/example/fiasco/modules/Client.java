@@ -1,7 +1,7 @@
 package com.telenav.fiasco.example.fiasco.modules;
 
 import com.telenav.fiasco.Module;
-import com.telenav.fiasco.*;
+import com.telenav.fiasco.Project;
 import com.telenav.fiasco.example.fiasco.Libraries;
 
 /**
@@ -15,8 +15,8 @@ public class Client extends Module implements Libraries
 
         artifact("com.telenav.fiasco:fiasco-example-client:1.0");
 
-        requires(kryo);
-        requires(wicketCore);
-        requires(commonsLogging);
+        requires(kryo());
+        requires(wicket_core());
+        requires(commons_logging());
     }
 }

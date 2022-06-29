@@ -1,7 +1,7 @@
 package com.telenav.fiasco.plugins;
 
-import com.telenav.tdk.core.filesystem.File;
-import com.telenav.tdk.core.kernel.interfaces.object.Matcher;
+import com.telenav.kivakit.filesystem.File;
+import com.telenav.kivakit.interfaces.comparison.Matcher;
 
 import java.util.regex.Pattern;
 

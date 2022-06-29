@@ -1,6 +1,6 @@
 package com.telenav.fiasco.dependency;
 
-import com.telenav.tdk.core.kernel.interfaces.naming.Named;
+import com.telenav.kivakit.interfaces.naming.Named;
 
 /**
  * A dependency has a list of {@link #dependencies()}, which must be resolved for it to function. A graph of
@@ -10,6 +10,7 @@ import com.telenav.tdk.core.kernel.interfaces.naming.Named;
  *
  * @author shibo
  */
+@SuppressWarnings("unused")
 public interface Dependency<T extends Dependency<T>> extends Named
 {
     /**

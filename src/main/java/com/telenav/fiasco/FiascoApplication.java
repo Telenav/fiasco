@@ -1,23 +1,24 @@
 package com.telenav.fiasco;
 
-import com.telenav.tdk.core.application.TdkApplication;
-import com.telenav.tdk.core.filesystem.Folder;
-import com.telenav.tdk.core.kernel.commandline.SwitchParser;
-import com.telenav.tdk.core.kernel.scalars.counts.Count;
-import com.telenav.tdk.core.resource.path.Extension;
-import com.telenav.tdk.core.resource.project.TdkCoreResource;
+import com.telenav.kivakit.application.Application;
+import com.telenav.kivakit.commandline.SwitchParser;
+import com.telenav.kivakit.commandline.SwitchParsers;
+import com.telenav.kivakit.core.collections.set.ObjectSet;
+import com.telenav.kivakit.core.value.count.Count;
+import com.telenav.kivakit.filesystem.Folder;
+import com.telenav.kivakit.resource.Extension;
 
 import javax.tools.ToolProvider;
 import java.lang.reflect.Constructor;
-import java.net.*;
-import java.util.Set;
+import java.net.URL;
+import java.net.URLClassLoader;
 
-import static com.telenav.tdk.core.kernel.validation.Validate.fail;
+import static com.telenav.kivakit.core.ensure.Ensure.fail;
 
 /**
  * @author jonathanl (shibo)
  */
-public class FiascoApplication extends TdkApplication
+public class FiascoApplication extends Application
 {
     public static void main(final String[] arguments)
     {
@@ -25,12 +26,7 @@ public class FiascoApplication extends TdkApplication
     }
 
     /** Number of threads to use when extracting and converting */
-    final SwitchParser<Count> THREADS = Count.threadCountSwitchParser(Count.of(8));
-
-    protected FiascoApplication()
-    {
-        super(TdkCoreResource.get());
-    }
+    final SwitchParser<Count> THREADS = SwitchParsers.threadCountSwitchParser(this, Count._8);
 
     @Override
     protected void onRun()
@@ -47,9 +43,9 @@ public class FiascoApplication extends TdkApplication
     }
 
     @Override
-    protected Set<SwitchParser<?>> switchParsers()
+    protected ObjectSet<SwitchParser<?>> switchParsers()
     {
-        return Set.of(THREADS);
+        return ObjectSet.objectSet(THREADS);
     }
 
     private boolean compile(final Folder folder)

@@ -8,10 +8,14 @@
 package com.telenav.fiasco;
 
 import com.telenav.fiasco.artifact.Artifact;
-import com.telenav.fiasco.dependency.*;
-import com.telenav.tdk.core.kernel.interfaces.object.*;
-import com.telenav.tdk.core.kernel.scalars.versioning.Version;
+import com.telenav.fiasco.dependency.Dependency;
+import com.telenav.fiasco.dependency.DependencyList;
+import com.telenav.kivakit.core.string.CaseFormat;
+import com.telenav.kivakit.core.version.Version;
+import com.telenav.kivakit.interfaces.comparison.Matcher;
+import com.telenav.kivakit.interfaces.comparison.MatcherSet;
 
+@SuppressWarnings("unused")
 public class Library implements Dependency<Library>
 {
     @SuppressWarnings("ConstantConditions")
@@ -31,6 +35,11 @@ public class Library implements Dependency<Library>
     public Library(final Artifact artifact)
     {
         this.artifact = artifact;
+    }
+
+    protected Library()
+    {
+        artifact = Artifact.parse(getClass().getPackageName() + ":" + CaseFormat.camelCaseToHyphenated(getClass().getSimpleName()));
     }
 
     protected Library(final Library that)
@@ -56,15 +65,15 @@ public class Library implements Dependency<Library>
         return this;
     }
 
-    public Library version(final Version version)
+    @SuppressWarnings("unchecked")
+    public <T extends Library> T version(final Version version)
     {
         artifact = artifact.withVersion(version);
-        return this;
+        return (T) this;
     }
 
-    public Library version(final String version)
+    public <T extends Library> T version(final String version)
     {
-        return version(Version.parse(version));
+        return version(Version.parseVersion(version));
     }
 }
-

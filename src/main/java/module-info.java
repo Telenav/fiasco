@@ -2,8 +2,8 @@ open module com.telenav.fiasco
 {
     requires java.compiler;
 
-    requires transitive tdk.core.resource;
-    requires tdk.core.application;
+    requires kivakit.application;
+    requires kivakit.resource;
 
     exports com.telenav.fiasco;
     exports com.telenav.fiasco.artifact;

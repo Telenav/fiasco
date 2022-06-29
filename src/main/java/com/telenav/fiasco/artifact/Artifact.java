@@ -1,14 +1,15 @@
 package com.telenav.fiasco.artifact;
 
-import com.telenav.tdk.core.kernel.interfaces.naming.Named;
-import com.telenav.tdk.core.kernel.scalars.identifiers.StringIdentifier;
-import com.telenav.tdk.core.kernel.scalars.versioning.Version;
+import com.telenav.kivakit.core.value.identifier.StringIdentifier;
+import com.telenav.kivakit.core.version.Version;
+import com.telenav.kivakit.interfaces.naming.Named;
 
 import java.util.regex.Pattern;
 
 /**
  * @author jonathanl (shibo)
  */
+@SuppressWarnings("unused")
 public class Artifact implements Named
 {
     private static final Pattern pattern = Pattern.compile("(?<group>[A-Za-z.]+)"
@@ -25,7 +26,7 @@ public class Artifact implements Named
         {
             final var group = new Group(matcher.group("group"));
             final var identifier = new Identifier(matcher.group("identifier"));
-            final var version = Version.parse(matcher.group("version"));
+            final var version = Version.parseVersion(matcher.group("version"));
             return new Artifact(group, identifier, version);
         }
         return null;

@@ -2,9 +2,10 @@ package com.telenav.fiasco.plugins.compiler;
 
 import com.telenav.fiasco.Module;
 import com.telenav.fiasco.plugins.Plugin;
-import com.telenav.tdk.core.filesystem.FileList;
-import com.telenav.tdk.core.kernel.scalars.versioning.Version;
+import com.telenav.kivakit.core.version.Version;
+import com.telenav.kivakit.filesystem.FileList;
 
+@SuppressWarnings({ "FieldCanBeLocal", "unused" })
 public class Compiler extends Plugin
 {
     private Version sourceVersion;

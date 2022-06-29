@@ -1,17 +1,16 @@
 package com.telenav.fiasco.dependency;
 
-import com.telenav.tdk.core.kernel.validation.Validate;
-
 import java.util.Collections;
 
-import static com.telenav.tdk.core.kernel.validation.Validate.fail;
+import static com.telenav.kivakit.core.ensure.Ensure.fail;
 
 /**
  * Graph of dependencies created by traversing dependencies from a root. If the dependency graph is cyclic, terminal
- * failure will be reported via {@link Validate#fail()}.
+ * failure will be reported via validation.
  *
  * @author shibo
  */
+@SuppressWarnings("unused")
 public class DependencyGraph<T extends Dependency<T>>
 {
     /**
@@ -19,7 +18,7 @@ public class DependencyGraph<T extends Dependency<T>>
      */
     public static <T extends Dependency<T>> DependencyGraph<T> of(final T root)
     {
-        return new DependencyGraph<T>(root);
+        return new DependencyGraph<>(root);
     }
 
     /** The root of this dependency graph */

@@ -1,11 +1,13 @@
 package com.telenav.fiasco.project;
 
-import com.telenav.tdk.core.kernel.scalars.names.Name;
+import com.telenav.kivakit.core.value.name.Name;
 
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 
-import static com.telenav.tdk.core.kernel.validation.Validate.fail;
+import static com.telenav.kivakit.core.ensure.Ensure.fail;
 
+@SuppressWarnings("unused")
 public class Organization extends Name
 {
     private URL url;

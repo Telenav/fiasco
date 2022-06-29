@@ -14,16 +14,20 @@
 
 package com.telenav.fiasco;
 
-import com.telenav.fiasco.project.*;
-import com.telenav.tdk.core.filesystem.Folder;
-import com.telenav.tdk.core.kernel.interfaces.code.Callback;
-import com.telenav.tdk.core.kernel.messaging.messages.MessageList;
-import com.telenav.tdk.core.kernel.messaging.messages.status.*;
-import com.telenav.tdk.core.kernel.scalars.counts.Count;
+import com.telenav.fiasco.project.Contributor;
+import com.telenav.fiasco.project.Organization;
+import com.telenav.fiasco.project.ProjectMetadata;
+import com.telenav.kivakit.core.messaging.listeners.MessageList;
+import com.telenav.kivakit.core.messaging.messages.status.Problem;
+import com.telenav.kivakit.core.messaging.messages.status.Quibble;
+import com.telenav.kivakit.core.messaging.messages.status.Warning;
+import com.telenav.kivakit.core.value.count.Count;
+import com.telenav.kivakit.filesystem.Folder;
+import com.telenav.kivakit.interfaces.code.Callback;
 
-import static com.telenav.tdk.core.kernel.validation.Validate.ensure;
+import static com.telenav.kivakit.core.ensure.Ensure.ensure;
 
-public abstract class Project extends Module
+@SuppressWarnings({ "SameParameterValue", "UnusedReturnValue", "unused" }) public abstract class Project extends Module
 {
     private ProjectMetadata metadata = new ProjectMetadata();
 
@@ -38,11 +42,12 @@ public abstract class Project extends Module
      *
      * @return True if the build succeeded without any problems
      */
+    @SuppressWarnings("unchecked")
     public boolean build(final Count threads)
     {
-        final var issues = new MessageList<>(message -> !message.status().succeeded());
+        final var issues = new MessageList(message -> !message.status().succeeded());
         dependencies().process(this, threads, module -> module.builder().run());
-        final var statistics = issues.statisticsByType(Problem.class, Warning.class, Quibble.class);
+        final var statistics = issues.statistics(Problem.class, Warning.class, Quibble.class);
         information(statistics.titledBox("Build Results"));
         return issues.count(Problem.class).isZero();
     }
@@ -61,7 +66,7 @@ public abstract class Project extends Module
 
     public Project module(final String path, final Callback<Module> configure)
     {
-        final var folder = new Folder(path);
+        final var folder = Folder.parseFolder(path);
         ensure(folder.path().isRelative());
         final var module = new Module(this, folder);
         configure.callback(module);

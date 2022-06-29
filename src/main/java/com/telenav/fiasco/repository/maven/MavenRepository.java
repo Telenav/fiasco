@@ -1,6 +1,7 @@
 package com.telenav.fiasco.repository.maven;
 
-import com.telenav.fiasco.*;
+import com.telenav.fiasco.Library;
+import com.telenav.fiasco.Repository;
 
 import java.util.List;
 
@@ -16,6 +17,7 @@ public class MavenRepository implements Repository
         return new MavenRepository("Maven Central", "file://~/.m2/repository");
     }
 
+    @SuppressWarnings("unused")
     public MavenRepository(final String name, final String url)
     {
     }
