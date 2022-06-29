@@ -6,9 +6,9 @@ open module com.telenav.fiasco
     requires kivakit.resource;
 
     exports com.telenav.fiasco;
-    exports com.telenav.fiasco.artifact;
+    exports com.telenav.fiasco.repository.artifact;
     exports com.telenav.fiasco.dependency;
-    exports com.telenav.fiasco.project;
+    exports com.telenav.fiasco.metadata;
     exports com.telenav.fiasco.repository;
     exports com.telenav.fiasco.plugins;
     exports com.telenav.fiasco.plugins.archiver;

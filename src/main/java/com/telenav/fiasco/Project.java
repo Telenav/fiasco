@@ -14,9 +14,8 @@
 
 package com.telenav.fiasco;
 
-import com.telenav.fiasco.project.Contributor;
-import com.telenav.fiasco.project.Organization;
-import com.telenav.fiasco.project.ProjectMetadata;
+import com.telenav.fiasco.metadata.Contributor;
+import com.telenav.fiasco.metadata.Organization;
 import com.telenav.kivakit.core.messaging.listeners.MessageList;
 import com.telenav.kivakit.core.messaging.messages.status.Problem;
 import com.telenav.kivakit.core.messaging.messages.status.Quibble;
@@ -27,7 +26,8 @@ import com.telenav.kivakit.interfaces.code.Callback;
 
 import static com.telenav.kivakit.core.ensure.Ensure.ensure;
 
-@SuppressWarnings({ "SameParameterValue", "UnusedReturnValue", "unused" }) public abstract class Project extends Module
+@SuppressWarnings({ "SameParameterValue", "UnusedReturnValue", "unused" })
+public abstract class Project extends Module
 {
     private ProjectMetadata metadata = new ProjectMetadata();
 

@@ -7,9 +7,8 @@
 
 package com.telenav.fiasco;
 
-import com.telenav.fiasco.artifact.Artifact;
-import com.telenav.fiasco.dependency.Dependency;
 import com.telenav.fiasco.dependency.DependencyList;
+import com.telenav.fiasco.repository.artifact.Artifact;
 import com.telenav.kivakit.core.language.Arrays;
 import com.telenav.kivakit.core.string.CaseFormat;
 import com.telenav.kivakit.core.version.Version;

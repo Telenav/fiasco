@@ -1,5 +1,8 @@
-package com.telenav.fiasco.project;
+package com.telenav.fiasco;
 
+import com.telenav.fiasco.metadata.Contributor;
+import com.telenav.fiasco.metadata.Copyright;
+import com.telenav.fiasco.metadata.Organization;
 import com.telenav.kivakit.interfaces.naming.Named;
 
 import java.util.ArrayList;

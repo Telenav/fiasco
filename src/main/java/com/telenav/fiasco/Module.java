@@ -1,7 +1,5 @@
 package com.telenav.fiasco;
 
-import com.telenav.fiasco.artifact.Artifact;
-import com.telenav.fiasco.dependency.Dependency;
 import com.telenav.fiasco.dependency.DependencyList;
 import com.telenav.fiasco.plugins.FilePattern;
 import com.telenav.fiasco.plugins.archiver.Archiver;
@@ -11,6 +9,7 @@ import com.telenav.fiasco.plugins.copier.Copier;
 import com.telenav.fiasco.plugins.librarian.Librarian;
 import com.telenav.fiasco.plugins.shader.Shader;
 import com.telenav.fiasco.plugins.tester.Tester;
+import com.telenav.fiasco.repository.artifact.Artifact;
 import com.telenav.kivakit.core.messaging.repeaters.BaseRepeater;
 import com.telenav.kivakit.core.object.Lazy;
 import com.telenav.kivakit.core.os.OperatingSystem;

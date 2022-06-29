@@ -1,4 +1,4 @@
-package com.telenav.fiasco.project;
+package com.telenav.fiasco.metadata;
 
 public class Copyright
 {

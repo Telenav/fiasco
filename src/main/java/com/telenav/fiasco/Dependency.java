@@ -1,5 +1,7 @@
-package com.telenav.fiasco.dependency;
+package com.telenav.fiasco;
 
+import com.telenav.fiasco.dependency.DependencyGraph;
+import com.telenav.fiasco.dependency.DependencyList;
 import com.telenav.kivakit.interfaces.naming.Named;
 
 /**

@@ -1,4 +1,4 @@
-package com.telenav.fiasco.project;
+package com.telenav.fiasco.metadata;
 
 import com.telenav.kivakit.core.value.name.Name;
 

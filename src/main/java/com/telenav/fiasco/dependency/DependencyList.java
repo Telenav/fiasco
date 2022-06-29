@@ -1,5 +1,6 @@
 package com.telenav.fiasco.dependency;
 
+import com.telenav.fiasco.Dependency;
 import com.telenav.kivakit.core.collections.list.ObjectList;
 import com.telenav.kivakit.core.collections.set.ConcurrentHashSet;
 import com.telenav.kivakit.core.messaging.Listener;

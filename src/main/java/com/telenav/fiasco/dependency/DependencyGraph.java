@@ -1,5 +1,7 @@
 package com.telenav.fiasco.dependency;
 
+import com.telenav.fiasco.Dependency;
+
 import java.util.Collections;
 
 import static com.telenav.kivakit.core.ensure.Ensure.fail;

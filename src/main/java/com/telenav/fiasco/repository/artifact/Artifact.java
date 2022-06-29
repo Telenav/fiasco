@@ -1,4 +1,4 @@
-package com.telenav.fiasco.artifact;
+package com.telenav.fiasco.repository.artifact;
 
 import com.telenav.kivakit.core.value.identifier.StringIdentifier;
 import com.telenav.kivakit.core.version.Version;
