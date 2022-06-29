@@ -7,7 +7,7 @@ import com.telenav.fiasco.project.Contributor;
 import com.telenav.fiasco.project.Organization;
 import com.telenav.kivakit.filesystem.Folder;
 
-import static com.telenav.fiasco.repository.maven.MavenRepository.mavenCentral;
+import static com.telenav.fiasco.repository.RemoteMavenRepository.mavenCentral;
 
 /**
  * @author jonathanl (shibo)

@@ -12,7 +12,7 @@ import com.telenav.fiasco.Module;
 import com.telenav.fiasco.Repository;
 import com.telenav.fiasco.plugins.Plugin;
 import com.telenav.fiasco.repository.LibraryResolver;
-import com.telenav.fiasco.repository.maven.MavenRepository;
+import com.telenav.fiasco.repository.RemoteMavenRepository;
 import com.telenav.kivakit.interfaces.comparison.MatcherSet;
 
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ public class Librarian extends Plugin implements LibraryResolver
 
     public Librarian install(final Library library)
     {
-        MavenRepository.local().install(library);
+        RemoteMavenRepository.local().install(library);
         return this;
     }
 
@@ -66,7 +66,7 @@ public class Librarian extends Plugin implements LibraryResolver
     {
         for (final var repository : repositories)
         {
-            final var libraries = repository.resolve(library);
+            final var libraries = repository.dependencies(library);
             if (libraries != null)
             {
                 return libraries;
